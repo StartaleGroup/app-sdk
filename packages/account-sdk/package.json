@@ -1,10 +1,11 @@
 {
-  "name": "@base-org/account",
+  "name": "@startale/superapp-sdk",
   "version": "2.0.2",
-  "description": "Base Account SDK",
+  "description": "Superapp SDK",
   "keywords": [
-    "base",
-    "account",
+    "startale",
+    "superapp",
+    "sdk",
     "sdk",
     "web3"
   ],
