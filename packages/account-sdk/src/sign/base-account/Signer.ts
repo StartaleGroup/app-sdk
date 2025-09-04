@@ -642,12 +642,14 @@ export class Signer {
   }
 
   private shouldRequestUseSubAccountSigner(request: RequestArguments) {
-    const sender = getSenderFromRequest(request);
-    const subAccount = store.subAccounts.get();
-    if (sender) {
-      return sender.toLowerCase() === subAccount?.address.toLowerCase();
-    }
-    return false;
+    return false
+
+    // const sender = getSenderFromRequest(request);
+    // const subAccount = store.subAccounts.get();
+    // if (sender) {
+    //   return sender.toLowerCase() === subAccount?.address.toLowerCase();
+    // }
+    // return false;
   }
 
   private async sendRequestToSubAccountSigner(request: RequestArguments) {
