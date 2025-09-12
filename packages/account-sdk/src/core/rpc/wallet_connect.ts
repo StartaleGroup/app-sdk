@@ -66,4 +66,10 @@ export type WalletConnectResponse = {
       signInWithEthereum?: SignInWithEthereumCapabilityResponse | SerializedEthereumRpcError;
     };
   }[];
+  userInfo?: {
+    email?: string;
+    name?: string;
+    authType: string;
+    userId: string;
+  };
 };

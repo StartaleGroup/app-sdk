@@ -363,6 +363,11 @@ export class Signer {
           accounts,
         });
 
+        const userInfo = response.userInfo;
+        store.userInfo.set({
+          ...userInfo
+        });
+        
         const account = response.accounts.at(0);
         const capabilities = account?.capabilities;
 
@@ -641,7 +646,7 @@ export class Signer {
     return response;
   }
 
-  private shouldRequestUseSubAccountSigner(request: RequestArguments) {
+  private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
     return false
 
     // const sender = getSenderFromRequest(request);

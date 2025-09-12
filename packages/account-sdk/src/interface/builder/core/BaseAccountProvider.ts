@@ -85,7 +85,9 @@ export class BaseAccountProvider extends ProviderEventEmitter implements Provide
                   capabilities: {
                     ...(store.subAccountsConfig.get()?.capabilities ?? {}),
                   },
+                  ...args.params
                 },
+
               ],
             });
 
