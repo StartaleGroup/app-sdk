@@ -231,6 +231,8 @@ export class Signer {
         return numberToHex(this.chain.id);
       case 'wallet_getCapabilities':
         return this.handleGetCapabilitiesRequest(request);
+      case 'wallet_getUserInfo':
+        return this.handleGetUserInfoRequest(request);
       case 'wallet_switchEthereumChain':
         return this.handleSwitchChainRequest(request);
       case 'eth_ecRecover':
@@ -495,6 +497,15 @@ export class Signer {
     );
 
     return filteredCapabilities;
+  }
+
+  private async handleGetUserInfoRequest(_request: RequestArguments) {
+    const userInfo = store.getState().userInfo;
+    if (!userInfo) {
+      throw standardErrors.provider.unauthorized('No user info found');
+    }
+    
+    return userInfo;
   }
 
   private async sendEncryptedRequest(request: RequestArguments): Promise<RPCResponseMessage> {

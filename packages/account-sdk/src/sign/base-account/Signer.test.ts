@@ -377,6 +377,7 @@ describe('Signer', () => {
           version: '1.0.0',
         },
         subAccountConfig: undefined,
+        userInfo: {},
       }));
     });
 
@@ -1572,6 +1573,7 @@ describe('Signer', () => {
           preference: { walletUrl: CB_KEYS_URL, options: 'all' },
           version: '1.0.0',
         },
+        userInfo: {},
       }));
 
       signer['accounts'] = [globalAccountAddress];
@@ -1761,6 +1763,332 @@ describe('Signer', () => {
     });
   });
 
+  describe('wallet_getUserInfo', () => {
+    let stateSpy: MockInstance;
+
+    beforeEach(() => {
+      stateSpy = vi.spyOn(store, 'getState').mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: {
+          userId: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+          authType: 'oauth',
+        },
+      }));
+
+      signer['accounts'] = [globalAccountAddress];
+    });
+
+    afterEach(() => {
+      stateSpy.mockRestore();
+    });
+
+    it('should return user info when available', async () => {
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      const result = await signer.request(request);
+
+      expect(result).toEqual({
+        userId: 'user123',
+        email: 'test@example.com',
+        name: 'Test User',
+        authType: 'oauth',
+      });
+    });
+
+    it('should return partial user info when some fields are missing', async () => {
+      stateSpy.mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: {
+          userId: 'user123',
+          authType: 'oauth',
+          // email and name are missing
+        },
+      }));
+
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      const result = await signer.request(request);
+
+      expect(result).toEqual({
+        userId: 'user123',
+        authType: 'oauth',
+      });
+    });
+
+    it('should throw unauthorized error when no user info is found', async () => {
+      stateSpy.mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: undefined,
+      }));
+
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      await expect(signer.request(request)).rejects.toThrow(
+        standardErrors.provider.unauthorized('No user info found')
+      );
+    });
+
+    it('should throw unauthorized error when user info is null', async () => {
+      stateSpy.mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: null,
+      }));
+
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      await expect(signer.request(request)).rejects.toThrow(
+        standardErrors.provider.unauthorized('No user info found')
+      );
+    });
+
+    it('should throw unauthorized error when user info is empty object', async () => {
+      stateSpy.mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: {},
+      }));
+
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      // Note: An empty object {} is truthy in JavaScript, so it will be returned
+      const result = await signer.request(request);
+      expect(result).toEqual({});
+    });
+
+    it('should return user info with only userId when other fields are empty strings', async () => {
+      stateSpy.mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: {
+          userId: 'user123',
+          email: '',
+          name: '',
+          authType: 'oauth',
+        },
+      }));
+
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      const result = await signer.request(request);
+
+      expect(result).toEqual({
+        userId: 'user123',
+        email: '',
+        name: '',
+        authType: 'oauth',
+      });
+    });
+
+    it('should work with different auth types', async () => {
+      const authTypes = ['oauth', 'web3auth', 'passkey', 'email'];
+
+      for (const authType of authTypes) {
+        stateSpy.mockImplementation(() => ({
+          account: {
+            accounts: [globalAccountAddress],
+          },
+          chains: [],
+          keys: {},
+          spendPermissions: [],
+          config: {
+            metadata: mockMetadata,
+            preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+            version: '1.0.0',
+          },
+          userInfo: {
+            userId: `user-${authType}`,
+            email: `${authType}@example.com`,
+            name: `${authType} User`,
+            authType,
+          },
+        }));
+
+        const request = {
+          method: 'wallet_getUserInfo',
+          params: [],
+        };
+
+        const result = await signer.request(request);
+
+        expect(result).toEqual({
+          userId: `user-${authType}`,
+          email: `${authType}@example.com`,
+          name: `${authType} User`,
+          authType,
+        });
+      }
+    });
+
+    it('should not make any network requests', async () => {
+      const request = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      await signer.request(request);
+
+      // Verify no encrypted requests were sent
+      expect(mockCommunicator.postRequestAndWaitForResponse).not.toHaveBeenCalled();
+      expect(fetchRPCRequest).not.toHaveBeenCalled();
+    });
+
+    it('should handle user info set from wallet_connect response', async () => {
+      // Remove the stateSpy to allow real store updates
+      stateSpy.mockRestore();
+      
+      // First, clean up and simulate wallet_connect setting user info
+      await signer.cleanup();
+      
+      (decryptContent as Mock).mockResolvedValueOnce({
+        result: {
+          value: null,
+        },
+      });
+
+      await signer.handshake({ method: 'handshake' });
+
+      // Mock wallet_connect response with userInfo
+      (decryptContent as Mock).mockResolvedValueOnce({
+        result: {
+          value: {
+            accounts: [
+              {
+                address: globalAccountAddress,
+                capabilities: {},
+              },
+            ],
+            userInfo: {
+              userId: 'connected-user-123',
+              email: 'connected@example.com',
+              name: 'Connected User',
+              authType: 'oauth',
+            },
+          },
+        },
+      });
+
+      // Simulate wallet_connect
+      await signer.request({
+        method: 'wallet_connect',
+        params: [],
+      });
+
+      // Now test wallet_getUserInfo
+      const userInfoRequest = {
+        method: 'wallet_getUserInfo',
+        params: [],
+      };
+
+      const result = await signer.request(userInfoRequest);
+
+      expect(result).toEqual({
+        userId: 'connected-user-123',
+        email: 'connected@example.com',
+        name: 'Connected User',
+        authType: 'oauth',
+      });
+
+      // Restore the mock for other tests
+      stateSpy = vi.spyOn(store, 'getState').mockImplementation(() => ({
+        account: {
+          accounts: [globalAccountAddress],
+        },
+        chains: [],
+        keys: {},
+        spendPermissions: [],
+        config: {
+          metadata: mockMetadata,
+          preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+          version: '1.0.0',
+        },
+        userInfo: {
+          userId: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+          authType: 'oauth',
+        },
+      }));
+    });
+  });
+
   describe('coinbase_fetchPermissions', () => {
     const mockSpendPermissions = [
       createMockSpendPermission({
@@ -1787,6 +2115,7 @@ describe('Signer', () => {
           preference: { walletUrl: CB_KEYS_URL, options: 'all' },
           version: '1.0.0',
         },
+        userInfo: {},
       }));
 
       (fetchRPCRequest as Mock).mockResolvedValue({

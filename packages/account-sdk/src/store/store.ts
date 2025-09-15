@@ -49,7 +49,10 @@ type ChainSlice = {
 };
 
 type UserInfo = {
-  email?: string;
+  userId?: string
+	email?: string
+	name?: string
+	authType?: string
 };
 
 const createChainSlice: StateCreator<StoreState, [], [], ChainSlice> = () => {
