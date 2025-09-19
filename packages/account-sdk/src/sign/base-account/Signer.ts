@@ -658,7 +658,10 @@ export class Signer {
   }
 
   private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
+    // Always false since in our case sub accounts are smart accounts.
     return false
+
+    // Commented out in case we implement ERC-7895 in the future.
 
     // const sender = getSenderFromRequest(request);
     // const subAccount = store.subAccounts.get();
