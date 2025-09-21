@@ -182,7 +182,8 @@ export class Signer {
           return this.sendRequestToPopup(modifiedRequest);
         }
         case 'wallet_sendCalls':
-        case 'wallet_sign': {
+        case 'wallet_sign':
+        case 'subaccount_user_op': {
           return this.sendRequestToPopup(request);
         }
         default:
@@ -248,6 +249,7 @@ export class Signer {
       case 'wallet_sendCalls':
       case 'wallet_showCallsStatus':
       case 'wallet_grantPermissions':
+      case 'subaccount_user_op':
         return this.sendRequestToPopup(request);
       case 'wallet_connect': {
         // Return cached wallet connect response if available, unless signInWithEthereum capability is present
@@ -641,7 +643,7 @@ export class Signer {
     return response;
   }
 
-  private shouldRequestUseSubAccountSigner(request: RequestArguments) {
+  private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
     return false
 
     // const sender = getSenderFromRequest(request);

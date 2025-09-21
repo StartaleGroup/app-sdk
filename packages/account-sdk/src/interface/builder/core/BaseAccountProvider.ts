@@ -100,7 +100,8 @@ export class BaseAccountProvider extends ProviderEventEmitter implements Provide
             return result as T;
           }
           case 'wallet_sendCalls':
-          case 'wallet_sign': {
+          case 'wallet_sign':
+          case 'subaccount_user_op': {
             try {
               await this.signer.handshake({ method: 'handshake' }); // exchange session keys
               const result = await this.signer.request(args); // send diffie-hellman encrypted request
