@@ -1,4 +1,4 @@
-import { Box, Button, Code, Container, Grid, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Container, Grid, Heading, Text, VStack } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { encodeFunctionData } from 'viem';
 
@@ -130,11 +130,7 @@ export default function Home() {
       } else if (response && typeof response === 'object') {
         if ('userOpHash' in response && typeof response.userOpHash === 'string') {
           extractedHash = response.userOpHash;
-        } else if (
-          'result' in response &&
-          response.result &&
-          typeof response.result === 'object'
-        ) {
+        } else if ('result' in response && response.result && typeof response.result === 'object') {
           const value = (response.result as Record<string, unknown>).value;
           if (value && typeof value === 'object' && 'userOpHash' in value) {
             const userOpHashValue = (value as Record<string, unknown>).userOpHash;
@@ -185,13 +181,15 @@ export default function Home() {
             Send Superapp Custom Action
           </Button>
           {userOpHash && (
-            <Text>
-              User operation hash: <Code>{userOpHash}</Code>
-            </Text>
+            <a
+              href={`https://soneium-minato.blockscout.com/tx/${userOpHash}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {userOpHash}
+            </a>
           )}
-          {superappError && (
-            <Text color="red.400">{superappError}</Text>
-          )}
+          {superappError && <Text color="red.400">{superappError}</Text>}
         </VStack>
       </Box>
       <MethodsSection
