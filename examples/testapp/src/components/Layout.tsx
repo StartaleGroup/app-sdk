@@ -35,6 +35,7 @@ const PAGES = [
   '/auto-sub-account',
   '/payment',
   '/pay-playground',
+  '/userops',
 ];
 
 export function Layout({ children }: LayoutProps) {
