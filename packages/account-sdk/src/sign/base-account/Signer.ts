@@ -231,6 +231,8 @@ export class Signer {
         return numberToHex(this.chain.id);
       case 'wallet_getCapabilities':
         return this.handleGetCapabilitiesRequest(request);
+      case 'wallet_getUserInfo':
+        return this.handleGetUserInfoRequest(request);
       case 'wallet_switchEthereumChain':
         return this.handleSwitchChainRequest(request);
       case 'eth_ecRecover':
@@ -363,6 +365,9 @@ export class Signer {
           accounts,
         });
 
+        const userInfo = response.userInfo;
+        store.userInfo.set(userInfo);
+        
         const account = response.accounts.at(0);
         const capabilities = account?.capabilities;
 
@@ -490,6 +495,15 @@ export class Signer {
     );
 
     return filteredCapabilities;
+  }
+
+  private async handleGetUserInfoRequest(_request: RequestArguments) {
+    const userInfo = store.getState().userInfo;
+    if (!userInfo) {
+      throw standardErrors.provider.unauthorized('No user info found');
+    }
+    
+    return userInfo;
   }
 
   private async sendEncryptedRequest(request: RequestArguments): Promise<RPCResponseMessage> {
@@ -641,13 +655,18 @@ export class Signer {
     return response;
   }
 
-  private shouldRequestUseSubAccountSigner(request: RequestArguments) {
-    const sender = getSenderFromRequest(request);
-    const subAccount = store.subAccounts.get();
-    if (sender) {
-      return sender.toLowerCase() === subAccount?.address.toLowerCase();
-    }
-    return false;
+  private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
+    // Always false since in our case sub accounts are smart accounts.
+    return false
+
+    // Commented out in case we implement ERC-7895 in the future.
+
+    // const sender = getSenderFromRequest(request);
+    // const subAccount = store.subAccounts.get();
+    // if (sender) {
+    //   return sender.toLowerCase() === subAccount?.address.toLowerCase();
+    // }
+    // return false;
   }
 
   private async sendRequestToSubAccountSigner(request: RequestArguments) {

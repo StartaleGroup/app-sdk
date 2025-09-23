@@ -48,6 +48,13 @@ type ChainSlice = {
   chains: Chain[];
 };
 
+type UserInfo = {
+  userId?: string
+	email?: string
+	name?: string
+	authType?: string
+};
+
 const createChainSlice: StateCreator<StoreState, [], [], ChainSlice> = () => {
   return {
     chains: [],
@@ -116,6 +123,16 @@ const createConfigSlice: StateCreator<StoreState, [], [], ConfigSlice> = () => {
   };
 };
 
+type UserInfoSlice = {
+  userInfo: UserInfo;
+};
+
+const createUserInfoSlice: StateCreator<StoreState, [], [], UserInfoSlice> = () => {
+  return {
+    userInfo: {},
+  };
+};
+
 type MergeTypes<T extends unknown[]> = T extends [infer First, ...infer Rest]
   ? First & (Rest extends unknown[] ? MergeTypes<Rest> : Record<string, unknown>)
   : Record<string, unknown>;
@@ -129,6 +146,7 @@ export type StoreState = MergeTypes<
     SubAccountConfigSlice,
     SpendPermissionsSlice,
     ConfigSlice,
+    UserInfoSlice,
   ]
 >;
 
@@ -142,6 +160,7 @@ export const sdkstore = createStore(
       ...createSpendPermissionsSlice(...args),
       ...createConfigSlice(...args),
       ...createSubAccountConfigSlice(...args),
+      ...createUserInfoSlice(...args),
     }),
     {
       name: 'base-acc-sdk.store',
@@ -156,6 +175,7 @@ export const sdkstore = createStore(
           subAccount: state.subAccount,
           spendPermissions: state.spendPermissions,
           config: state.config,
+          userInfo: state.userInfo,
         } as StoreState;
       },
     }
@@ -251,6 +271,20 @@ export const config = {
   },
 };
 
+export const userInfo = {
+  get: () => sdkstore.getState().userInfo,
+  set: (userInfo: Partial<UserInfo> | undefined) => {
+    sdkstore.setState((_state) => ({
+      userInfo
+    }));
+  },
+  clear: () => {
+    sdkstore.setState({
+      userInfo: {},
+    });
+  },
+};
+
 const actions = {
   subAccounts,
   subAccountsConfig,
@@ -259,6 +293,7 @@ const actions = {
   chains,
   keys,
   config,
+  userInfo,
 };
 
 export const store = {
