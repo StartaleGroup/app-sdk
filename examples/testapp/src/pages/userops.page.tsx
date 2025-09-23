@@ -1,4 +1,15 @@
-import { Box, Button, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import {
+  Box,
+  Button,
+  Code,
+  Container,
+  HStack,
+  Heading,
+  Link,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { encodeFunctionData } from 'viem';
 
@@ -149,37 +160,105 @@ export default function UserOps() {
         />
       </Box>
       <Box mt={2}>
-        <VStack align="flex-start" spacing={2}>
-          <Button
-            colorScheme="telegram"
-            onClick={handleSuperappAction}
-            isLoading={superappLoading}
-            isDisabled={!connected}
-          >
-            Send user op
-          </Button>
+        <VStack align="flex-start" spacing={4} width="100%">
           <Box
-            as="pre"
-            bg="gray.800"
-            color="gray.100"
+            width="100%"
+            borderWidth="1px"
+            borderColor="cyan.500"
+            bg="cyan.900"
+            color="cyan.50"
             p={4}
             borderRadius="md"
-            fontSize="sm"
-            whiteSpace="pre-wrap"
-            width="100%"
           >
-            {ENCODE_FUNCTION_DATA_SNIPPET}
+            <Text fontSize="sm" fontWeight="semibold" textTransform="uppercase">
+              Send User Operation
+            </Text>
+            <Button
+              leftIcon={<ArrowForwardIcon />}
+              mt={3}
+              size="lg"
+              fontWeight="bold"
+              px={6}
+              bgGradient="linear(to-r, cyan.400, cyan.600)"
+              color="white"
+              _hover={{
+                bgGradient: 'linear(to-r, cyan.500, cyan.700)',
+                transform: 'translateY(-1px)',
+              }}
+              _active={{ transform: 'translateY(0)' }}
+              shadow="md"
+              borderRadius="full"
+              onClick={handleSuperappAction}
+              isLoading={superappLoading}
+              isDisabled={!connected}
+            >
+              Send user op
+            </Button>
+          </Box>
+          <Box
+            width="100%"
+            borderWidth="1px"
+            borderColor="purple.500"
+            bg="purple.900"
+            color="purple.50"
+            p={4}
+            borderRadius="md"
+          >
+            <Text fontSize="sm" fontWeight="semibold" textTransform="uppercase">
+              encodeFunctionData Call
+            </Text>
+            <Box
+              as="pre"
+              bg="blackAlpha.700"
+              color="purple.50"
+              p={4}
+              borderRadius="md"
+              fontSize="sm"
+              whiteSpace="pre-wrap"
+              width="100%"
+              mt={2}
+            >
+              {ENCODE_FUNCTION_DATA_SNIPPET}
+            </Box>
           </Box>
           {userOpHash && (
-            <Box>
-              Userop:
-              <a
-                href={`https://soneium-minato.blockscout.com/tx/${userOpHash}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {userOpHash}
-              </a>
+            <Box
+              width="100%"
+              borderWidth="1px"
+              borderColor="green.500"
+              bg="green.900"
+              color="green.100"
+              p={4}
+              borderRadius="md"
+            >
+              <Text fontSize="sm" fontWeight="semibold" textTransform="uppercase">
+                User Operation Hash
+              </Text>
+              <HStack mt={2} spacing={3} align="flex-start">
+                <Code
+                  colorScheme="green"
+                  borderRadius="md"
+                  fontSize="sm"
+                  wordBreak="break-all"
+                  whiteSpace="pre-wrap"
+                  px={2}
+                  py={1}
+                >
+                  {userOpHash}
+                </Code>
+                <Link
+                  href={`https://soneium-minato.blockscout.com/tx/${userOpHash}`}
+                  isExternal
+                  color="green.200"
+                  fontWeight="semibold"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
+                >
+                  View on Blockscout
+                  <ExternalLinkIcon />
+                </Link>
+              </HStack>
             </Box>
           )}
           {superappError && <Text color="red.400">{superappError}</Text>}
