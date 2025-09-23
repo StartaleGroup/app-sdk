@@ -366,9 +366,7 @@ export class Signer {
         });
 
         const userInfo = response.userInfo;
-        store.userInfo.set({
-          ...userInfo
-        });
+        store.userInfo.set(userInfo);
         
         const account = response.accounts.at(0);
         const capabilities = account?.capabilities;

@@ -273,9 +273,9 @@ export const config = {
 
 export const userInfo = {
   get: () => sdkstore.getState().userInfo,
-  set: (userInfo: Partial<UserInfo>) => {
-    sdkstore.setState((state) => ({
-      userInfo: { ...state.userInfo, ...userInfo },
+  set: (userInfo: Partial<UserInfo> | undefined) => {
+    sdkstore.setState((_state) => ({
+      userInfo
     }));
   },
   clear: () => {
