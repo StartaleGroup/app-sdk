@@ -1,0 +1,190 @@
+import { Box, Button, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
+import { encodeFunctionData } from 'viem';
+
+import { WIDTH_2XL } from '../components/Layout';
+import { MethodsSection } from '../components/MethodsSection/MethodsSection';
+import { connectionMethods } from '../components/RpcMethods/method/connectionMethods';
+import { connectionMethodShortcutsMap } from '../components/RpcMethods/shortcut/connectionMethodShortcuts';
+import { useEIP1193Provider } from '../context/EIP1193ProviderContextProvider';
+
+const ENCODE_FUNCTION_DATA_SNIPPET = `const data = encodeFunctionData({
+  abi: [
+    {
+      name: 'count',
+      type: 'function',
+      stateMutability: 'nonpayable',
+      inputs: [],
+      outputs: [],
+    },
+  ],
+  functionName: 'count',
+  args: [],
+});`;
+
+export default function UserOps() {
+  const { provider } = useEIP1193Provider();
+  // @ts-expect-error refactor soon
+  const [connected, setConnected] = React.useState(Boolean(provider?.connected));
+  const [superappLoading, setSuperappLoading] = React.useState(false);
+  const [superappError, setSuperappError] = React.useState<string | null>(null);
+  const [userOpHash, setUserOpHash] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    // @ts-expect-error refactor soon
+    if (window.coinbaseWalletExtension) {
+      setConnected(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    provider?.on('connect', () => {
+      setConnected(true);
+    });
+  }, [provider]);
+
+  useEffect(() => {
+    // Injected provider does not emit a 'connect' event
+    // @ts-expect-error refactor soon
+    if (provider?.isCoinbaseBrowser) {
+      setConnected(true);
+    }
+  }, [provider]);
+
+  const handleSuperappAction = async () => {
+    if (!provider) {
+      setSuperappError('Provider not available');
+      return;
+    }
+
+    setSuperappLoading(true);
+    setSuperappError(null);
+    setUserOpHash(null);
+
+    try {
+      const subAccountResponse = (await provider.request({
+        method: 'wallet_getSubAccounts',
+        params: [],
+      })) as { subAccounts?: { address?: string }[] } | null;
+
+      const subAccountAddress = subAccountResponse?.subAccounts?.[0]?.address;
+
+      if (!subAccountAddress) {
+        throw new Error('No subaccount available. Connect and ensure a subaccount is provisioned.');
+      }
+
+      const data = encodeFunctionData({
+        abi: [
+          {
+            name: 'count',
+            type: 'function',
+            stateMutability: 'nonpayable',
+            inputs: [],
+            outputs: [],
+          },
+        ],
+        functionName: 'count',
+        args: [],
+      });
+
+      const calls = [
+        {
+          to: '0x6bcf154A6B80fDE9bd1556d39C9bCbB19B539Bd8',
+          data,
+          value: '0x0',
+        },
+      ];
+
+      const response = (await provider.request({
+        method: 'subaccount_user_op',
+        params: [
+          {
+            subAccountAddress,
+            calls,
+          },
+        ],
+      })) as
+        | { userOpHash?: string }
+        | { result?: { value?: { userOpHash?: string } } }
+        | string
+        | null;
+
+      let extractedHash: string | null = null;
+      if (typeof response === 'string') {
+        extractedHash = response;
+      } else if (response && typeof response === 'object') {
+        if ('userOpHash' in response && typeof response.userOpHash === 'string') {
+          extractedHash = response.userOpHash;
+        } else if ('result' in response && response.result && typeof response.result === 'object') {
+          const value = (response.result as Record<string, unknown>).value;
+          if (value && typeof value === 'object' && 'userOpHash' in value) {
+            const userOpHashValue = (value as Record<string, unknown>).userOpHash;
+            if (typeof userOpHashValue === 'string') {
+              extractedHash = userOpHashValue;
+            }
+          }
+        }
+      }
+
+      if (!extractedHash) {
+        throw new Error('Superapp did not return a transaction hash');
+      }
+
+      setUserOpHash(extractedHash);
+    } catch (error) {
+      setSuperappError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSuperappLoading(false);
+    }
+  };
+
+  return (
+    <Container maxW={WIDTH_2XL} mb={8}>
+      <Heading size="md">Superapp Demo</Heading>
+      <Box mt={8}>
+        <MethodsSection
+          title="Wallet Connection"
+          methods={[connectionMethods[0]]}
+          shortcutsMap={connectionMethodShortcutsMap}
+        />
+      </Box>
+      <Box mt={2}>
+        <VStack align="flex-start" spacing={2}>
+          <Button
+            colorScheme="telegram"
+            onClick={handleSuperappAction}
+            isLoading={superappLoading}
+            isDisabled={!connected}
+          >
+            Send user op
+          </Button>
+          <Box
+            as="pre"
+            bg="gray.800"
+            color="gray.100"
+            p={4}
+            borderRadius="md"
+            fontSize="sm"
+            whiteSpace="pre-wrap"
+            width="100%"
+          >
+            {ENCODE_FUNCTION_DATA_SNIPPET}
+          </Box>
+          {userOpHash && (
+            <Box>
+              Userop:
+              <a
+                href={`https://soneium-minato.blockscout.com/tx/${userOpHash}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {userOpHash}
+              </a>
+            </Box>
+          )}
+          {superappError && <Text color="red.400">{superappError}</Text>}
+        </VStack>
+      </Box>
+    </Container>
+  );
+}
