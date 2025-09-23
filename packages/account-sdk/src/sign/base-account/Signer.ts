@@ -182,7 +182,8 @@ export class Signer {
           return this.sendRequestToPopup(modifiedRequest);
         }
         case 'wallet_sendCalls':
-        case 'wallet_sign': {
+        case 'wallet_sign':
+        case 'subaccount_user_op': {
           return this.sendRequestToPopup(request);
         }
         default:
@@ -250,6 +251,7 @@ export class Signer {
       case 'wallet_sendCalls':
       case 'wallet_showCallsStatus':
       case 'wallet_grantPermissions':
+      case 'subaccount_user_op':
         return this.sendRequestToPopup(request);
       case 'wallet_connect': {
         // Return cached wallet connect response if available, unless signInWithEthereum capability is present
@@ -367,7 +369,7 @@ export class Signer {
 
         const userInfo = response.userInfo;
         store.userInfo.set(userInfo);
-        
+
         const account = response.accounts.at(0);
         const capabilities = account?.capabilities;
 
@@ -502,7 +504,7 @@ export class Signer {
     if (!userInfo) {
       throw standardErrors.provider.unauthorized('No user info found');
     }
-    
+
     return userInfo;
   }
 
@@ -657,7 +659,7 @@ export class Signer {
 
   private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
     // Always false since in our case sub accounts are smart accounts.
-    return false
+    return false;
 
     // Commented out in case we implement ERC-7895 in the future.
 

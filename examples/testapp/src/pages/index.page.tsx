@@ -1,5 +1,6 @@
-import { Box, Container, Grid, Heading } from '@chakra-ui/react';
+import { Box, Button, Code, Container, Grid, Heading, Text, VStack } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
+import { encodeFunctionData } from 'viem';
 
 import { EventListenersCard } from '../components/EventListeners/EventListenersCard';
 import { WIDTH_2XL } from '../components/Layout';
@@ -26,6 +27,9 @@ export default function Home() {
   // @ts-expect-error refactor soon
   const [connected, setConnected] = React.useState(Boolean(provider?.connected));
   const [chainId, setChainId] = React.useState<number | undefined>(undefined);
+  const [superappLoading, setSuperappLoading] = React.useState(false);
+  const [superappError, setSuperappError] = React.useState<string | null>(null);
+  const [userOpHash, setUserOpHash] = React.useState<string | null>(null);
   // This is for Extension compatibility, Extension with SDK3.9 does not emit connect event
   // correctly, so we manually check if the extension is connected, and set the connected state
   useEffect(() => {
@@ -62,6 +66,97 @@ export default function Home() {
 
   const shouldShowMethodsRequiringConnection = connected;
 
+  const handleSuperappAction = async () => {
+    if (!provider) {
+      setSuperappError('Provider not available');
+      return;
+    }
+
+    setSuperappLoading(true);
+    setSuperappError(null);
+    setUserOpHash(null);
+
+    try {
+      const subAccountResponse = (await provider.request({
+        method: 'wallet_getSubAccounts',
+        params: [],
+      })) as { subAccounts?: { address?: string }[] } | null;
+
+      const subAccountAddress = subAccountResponse?.subAccounts?.[0]?.address;
+
+      if (!subAccountAddress) {
+        throw new Error('No subaccount available. Connect and ensure a subaccount is provisioned.');
+      }
+
+      const data = encodeFunctionData({
+        abi: [
+          {
+            name: 'count',
+            type: 'function',
+            stateMutability: 'nonpayable',
+            inputs: [],
+            outputs: [],
+          },
+        ],
+        functionName: 'count',
+        args: [],
+      });
+
+      const calls = [
+        {
+          to: '0x6bcf154A6B80fDE9bd1556d39C9bCbB19B539Bd8',
+          data,
+          value: '0x0',
+        },
+      ];
+
+      const response = (await provider.request({
+        method: 'subaccount_user_op',
+        params: [
+          {
+            subAccountAddress,
+            calls,
+          },
+        ],
+      })) as
+        | { userOpHash?: string }
+        | { result?: { value?: { userOpHash?: string } } }
+        | string
+        | null;
+
+      let extractedHash: string | null = null;
+      if (typeof response === 'string') {
+        extractedHash = response;
+      } else if (response && typeof response === 'object') {
+        if ('userOpHash' in response && typeof response.userOpHash === 'string') {
+          extractedHash = response.userOpHash;
+        } else if (
+          'result' in response &&
+          response.result &&
+          typeof response.result === 'object'
+        ) {
+          const value = (response.result as Record<string, unknown>).value;
+          if (value && typeof value === 'object' && 'userOpHash' in value) {
+            const userOpHashValue = (value as Record<string, unknown>).userOpHash;
+            if (typeof userOpHashValue === 'string') {
+              extractedHash = userOpHashValue;
+            }
+          }
+        }
+      }
+
+      if (!extractedHash) {
+        throw new Error('Superapp did not return a transaction hash');
+      }
+
+      setUserOpHash(extractedHash);
+    } catch (error) {
+      setSuperappError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSuperappLoading(false);
+    }
+  };
+
   return (
     <Container maxW={WIDTH_2XL} mb={8}>
       <Box>
@@ -75,6 +170,29 @@ export default function Home() {
       </Heading>
       <Box mt={4}>
         <SDKConfig />
+      </Box>
+      <Heading size="md" mt={8}>
+        Superapp Demo
+      </Heading>
+      <Box mt={2}>
+        <VStack align="flex-start" spacing={2}>
+          <Button
+            colorScheme="telegram"
+            onClick={handleSuperappAction}
+            isLoading={superappLoading}
+            isDisabled={!shouldShowMethodsRequiringConnection}
+          >
+            Send Superapp Custom Action
+          </Button>
+          {userOpHash && (
+            <Text>
+              User operation hash: <Code>{userOpHash}</Code>
+            </Text>
+          )}
+          {superappError && (
+            <Text color="red.400">{superappError}</Text>
+          )}
+        </VStack>
       </Box>
       <MethodsSection
         title="Wallet Connection"
