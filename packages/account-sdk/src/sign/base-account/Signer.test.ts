@@ -410,45 +410,6 @@ describe('Signer', () => {
       expect(result).toEqual('0xSignature');
     });
 
-    it('should send subaccount_user_op to popup', async () => {
-      const mockRequest: RequestArguments = {
-        method: 'subaccount_user_op',
-        params: [
-          {
-            calls: [
-              {
-                to: '0x1234',
-                data: '0x',
-                value: '0x0',
-              },
-            ],
-          },
-        ],
-      };
-
-      (decryptContent as Mock).mockResolvedValueOnce({
-        result: {
-          value: {
-            userOpHash: '0xhash',
-          },
-        },
-      });
-
-      const result = await signer.request(mockRequest);
-
-      expect(encryptContent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: expect.objectContaining({
-            method: 'subaccount_user_op',
-            params: mockRequest.params,
-          }),
-        }),
-        mockCryptoKey
-      );
-
-      expect(result).toEqual({ userOpHash: '0xhash' });
-    });
-
     it.each([
       'eth_ecRecover',
       'personal_sign',

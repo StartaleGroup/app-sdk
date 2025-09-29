@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Accordion,
   AccordionButton,
@@ -15,6 +16,7 @@ import {
   Heading,
   InputGroup,
   InputLeftAddon,
+  Link,
   Textarea,
   VStack,
 } from '@chakra-ui/react';
@@ -111,7 +113,6 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
             const firstSubAccount = subAccounts?.subAccounts?.find(
               (entry) => typeof entry.address === 'string'
             );
-            console.log('AAAAAA: ', firstSubAccount);
             if (firstSubAccount?.address) {
               return [firstSubAccount.address] as [string];
             }
@@ -242,10 +243,52 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
           </Accordion>
         )}
         {response && (
-          <VStack mt={4}>
+          <VStack mt={4} align="flex-start" spacing={2}>
             <Code as="pre" p={4} wordBreak="break-word" whiteSpace="pre-wrap" w="100%">
               {JSON.stringify(response, null, 2)}
             </Code>
+            {(() => {
+              const extractTransactionHash = (value: unknown): string | null => {
+                if (!value) return null;
+                if (typeof value === 'string') {
+                  return value.startsWith('0x') && value.length >= 66 ? value : null;
+                }
+                if (typeof value === 'object') {
+                  const record = value as Record<string, unknown>;
+                  if (typeof record.transactionHash === 'string') {
+                    return record.transactionHash;
+                  }
+                  const nested = record.result as Record<string, unknown> | undefined;
+                  if (nested && typeof nested === 'object') {
+                    const nestedValue = nested.value as Record<string, unknown> | undefined;
+                    if (nestedValue && typeof nestedValue.transactionHash === 'string') {
+                      return nestedValue.transactionHash;
+                    }
+                  }
+                }
+                return null;
+              };
+
+              const txHash = extractTransactionHash(response);
+              if (!txHash) {
+                return null;
+              }
+
+              return (
+                <Link
+                  href={`https://soneium-minato.blockscout.com/tx/${txHash}`}
+                  isExternal
+                  color="green.200"
+                  fontWeight="semibold"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
+                >
+                  View Transaction
+                  <ExternalLinkIcon boxSize={4} />
+                </Link>
+              );
+            })()}
           </VStack>
         )}
         {verifyResult && (
