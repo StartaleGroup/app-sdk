@@ -1,19 +1,32 @@
-import { Box, Container, Heading } from '@chakra-ui/react';
+import { Box, Button, Container, Grid, Heading, Text, VStack } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { encodeFunctionData } from 'viem';
 
+import { EventListenersCard } from '../components/EventListeners/EventListenersCard';
 import { WIDTH_2XL } from '../components/Layout';
 import { MethodsSection } from '../components/MethodsSection/MethodsSection';
 import { connectionMethods } from '../components/RpcMethods/method/connectionMethods';
+import { ephemeralMethods } from '../components/RpcMethods/method/ephemeralMethods';
+import { multiChainMethods } from '../components/RpcMethods/method/multiChainMethods';
+import { readonlyJsonRpcMethods } from '../components/RpcMethods/method/readonlyJsonRpcMethods';
+import { sendMethods } from '../components/RpcMethods/method/sendMethods';
+import { signMessageMethods } from '../components/RpcMethods/method/signMessageMethods';
 import { walletTxMethods } from '../components/RpcMethods/method/walletTxMethods';
 import { connectionMethodShortcutsMap } from '../components/RpcMethods/shortcut/connectionMethodShortcuts';
+import { ephemeralMethodShortcutsMap } from '../components/RpcMethods/shortcut/ephemeralMethodShortcuts';
+import { multiChainShortcutsMap } from '../components/RpcMethods/shortcut/multipleChainShortcuts';
+import { readonlyJsonRpcShortcutsMap } from '../components/RpcMethods/shortcut/readonlyJsonRpcShortcuts';
+import { sendShortcutsMap } from '../components/RpcMethods/shortcut/sendShortcuts';
+import { signMessageShortcutsMap } from '../components/RpcMethods/shortcut/signMessageShortcuts';
 import { walletTxShortcutsMap } from '../components/RpcMethods/shortcut/walletTxShortcuts';
+import { SDKConfig } from '../components/SDKConfig/SDKConfig';
 import { useEIP1193Provider } from '../context/EIP1193ProviderContextProvider';
 
-export default function UserOps() {
+export default function Dashboard() {
   const { provider } = useEIP1193Provider();
   // @ts-expect-error refactor soon
   const [connected, setConnected] = React.useState(Boolean(provider?.connected));
+  const [chainId, setChainId] = React.useState<number | undefined>(undefined);
   const [superappLoading, setSuperappLoading] = React.useState(false);
   const [superappError, setSuperappError] = React.useState<string | null>(null);
   const [userOpHash, setUserOpHash] = React.useState<string | null>(null);
@@ -29,15 +42,28 @@ export default function UserOps() {
     provider?.on('connect', () => {
       setConnected(true);
     });
+    provider?.on('chainChanged', (newChainId) => {
+      // @ts-expect-error refactor soon
+      setChainId(newChainId);
+    });
   }, [provider]);
 
   useEffect(() => {
+    if (connected) {
+      provider?.request({ method: 'eth_chainId' }).then((currentChainId) => {
+        // @ts-expect-error refactor soon
+        setChainId(Number.parseInt(currentChainId, 16));
+      });
+    }
+
     // Injected provider does not emit a 'connect' event
     // @ts-expect-error refactor soon
     if (provider?.isCoinbaseBrowser) {
       setConnected(true);
     }
-  }, [provider]);
+  }, [connected, provider]);
+
+  const shouldShowMethodsRequiringConnection = connected;
 
   const handleSuperappAction = async () => {
     if (!provider) {
@@ -83,7 +109,7 @@ export default function UserOps() {
         },
       ];
 
-      const chainId = (await provider.request({
+      const chainIdHex = (await provider.request({
         method: 'eth_chainId',
         params: [],
       })) as string;
@@ -93,7 +119,7 @@ export default function UserOps() {
         params: [
           {
             version: '1.0',
-            chainId,
+            chainId: chainIdHex,
             from: subAccountAddress,
             calls,
             capabilities: {},
@@ -139,19 +165,79 @@ export default function UserOps() {
 
   return (
     <Container maxW={WIDTH_2XL} mb={8}>
-      <Heading size="md">Superapp Demo</Heading>
-      <Box mt={8}>
-        <MethodsSection
-          title="Wallet Connection"
-          methods={[connectionMethods[0]]}
-          shortcutsMap={connectionMethodShortcutsMap}
-        />
+      <Box>
+        <Heading size="md">Event Listeners</Heading>
+        <Grid mt={2} templateColumns={{ base: '100%' }} gap={2}>
+          <EventListenersCard />
+        </Grid>
+      </Box>
+      <Heading size="md" mt={4}>
+        SDK Configuration (Optional)
+      </Heading>
+      <Box mt={4}>
+        <SDKConfig />
+      </Box>
+      <Heading size="md" mt={8}>
+        Superapp Demo
+      </Heading>
+      <Box mt={2}>
+        <VStack align="flex-start" spacing={2}>
+          <Button
+            colorScheme="telegram"
+            onClick={handleSuperappAction}
+            isLoading={superappLoading}
+            isDisabled={!shouldShowMethodsRequiringConnection}
+          >
+            Send Superapp Custom Action
+          </Button>
+          {userOpHash && (
+            <a
+              href={`https://soneium-minato.blockscout.com/tx/${userOpHash}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {userOpHash}
+            </a>
+          )}
+          {superappError && <Text color="red.400">{superappError}</Text>}
+        </VStack>
       </Box>
       <MethodsSection
-        title="Sign Message"
-        methods={[walletTxMethods[3], walletTxMethods[4]]}
-        shortcutsMap={walletTxShortcutsMap}
+        title="Wallet Connection"
+        methods={connectionMethods}
+        shortcutsMap={connectionMethodShortcutsMap}
       />
+      <MethodsSection
+        title="Ephemeral Methods"
+        methods={ephemeralMethods}
+        shortcutsMap={ephemeralMethodShortcutsMap}
+      />
+      {shouldShowMethodsRequiringConnection && (
+        <>
+          <MethodsSection
+            title="Switch/Add Chain"
+            methods={multiChainMethods}
+            shortcutsMap={multiChainShortcutsMap}
+          />
+          <MethodsSection
+            title="Sign Message"
+            methods={signMessageMethods}
+            shortcutsMap={signMessageShortcutsMap(chainId)}
+          />
+          <MethodsSection title="Send" methods={sendMethods} shortcutsMap={sendShortcutsMap} />
+          <MethodsSection
+            title="Wallet Tx"
+            methods={walletTxMethods}
+            shortcutsMap={walletTxShortcutsMap}
+          />
+          <MethodsSection
+            title="Read-only JSON-RPC Requests"
+            methods={readonlyJsonRpcMethods}
+            shortcutsMap={readonlyJsonRpcShortcutsMap}
+          />
+        </>
+      )}
     </Container>
   );
 }
+
