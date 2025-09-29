@@ -1,4 +1,4 @@
-import { Box, Container, Heading } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, Link, Text, VStack } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { encodeFunctionData } from 'viem';
 
@@ -17,6 +17,11 @@ export default function UserOps() {
   const [superappLoading, setSuperappLoading] = React.useState(false);
   const [superappError, setSuperappError] = React.useState<string | null>(null);
   const [userOpHash, setUserOpHash] = React.useState<string | null>(null);
+  const [addSubAccountLoading, setAddSubAccountLoading] = React.useState(false);
+  const [getSubAccountsLoading, setGetSubAccountsLoading] = React.useState(false);
+  const [addedSubAccount, setAddedSubAccount] = React.useState<string | null>(null);
+  const [fetchedSubAccounts, setFetchedSubAccounts] = React.useState<string[]>([]);
+  const [accountError, setAccountError] = React.useState<string | null>(null);
 
   useEffect(() => {
     // @ts-expect-error refactor soon
@@ -137,9 +142,116 @@ export default function UserOps() {
     }
   };
 
+  const handleAddSubAccount = async () => {
+    if (!provider) {
+      setAccountError('Provider not available');
+      return;
+    }
+
+    setAddSubAccountLoading(true);
+    setAccountError(null);
+    setAddedSubAccount(null);
+
+    try {
+      const response = (await provider.request({
+        method: 'wallet_addSubAccount',
+        params: [
+          {
+            version: '1',
+            account: {
+              type: 'undeployed',
+            },
+          },
+        ],
+      })) as { address?: string } | { result?: { value?: { address?: string } } } | string | null;
+
+      let address: string | null = null;
+      if (typeof response === 'string') {
+        address = response;
+      } else if (response && typeof response === 'object') {
+        if ('address' in response && typeof response.address === 'string') {
+          address = response.address;
+        } else if ('result' in response && response.result && typeof response.result === 'object') {
+          const value = (response.result as Record<string, unknown>).value;
+          if (value && typeof value === 'object' && 'address' in value) {
+            const extracted = (value as Record<string, unknown>).address;
+            if (typeof extracted === 'string') {
+              address = extracted;
+            }
+          }
+        }
+      }
+
+      if (!address) {
+        throw new Error('Superapp did not return a subaccount address');
+      }
+
+      setAddedSubAccount(address);
+    } catch (error) {
+      setAccountError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setAddSubAccountLoading(false);
+    }
+  };
+
+  const handleGetSubAccounts = async () => {
+    if (!provider) {
+      setAccountError('Provider not available');
+      return;
+    }
+
+    setGetSubAccountsLoading(true);
+    setAccountError(null);
+    setFetchedSubAccounts([]);
+
+    try {
+      const response = (await provider.request({
+        method: 'wallet_getSubAccounts',
+        params: [],
+      })) as
+        | { subAccounts?: { address?: string }[] }
+        | { result?: { value?: { subAccounts?: { address?: string }[] } } }
+        | null;
+
+      let addresses: string[] = [];
+      if (response && typeof response === 'object') {
+        if ('subAccounts' in response && Array.isArray(response.subAccounts)) {
+          addresses = response.subAccounts
+            .map((entry) => (entry && typeof entry.address === 'string' ? entry.address : null))
+            .filter((entry): entry is string => Boolean(entry));
+        } else if ('result' in response && response.result && typeof response.result === 'object') {
+          const value = (response.result as Record<string, unknown>).value;
+          if (value && typeof value === 'object' && 'subAccounts' in value) {
+            const subAccounts = (value as Record<string, unknown>).subAccounts;
+            if (Array.isArray(subAccounts)) {
+              addresses = subAccounts
+                .map((entry) =>
+                  entry && typeof entry === 'object' && entry !== null && 'address' in entry
+                    ? ((entry as Record<string, unknown>).address as string)
+                    : null
+                )
+                .filter((entry): entry is string => typeof entry === 'string');
+            }
+          }
+        }
+      }
+
+      if (addresses.length === 0) {
+        throw new Error('No subaccounts returned by superapp');
+      }
+
+      setFetchedSubAccounts(addresses);
+    } catch (error) {
+      setAccountError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setGetSubAccountsLoading(false);
+    }
+  };
+
   return (
     <Container maxW={WIDTH_2XL} mb={8}>
       <Heading size="md">Superapp Demo</Heading>
+
       <Box mt={8}>
         <MethodsSection
           title="Wallet Connection"
@@ -152,6 +264,53 @@ export default function UserOps() {
         methods={[walletTxMethods[3], walletTxMethods[4]]}
         shortcutsMap={walletTxShortcutsMap}
       />
+      <Box mt={4}>
+        <VStack align="flex-start" spacing={3}>
+          <Button
+            colorScheme="telegram"
+            onClick={handleAddSubAccount}
+            isLoading={addSubAccountLoading}
+            isDisabled={!connected}
+          >
+            Add Subaccount
+          </Button>
+          {addedSubAccount && (
+            <Link
+              href={`https://soneium-minato.blockscout.com/address/${addedSubAccount}`}
+              isExternal
+              color="green.200"
+              fontWeight="semibold"
+            >
+              {addedSubAccount}
+            </Link>
+          )}
+          <Button
+            colorScheme="telegram"
+            variant="outline"
+            onClick={handleGetSubAccounts}
+            isLoading={getSubAccountsLoading}
+            isDisabled={!connected}
+          >
+            Get Subaccounts
+          </Button>
+          {fetchedSubAccounts.length > 0 && (
+            <VStack align="flex-start" spacing={1}>
+              {fetchedSubAccounts.map((address) => (
+                <Link
+                  key={address}
+                  href={`https://soneium-minato.blockscout.com/address/${address}`}
+                  isExternal
+                  color="green.200"
+                  fontWeight="semibold"
+                >
+                  {address}
+                </Link>
+              ))}
+            </VStack>
+          )}
+          {accountError && <Text color="red.400">{accountError}</Text>}
+        </VStack>
+      </Box>
     </Container>
   );
 }
