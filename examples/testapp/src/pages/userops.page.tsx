@@ -16,7 +16,9 @@ import { encodeFunctionData } from 'viem';
 import { WIDTH_2XL } from '../components/Layout';
 import { MethodsSection } from '../components/MethodsSection/MethodsSection';
 import { connectionMethods } from '../components/RpcMethods/method/connectionMethods';
+import { walletTxMethods } from '../components/RpcMethods/method/walletTxMethods';
 import { connectionMethodShortcutsMap } from '../components/RpcMethods/shortcut/connectionMethodShortcuts';
+import { walletTxShortcutsMap } from '../components/RpcMethods/shortcut/walletTxShortcuts';
 import { useEIP1193Provider } from '../context/EIP1193ProviderContextProvider';
 
 const ENCODE_FUNCTION_DATA_SNIPPET = `const data = encodeFunctionData({
@@ -106,17 +108,24 @@ export default function UserOps() {
         },
       ];
 
+      const chainId = (await provider.request({
+        method: 'eth_chainId',
+        params: [],
+      })) as string;
+
       const response = (await provider.request({
-        method: 'subaccount_user_op',
+        method: 'wallet_sendCalls',
         params: [
           {
-            subAccountAddress,
+            version: '1.0',
+            chainId,
+            from: subAccountAddress,
             calls,
+            capabilities: {},
           },
         ],
       })) as
-        | { userOpHash?: string }
-        | { result?: { value?: { userOpHash?: string } } }
+        | { id?: string; result?: { value?: { transactionHash?: string; userOpHash?: string } } }
         | string
         | null;
 
@@ -124,13 +133,17 @@ export default function UserOps() {
       if (typeof response === 'string') {
         extractedHash = response;
       } else if (response && typeof response === 'object') {
-        if ('userOpHash' in response && typeof response.userOpHash === 'string') {
-          extractedHash = response.userOpHash;
+        if ('id' in response && typeof response.id === 'string') {
+          extractedHash = response.id;
         } else if ('result' in response && response.result && typeof response.result === 'object') {
           const value = (response.result as Record<string, unknown>).value;
-          if (value && typeof value === 'object' && 'userOpHash' in value) {
+          if (value && typeof value === 'object') {
+            const txHash = (value as Record<string, unknown>).transactionHash;
+            if (typeof txHash === 'string') {
+              extractedHash = txHash;
+            }
             const userOpHashValue = (value as Record<string, unknown>).userOpHash;
-            if (typeof userOpHashValue === 'string') {
+            if (!extractedHash && typeof userOpHashValue === 'string') {
               extractedHash = userOpHashValue;
             }
           }
@@ -159,6 +172,11 @@ export default function UserOps() {
           shortcutsMap={connectionMethodShortcutsMap}
         />
       </Box>
+      <MethodsSection
+        title="Sign Message"
+        methods={[walletTxMethods[3], walletTxMethods[4]]}
+        shortcutsMap={walletTxShortcutsMap}
+      />
       <Box mt={2}>
         <VStack align="flex-start" spacing={4} width="100%">
           <Box

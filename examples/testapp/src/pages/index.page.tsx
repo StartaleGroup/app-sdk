@@ -110,17 +110,24 @@ export default function Home() {
         },
       ];
 
+      const chainId = (await provider.request({
+        method: 'eth_chainId',
+        params: [],
+      })) as string;
+
       const response = (await provider.request({
-        method: 'subaccount_user_op',
+        method: 'wallet_sendCalls',
         params: [
           {
-            subAccountAddress,
+            version: '1.0',
+            chainId,
+            from: subAccountAddress,
             calls,
+            capabilities: {},
           },
         ],
       })) as
-        | { userOpHash?: string }
-        | { result?: { value?: { userOpHash?: string } } }
+        | { id?: string; result?: { value?: { transactionHash?: string; userOpHash?: string } } }
         | string
         | null;
 
@@ -128,14 +135,18 @@ export default function Home() {
       if (typeof response === 'string') {
         extractedHash = response;
       } else if (response && typeof response === 'object') {
-        if ('userOpHash' in response && typeof response.userOpHash === 'string') {
-          extractedHash = response.userOpHash;
+        if ('id' in response && typeof response.id === 'string') {
+          extractedHash = response.id;
         } else if ('result' in response && response.result && typeof response.result === 'object') {
           const value = (response.result as Record<string, unknown>).value;
-          if (value && typeof value === 'object' && 'userOpHash' in value) {
-            const userOpHashValue = (value as Record<string, unknown>).userOpHash;
-            if (typeof userOpHashValue === 'string') {
-              extractedHash = userOpHashValue;
+          if (value && typeof value === 'object') {
+            const txHash = (value as Record<string, unknown>).transactionHash;
+            if (typeof txHash === 'string') {
+              extractedHash = txHash;
+            }
+            const userOpHash = (value as Record<string, unknown>).userOpHash;
+            if (!extractedHash && typeof userOpHash === 'string') {
+              extractedHash = userOpHash;
             }
           }
         }

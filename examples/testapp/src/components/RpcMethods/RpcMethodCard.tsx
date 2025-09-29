@@ -101,8 +101,26 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
       const dataToSubmit = { ...data };
       let values = dataToSubmit;
       if (format) {
-        const getCurrentAddress = async () =>
-          (await provider.request({ method: 'eth_accounts' })) as [string];
+        const getCurrentAddress = async () => {
+          try {
+            const subAccounts = (await provider.request({
+              method: 'wallet_getSubAccounts',
+              params: [],
+            })) as { subAccounts?: { address?: string }[] } | null;
+
+            const firstSubAccount = subAccounts?.subAccounts?.find(
+              (entry) => typeof entry.address === 'string'
+            );
+            console.log('AAAAAA: ', firstSubAccount);
+            if (firstSubAccount?.address) {
+              return [firstSubAccount.address] as [string];
+            }
+          } catch (error) {
+            console.warn('Failed to fetch subaccount address, falling back to eth_accounts', error);
+          }
+
+          return (await provider.request({ method: 'eth_accounts' })) as [string];
+        };
 
         for (const key in dataToSubmit) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
