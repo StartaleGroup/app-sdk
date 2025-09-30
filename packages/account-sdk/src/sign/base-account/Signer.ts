@@ -367,7 +367,7 @@ export class Signer {
 
         const userInfo = response.userInfo;
         store.userInfo.set(userInfo);
-        
+
         const account = response.accounts.at(0);
         const capabilities = account?.capabilities;
 
@@ -502,7 +502,7 @@ export class Signer {
     if (!userInfo) {
       throw standardErrors.provider.unauthorized('No user info found');
     }
-    
+
     return userInfo;
   }
 
@@ -657,7 +657,7 @@ export class Signer {
 
   private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
     // Always false since in our case sub accounts are smart accounts.
-    return false
+    return false;
 
     // Commented out in case we implement ERC-7895 in the future.
 
