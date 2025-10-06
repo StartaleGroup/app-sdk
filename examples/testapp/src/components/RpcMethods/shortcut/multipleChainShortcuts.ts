@@ -1,34 +1,20 @@
-import { base, baseSepolia, harmonyOne, mainnet } from 'viem/chains';
+import { soneium, soneiumMinato } from 'viem/chains';
 
 import { ShortcutType } from './ShortcutType';
 
 const walletSwitchEthereumChainShortcuts: ShortcutType[] = [
   {
-    key: 'Ethereum',
+    key: 'Soneium',
     data: {
-      chainId: '1',
-      chain: mainnet,
+      chainId: '1868',
+      chain: soneium,
     },
   },
   {
-    key: 'Base',
+    key: 'Minato',
     data: {
-      chainId: '8453',
-      chain: base,
-    },
-  },
-  {
-    key: 'Base Sepolia',
-    data: {
-      chainId: '84532',
-      chain: baseSepolia,
-    },
-  },
-  {
-    key: 'Harmony',
-    data: {
-      chainId: '1666600000',
-      chain: harmonyOne,
+      chainId: '1946',
+      chain: soneiumMinato,
     },
   },
 ];
