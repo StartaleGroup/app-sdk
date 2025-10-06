@@ -23,7 +23,7 @@ import {
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { Chain, hexToNumber } from 'viem';
-import { mainnet } from 'viem/chains';
+import { soneium } from 'viem/chains';
 
 import { useEIP1193Provider } from '../../context/EIP1193ProviderContextProvider';
 import { verifySignMsg } from './method/signMessageMethods';
@@ -76,7 +76,7 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
       const chain =
         multiChainShortcutsMap['wallet_switchEthereumChain'].find(
           (shortcut) => Number(shortcut.data.chainId) === hexToNumber(chainId)
-        )?.data.chain ?? mainnet;
+        )?.data.chain ?? soneium;
 
       const verifyResult = await verifySignMsg({
         method,

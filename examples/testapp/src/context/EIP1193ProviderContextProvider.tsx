@@ -35,7 +35,8 @@ export function EIP1193ProviderContextProvider({ children }: EIP1193ProviderCont
     const bundlerApiKey = process.env.NEXT_PUBLIC_BUNDLER_API_KEY;
 
     const sdkParams = {
-      appName: 'SDK Playground',
+      appName: 'Startale app SDK Playground',
+      appLogoUrl: 'https://startale.com/image/symbol.png',
       appChainIds: [1946, 1868],
       preference: {
         attribution: config.attribution,
