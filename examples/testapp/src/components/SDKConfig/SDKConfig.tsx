@@ -1,4 +1,4 @@
-import { Preference } from '@base-org/account';
+import { Preference } from '@startale/app-sdk';
 import {
   Box,
   Card,

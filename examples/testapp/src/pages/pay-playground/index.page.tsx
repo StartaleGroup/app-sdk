@@ -53,7 +53,7 @@ function PayPlayground() {
       payExecution.result.id
     ) {
       const transactionId = payExecution.result.id;
-      const updatedCode = `import { base } from '@base-org/account'
+      const updatedCode = `import { base } from '@startale/app-sdk'
 
 try {
   const result = await base.getPaymentStatus({

@@ -1,4 +1,4 @@
-import { type PaymentResult, type PaymentStatus, getPaymentStatus, pay } from '@base-org/account';
+import { type PaymentResult, type PaymentStatus, getPaymentStatus, pay } from '@startale/app-sdk';
 import {
   Accordion,
   AccordionButton,
