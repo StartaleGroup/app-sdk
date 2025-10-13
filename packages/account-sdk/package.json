@@ -1,6 +1,6 @@
 {
-  "name": "@base-org/account",
-  "version": "2.0.2",
+  "name": "@startale/app-sdk",
+  "version": "1.0.0",
   "description": "Superapp SDK",
   "keywords": [
     "startale",
@@ -15,7 +15,7 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "browser": "dist/base-account.min.js",
+  "browser": "dist/app-sdk.min.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -44,8 +44,8 @@
     "LICENSE"
   ],
   "sideEffects": false,
-  "repository": "https://github.com/base/account-sdk.git",
-  "author": "Base",
+  "repository": "https://github.com/StartaleGroup/superapp-sdk",
+  "author": "Startale",
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules",
