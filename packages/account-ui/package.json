@@ -52,7 +52,7 @@
     "format:check": "biome check . --formatter-enabled=true --linter-enabled=false --organize-imports-enabled=false"
   },
   "devDependencies": {
-    "@base-org/account": "workspace:*",
+    "@startale/app-sdk": "workspace:*",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/preact": "^3.2.4",
     "@testing-library/react": "^16.3.0",
@@ -69,7 +69,7 @@
     "vue": "^3.5.17"
   },
   "peerDependencies": {
-    "@base-org/account": "*",
+    "@startale/app-sdk": "*",
     "clsx": "*",
     "preact": "*",
     "react": "*",
