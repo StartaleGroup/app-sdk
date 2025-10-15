@@ -183,7 +183,7 @@ export default function Dashboard() {
       <Box mt={2}>
         <VStack align="flex-start" spacing={2}>
           <Button
-            colorScheme="telegram"
+            colorScheme="brand"
             onClick={handleSuperappAction}
             isLoading={superappLoading}
             isDisabled={!shouldShowMethodsRequiringConnection}
