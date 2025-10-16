@@ -1,4 +1,4 @@
-import { getCryptoKeyAccount } from '@base-org/account';
+import { getCryptoKeyAccount } from '@startale/app-sdk';
 import {
   Container,
   FormControl,

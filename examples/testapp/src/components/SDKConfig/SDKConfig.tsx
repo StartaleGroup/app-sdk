@@ -1,4 +1,4 @@
-import { Preference } from '@base-org/account';
+import { Preference } from '@startale/app-sdk';
 import {
   Box,
   Card,
@@ -109,7 +109,7 @@ export function SDKConfig() {
               </FormControl>
             </Box>
             <Box flexBasis="50%" textAlign="right">
-              <Code mt={2} colorScheme="telegram">
+              <Code mt={2} colorScheme="brand">
                 {sixteenByteHex}
               </Code>
             </Box>

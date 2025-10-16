@@ -54,7 +54,7 @@ export function Layout({ children }: LayoutProps) {
     return (
       <>
         <Menu>
-          <MenuButton colorScheme="telegram" as={Button} rightIcon={<ChevronDownIcon />}>
+          <MenuButton colorScheme="brand" as={Button} rightIcon={<ChevronDownIcon />}>
             {`SDK: ${version}`}
           </MenuButton>
           <MenuList>
@@ -132,7 +132,7 @@ export function Layout({ children }: LayoutProps) {
             <Heading onClick={handleGoToHome}>Superapp Account SDK</Heading>
             <Flex justifyContent="space-between" alignItems="center" gap={4}>
               {isSmallScreen ? (
-                <Button colorScheme="telegram" onClick={onOpen}>
+                <Button colorScheme="brand" onClick={onOpen}>
                   Config
                 </Button>
               ) : (

@@ -1,4 +1,4 @@
-import { ProviderInterface } from '@base-org/account';
+import { ProviderInterface } from '@startale/app-sdk';
 import { useDisclosure } from '@chakra-ui/react';
 import { useCallback } from 'react';
 

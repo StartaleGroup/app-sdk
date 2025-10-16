@@ -14,12 +14,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@base-org/account": "workspace:*",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@metamask/eth-sig-util": "^7.0.0",
+    "@startale/app-sdk": "workspace:*",
     "@types/acorn": "^4.0.6",
     "acorn": "^8.15.0",
     "framer-motion": "^10.13.1",

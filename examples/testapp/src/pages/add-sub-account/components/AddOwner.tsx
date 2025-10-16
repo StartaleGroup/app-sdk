@@ -1,4 +1,4 @@
-import { createBaseAccountSDK, getCryptoKeyAccount } from '@base-org/account';
+import { createBaseAccountSDK, getCryptoKeyAccount } from '@startale/app-sdk';
 import { Box, Button } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { baseSepolia } from 'viem/chains';

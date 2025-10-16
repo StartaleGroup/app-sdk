@@ -1,4 +1,4 @@
-import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@base-org/account';
+import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@startale/app-sdk';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -6,12 +6,13 @@ import * as EventListeners from '../hooks/useEventListeners';
 import * as DisconnectedError from '../hooks/useSpyOnDisconnectedError';
 import * as CleanupUtils from '../utils/cleanupSDKLocalStorage';
 import * as ConfigContext from './ConfigContextProvider';
+import { scwUrls } from '../store/config';
 import {
   EIP1193ProviderContextProvider,
   useEIP1193Provider,
 } from './EIP1193ProviderContextProvider';
 
-vi.mock('@base-org/account', () => ({
+vi.mock('@startale/app-sdk', () => ({
   createBaseAccountSDK: vi.fn(() => ({
     getProvider: vi.fn(() => mockProvider),
   })),
@@ -43,8 +44,8 @@ describe('EIP1193ProviderContextProvider', () => {
   beforeEach(() => {
     vi.spyOn(ConfigContext, 'useConfig').mockReturnValue({
       version: 'HEAD',
-      scwUrl: 'https://keys-dev.coinbase.com/connect',
-      config: { attribution: { dataSuffix: '0xtestattribution' } },
+      scwUrl: scwUrls[0],
+      config: { attribution: { dataSuffix: '0xtestattribution' }, telemetry: false },
       setSDKVersion: vi.fn(),
       setScwUrlAndSave: vi.fn(),
       setConfig: vi.fn(),
@@ -80,17 +81,21 @@ describe('EIP1193ProviderContextProvider', () => {
       </EIP1193ProviderContextProvider>
     );
 
-    expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith({
-      appName: 'SDK Playground',
-      appChainIds: [84532, 8452],
-      preference: {
-        attribution: { dataSuffix: '0xtestattribution' },
-        walletUrl: 'https://keys-dev.coinbase.com/connect',
-      },
-      subAccounts: {
-        enableAutoSubAccounts: true,
-      },
-    });
+    expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appName: 'Startale app SDK Playground',
+        appLogoUrl: 'https://startale.com/image/symbol.png',
+        appChainIds: [1946, 1868],
+        preference: {
+          attribution: { dataSuffix: '0xtestattribution' },
+          walletUrl: scwUrls[0],
+          telemetry: false,
+        },
+        subAccounts: {
+          enableAutoSubAccounts: true,
+        },
+      })
+    );
     expect(screen.getByTestId('sdk-exists')).toBeTruthy();
     expect(screen.getByTestId('provider-exists')).toBeTruthy();
     expect(mockAddEventListeners).toHaveBeenCalledWith(mockProvider);
@@ -100,8 +105,8 @@ describe('EIP1193ProviderContextProvider', () => {
   it('initializes SDK with latest version when version is not HEAD', () => {
     vi.spyOn(ConfigContext, 'useConfig').mockReturnValue({
       version: 'HEAD',
-      scwUrl: 'https://keys-dev.coinbase.com/connect',
-      config: { attribution: { dataSuffix: '0xtestattribution' } },
+      scwUrl: scwUrls[0],
+      config: { attribution: { dataSuffix: '0xtestattribution' }, telemetry: false },
       subAccountsConfig: {
         enableAutoSubAccounts: true,
       },
@@ -117,17 +122,21 @@ describe('EIP1193ProviderContextProvider', () => {
       </EIP1193ProviderContextProvider>
     );
 
-    expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith({
-      appName: 'SDK Playground',
-      appChainIds: [84532, 8452],
-      preference: {
-        attribution: { dataSuffix: '0xtestattribution' },
-        walletUrl: 'https://keys-dev.coinbase.com/connect',
-      },
-      subAccounts: {
-        enableAutoSubAccounts: true,
-      },
-    });
+    expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appName: 'Startale app SDK Playground',
+        appLogoUrl: 'https://startale.com/image/symbol.png',
+        appChainIds: [1946, 1868],
+        preference: {
+          attribution: { dataSuffix: '0xtestattribution' },
+          walletUrl: scwUrls[0],
+          telemetry: false,
+        },
+        subAccounts: {
+          enableAutoSubAccounts: true,
+        },
+      })
+    );
   });
 
   it('cleans up event listeners on unmount', () => {
