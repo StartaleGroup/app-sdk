@@ -267,7 +267,7 @@ export default function UserOps() {
       <Box mt={4}>
         <VStack align="flex-start" spacing={3}>
           <Button
-            colorScheme="telegram"
+            colorScheme="brand"
             onClick={handleAddSubAccount}
             isLoading={addSubAccountLoading}
             isDisabled={!connected}
@@ -285,7 +285,7 @@ export default function UserOps() {
             </Link>
           )}
           <Button
-            colorScheme="telegram"
+            colorScheme="brand"
             variant="outline"
             onClick={handleGetSubAccounts}
             isLoading={getSubAccountsLoading}
