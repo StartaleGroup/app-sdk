@@ -1,21 +1,21 @@
-import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js';
+import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 import {
-  spendPermissionManagerAbi,
-  spendPermissionManagerAddress,
-} from ':sign/app-sdk/utils/constants.js';
-import { Address, Hex, encodeFunctionData } from 'viem';
+	spendPermissionManagerAbi,
+	spendPermissionManagerAddress,
+} from ':sign/app-sdk/utils/constants.js'
+import { Address, Hex, encodeFunctionData } from 'viem'
 
-import { toSpendPermissionArgs } from '../utils.js';
-import { withTelemetry } from '../withTelemetry.js';
-import { getPermissionStatus } from './getPermissionStatus.js';
+import { toSpendPermissionArgs } from '../utils.js'
+import { withTelemetry } from '../withTelemetry.js'
+import { getPermissionStatus } from './getPermissionStatus.js'
 
 type Call = {
-  to: Address;
-  data: Hex;
-  value: '0x0'; // explicitly set to 0x0
-};
+	to: Address
+	data: Hex
+	value: '0x0' // explicitly set to 0x0
+}
 
-export type PrepareSpendCallDataResponseType = Call[];
+export type PrepareSpendCallDataResponseType = Call[]
 
 /**
  * Prepares call data for approving and spending a spend permission.
@@ -80,49 +80,50 @@ export type PrepareSpendCallDataResponseType = Call[];
  * ```
  */
 const prepareSpendCallDataFn = async (
-  permission: SpendPermission,
-  amount: bigint | 'max-remaining-allowance'
+	permission: SpendPermission,
+	amount: bigint | 'max-remaining-allowance',
 ): Promise<PrepareSpendCallDataResponseType> => {
-  const { remainingSpend, isActive } = await getPermissionStatus(permission);
-  const spendAmount = amount === 'max-remaining-allowance' ? remainingSpend : amount;
+	const { remainingSpend, isActive } = await getPermissionStatus(permission)
+	const spendAmount =
+		amount === 'max-remaining-allowance' ? remainingSpend : amount
 
-  if (spendAmount === BigInt(0)) {
-    throw new Error('Spend amount cannot be 0');
-  }
+	if (spendAmount === BigInt(0)) {
+		throw new Error('Spend amount cannot be 0')
+	}
 
-  if (spendAmount > remainingSpend) {
-    throw new Error('Remaining spend amount is insufficient');
-  }
+	if (spendAmount > remainingSpend) {
+		throw new Error('Remaining spend amount is insufficient')
+	}
 
-  let approveCall: Call | null = null;
+	let approveCall: Call | null = null
 
-  const spendPermissionArgs = toSpendPermissionArgs(permission);
+	const spendPermissionArgs = toSpendPermissionArgs(permission)
 
-  if (!isActive) {
-    const approveData = encodeFunctionData({
-      abi: spendPermissionManagerAbi,
-      functionName: 'approveWithSignature',
-      args: [spendPermissionArgs, permission.signature as `0x${string}`],
-    });
-    approveCall = {
-      to: spendPermissionManagerAddress,
-      data: approveData,
-      value: '0x0', // explicitly set to 0x0
-    };
-  }
+	if (!isActive) {
+		const approveData = encodeFunctionData({
+			abi: spendPermissionManagerAbi,
+			functionName: 'approveWithSignature',
+			args: [spendPermissionArgs, permission.signature as `0x${string}`],
+		})
+		approveCall = {
+			to: spendPermissionManagerAddress,
+			data: approveData,
+			value: '0x0', // explicitly set to 0x0
+		}
+	}
 
-  const spendData = encodeFunctionData({
-    abi: spendPermissionManagerAbi,
-    functionName: 'spend',
-    args: [spendPermissionArgs, spendAmount],
-  });
-  const spendCall: Call = {
-    to: spendPermissionManagerAddress,
-    data: spendData,
-    value: '0x0', // explicitly set to 0x0
-  };
+	const spendData = encodeFunctionData({
+		abi: spendPermissionManagerAbi,
+		functionName: 'spend',
+		args: [spendPermissionArgs, spendAmount],
+	})
+	const spendCall: Call = {
+		to: spendPermissionManagerAddress,
+		data: spendData,
+		value: '0x0', // explicitly set to 0x0
+	}
 
-  return [approveCall, spendCall].filter((item) => item !== null);
-};
+	return [approveCall, spendCall].filter((item) => item !== null)
+}
 
-export const prepareSpendCallData = withTelemetry(prepareSpendCallDataFn);
+export const prepareSpendCallData = withTelemetry(prepareSpendCallDataFn)

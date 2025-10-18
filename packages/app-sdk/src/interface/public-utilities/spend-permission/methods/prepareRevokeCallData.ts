@@ -1,17 +1,17 @@
-import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js';
+import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 import {
-  spendPermissionManagerAbi,
-  spendPermissionManagerAddress,
-} from ':sign/app-sdk/utils/constants.js';
-import { Address, Hex, encodeFunctionData } from 'viem';
-import { toSpendPermissionArgs } from '../utils.js';
-import { withTelemetry } from '../withTelemetry.js';
+	spendPermissionManagerAbi,
+	spendPermissionManagerAddress,
+} from ':sign/app-sdk/utils/constants.js'
+import { Address, Hex, encodeFunctionData } from 'viem'
+import { toSpendPermissionArgs } from '../utils.js'
+import { withTelemetry } from '../withTelemetry.js'
 
 type RevokeSpendPermissionResponse = {
-  to: Address;
-  data: Hex;
-  value: '0x0'; // explicitly set to 0x0
-};
+	to: Address
+	data: Hex
+	value: '0x0' // explicitly set to 0x0
+}
 
 /**
  * Prepares call data for revoking a spend permission without user interaction.
@@ -45,22 +45,22 @@ type RevokeSpendPermissionResponse = {
  * ```
  */
 const prepareRevokeCallDataFn = async (
-  permission: SpendPermission
+	permission: SpendPermission,
 ): Promise<RevokeSpendPermissionResponse> => {
-  const spendPermissionArgs = toSpendPermissionArgs(permission);
-  const data = encodeFunctionData({
-    abi: spendPermissionManagerAbi,
-    functionName: 'revokeAsSpender',
-    args: [spendPermissionArgs],
-  });
+	const spendPermissionArgs = toSpendPermissionArgs(permission)
+	const data = encodeFunctionData({
+		abi: spendPermissionManagerAbi,
+		functionName: 'revokeAsSpender',
+		args: [spendPermissionArgs],
+	})
 
-  const response: RevokeSpendPermissionResponse = {
-    to: spendPermissionManagerAddress,
-    data,
-    value: '0x0', // explicitly set to 0x0
-  };
+	const response: RevokeSpendPermissionResponse = {
+		to: spendPermissionManagerAddress,
+		data,
+		value: '0x0', // explicitly set to 0x0
+	}
 
-  return response;
-};
+	return response
+}
 
-export const prepareRevokeCallData = withTelemetry(prepareRevokeCallDataFn);
+export const prepareRevokeCallData = withTelemetry(prepareRevokeCallDataFn)
