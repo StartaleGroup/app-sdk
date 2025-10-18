@@ -1,4 +1,4 @@
-import { generatePrivateKey } from 'viem/accounts';
+import { generatePrivateKey } from 'viem/accounts'
 
 /**
  * Generate a private key if it doesn't exist in local storage
@@ -9,12 +9,12 @@ import { generatePrivateKey } from 'viem/accounts';
  * @returns a private key
  */
 export function unsafe_generateOrLoadPrivateKey() {
-  let privateKey = localStorage.getItem('base-acc-sdk.demo.add-sub-account.pk') as
-    | `0x${string}`
-    | null;
-  if (!privateKey) {
-    privateKey = generatePrivateKey();
-    localStorage.setItem('base-acc-sdk.demo.add-sub-account.pk', privateKey);
-  }
-  return privateKey;
+	let privateKey = localStorage.getItem(
+		'base-acc-sdk.demo.add-sub-account.pk',
+	) as `0x${string}` | null
+	if (!privateKey) {
+		privateKey = generatePrivateKey()
+		localStorage.setItem('base-acc-sdk.demo.add-sub-account.pk', privateKey)
+	}
+	return privateKey
 }

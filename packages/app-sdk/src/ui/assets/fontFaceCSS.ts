@@ -7,4 +7,4 @@ export const FONT_FACE_CSS = `
   font-style: normal;
   font-display: swap;
 }
-`;
+`

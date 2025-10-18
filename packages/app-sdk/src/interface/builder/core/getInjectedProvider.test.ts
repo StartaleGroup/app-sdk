@@ -1,195 +1,195 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getInjectedProvider } from './getInjectedProvider.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getInjectedProvider } from './getInjectedProvider.js'
 
 // Mock the global window object
 const mockWindow = {
-  ethereum: undefined as any,
-  top: {
-    ethereum: undefined as any,
-  },
-};
+	ethereum: undefined as any,
+	top: {
+		ethereum: undefined as any,
+	},
+}
 
 // Store the original window object
-const originalWindow = global.window;
+const originalWindow = global.window
 
 describe('getInjectedProvider', () => {
-  beforeEach(() => {
-    // Reset mocks before each test
-    vi.clearAllMocks();
+	beforeEach(() => {
+		// Reset mocks before each test
+		vi.clearAllMocks()
 
-    // Reset the mock window state
-    mockWindow.ethereum = undefined;
-    mockWindow.top.ethereum = undefined;
+		// Reset the mock window state
+		mockWindow.ethereum = undefined
+		mockWindow.top.ethereum = undefined
 
-    // Set up the global window mock
-    global.window = mockWindow as any;
-  });
+		// Set up the global window mock
+		global.window = mockWindow as any
+	})
 
-  afterEach(() => {
-    // Restore original window
-    global.window = originalWindow;
-  });
+	afterEach(() => {
+		// Restore original window
+		global.window = originalWindow
+	})
 
-  describe('when window.ethereum exists', () => {
-    it('should return the provider when it has the TBA identifier', () => {
-      const mockProvider = {
-        isCoinbaseBrowser: true,
-        request: vi.fn(),
-      };
-      mockWindow.ethereum = mockProvider;
+	describe('when window.ethereum exists', () => {
+		it('should return the provider when it has the TBA identifier', () => {
+			const mockProvider = {
+				isCoinbaseBrowser: true,
+				request: vi.fn(),
+			}
+			mockWindow.ethereum = mockProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBe(mockProvider);
-    });
+			expect(result).toBe(mockProvider)
+		})
 
-    it('should return null when provider does not have the TBA identifier', () => {
-      const mockProvider = {
-        request: vi.fn(),
-      };
-      mockWindow.ethereum = mockProvider;
+		it('should return null when provider does not have the TBA identifier', () => {
+			const mockProvider = {
+				request: vi.fn(),
+			}
+			mockWindow.ethereum = mockProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
+			expect(result).toBeNull()
+		})
 
-    it('should return null when TBA identifier is false', () => {
-      const mockProvider = {
-        isCoinbaseBrowser: false,
-        request: vi.fn(),
-      };
-      mockWindow.ethereum = mockProvider;
+		it('should return null when TBA identifier is false', () => {
+			const mockProvider = {
+				isCoinbaseBrowser: false,
+				request: vi.fn(),
+			}
+			mockWindow.ethereum = mockProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
-  });
+			expect(result).toBeNull()
+		})
+	})
 
-  describe('when window.ethereum does not exist', () => {
-    it('should return window.top.ethereum when it has the TBA identifier', () => {
-      const mockProvider = {
-        isCoinbaseBrowser: true,
-        request: vi.fn(),
-      };
-      mockWindow.ethereum = undefined;
-      mockWindow.top.ethereum = mockProvider;
+	describe('when window.ethereum does not exist', () => {
+		it('should return window.top.ethereum when it has the TBA identifier', () => {
+			const mockProvider = {
+				isCoinbaseBrowser: true,
+				request: vi.fn(),
+			}
+			mockWindow.ethereum = undefined
+			mockWindow.top.ethereum = mockProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBe(mockProvider);
-    });
+			expect(result).toBe(mockProvider)
+		})
 
-    it('should return null when window.top.ethereum does not have the TBA identifier', () => {
-      const mockProvider = {
-        request: vi.fn(),
-      };
-      mockWindow.ethereum = undefined;
-      mockWindow.top.ethereum = mockProvider;
+		it('should return null when window.top.ethereum does not have the TBA identifier', () => {
+			const mockProvider = {
+				request: vi.fn(),
+			}
+			mockWindow.ethereum = undefined
+			mockWindow.top.ethereum = mockProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
+			expect(result).toBeNull()
+		})
 
-    it('should return null when window.top.ethereum does not exist', () => {
-      mockWindow.ethereum = undefined;
-      mockWindow.top.ethereum = undefined;
+		it('should return null when window.top.ethereum does not exist', () => {
+			mockWindow.ethereum = undefined
+			mockWindow.top.ethereum = undefined
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
-  });
+			expect(result).toBeNull()
+		})
+	})
 
-  describe('when both window.ethereum and window.top.ethereum exist', () => {
-    it('should prefer window.top.ethereum', () => {
-      const windowProvider = {
-        isCoinbaseBrowser: true,
-        request: vi.fn(),
-        source: 'window',
-      };
-      const topProvider = {
-        isCoinbaseBrowser: true,
-        request: vi.fn(),
-        source: 'top',
-      };
+	describe('when both window.ethereum and window.top.ethereum exist', () => {
+		it('should prefer window.top.ethereum', () => {
+			const windowProvider = {
+				isCoinbaseBrowser: true,
+				request: vi.fn(),
+				source: 'window',
+			}
+			const topProvider = {
+				isCoinbaseBrowser: true,
+				request: vi.fn(),
+				source: 'top',
+			}
 
-      mockWindow.ethereum = windowProvider;
-      mockWindow.top.ethereum = topProvider;
+			mockWindow.ethereum = windowProvider
+			mockWindow.top.ethereum = topProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).not.toBe(windowProvider);
-      expect(result).toBe(topProvider);
-    });
+			expect(result).not.toBe(windowProvider)
+			expect(result).toBe(topProvider)
+		})
 
-    it('should return null when window.top.ethereum exists but lacks TBA identifier (does not fallback)', () => {
-      const windowProvider = {
-        request: vi.fn(),
-        source: 'window',
-      };
+		it('should return null when window.top.ethereum exists but lacks TBA identifier (does not fallback)', () => {
+			const windowProvider = {
+				request: vi.fn(),
+				source: 'window',
+			}
 
-      mockWindow.ethereum = windowProvider;
-      mockWindow.top.ethereum = windowProvider;
+			mockWindow.ethereum = windowProvider
+			mockWindow.top.ethereum = windowProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
+			expect(result).toBeNull()
+		})
 
-    it('should fallback to window.top.ethereum when window.ethereum is null', () => {
-      const topProvider = {
-        isCoinbaseBrowser: true,
-        request: vi.fn(),
-        source: 'top',
-      };
+		it('should fallback to window.top.ethereum when window.ethereum is null', () => {
+			const topProvider = {
+				isCoinbaseBrowser: true,
+				request: vi.fn(),
+				source: 'top',
+			}
 
-      mockWindow.ethereum = null;
-      mockWindow.top.ethereum = topProvider;
+			mockWindow.ethereum = null
+			mockWindow.top.ethereum = topProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBe(topProvider);
-    });
+			expect(result).toBe(topProvider)
+		})
 
-    it('should return null when neither has TBA identifier', () => {
-      const windowProvider = {
-        request: vi.fn(),
-        source: 'window',
-      };
-      const topProvider = {
-        request: vi.fn(),
-        source: 'top',
-      };
+		it('should return null when neither has TBA identifier', () => {
+			const windowProvider = {
+				request: vi.fn(),
+				source: 'window',
+			}
+			const topProvider = {
+				request: vi.fn(),
+				source: 'top',
+			}
 
-      mockWindow.ethereum = windowProvider;
-      mockWindow.top.ethereum = topProvider;
+			mockWindow.ethereum = windowProvider
+			mockWindow.top.ethereum = topProvider
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
-  });
+			expect(result).toBeNull()
+		})
+	})
 
-  describe('edge cases', () => {
-    it('should handle null window.ethereum', () => {
-      mockWindow.ethereum = null;
-      mockWindow.top.ethereum = undefined;
+	describe('edge cases', () => {
+		it('should handle null window.ethereum', () => {
+			mockWindow.ethereum = null
+			mockWindow.top.ethereum = undefined
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
+			expect(result).toBeNull()
+		})
 
-    it('should handle missing window.top', () => {
-      mockWindow.ethereum = undefined;
-      (mockWindow as any).top = undefined;
+		it('should handle missing window.top', () => {
+			mockWindow.ethereum = undefined
+			;(mockWindow as any).top = undefined
 
-      const result = getInjectedProvider();
+			const result = getInjectedProvider()
 
-      expect(result).toBeNull();
-    });
-  });
-});
+			expect(result).toBeNull()
+		})
+	})
+})

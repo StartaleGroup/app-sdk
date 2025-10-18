@@ -1,11 +1,10 @@
 {
-  "extends": "./tsconfig.base.json",
-  "watchOptions": {
-    // Use native file system events for files and directories
-    "watchFile": "useFsEvents",
-    "watchDirectory": "useFsEvents",
-    "fallbackPolling": "dynamicPriority",
-    "synchronousWatchDirectory": true,
-    "excludeDirectories": ["**/node_modules", "dist", "**/*.test.*"]
-  }
+	"extends": "./tsconfig.base.json",
+	"watchOptions": {
+		"watchFile": "useFsEvents",
+		"watchDirectory": "useFsEvents",
+		"fallbackPolling": "dynamicPriority",
+		"synchronousWatchDirectory": true,
+		"excludeDirectories": ["**/node_modules", "dist", "**/*.test.*"]
+	}
 }

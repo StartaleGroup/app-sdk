@@ -1,18 +1,18 @@
-import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js';
+import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 import {
-  spendPermissionManagerAbi,
-  spendPermissionManagerAddress,
-} from ':sign/app-sdk/utils/constants.js';
-import { getClient } from ':store/chain-clients/utils.js';
-import { readContract } from 'viem/actions';
-import { timestampInSecondsToDate, toSpendPermissionArgs } from '../utils.js';
-import { withTelemetry } from '../withTelemetry.js';
+	spendPermissionManagerAbi,
+	spendPermissionManagerAddress,
+} from ':sign/app-sdk/utils/constants.js'
+import { getClient } from ':store/chain-clients/utils.js'
+import { readContract } from 'viem/actions'
+import { timestampInSecondsToDate, toSpendPermissionArgs } from '../utils.js'
+import { withTelemetry } from '../withTelemetry.js'
 
 export type GetPermissionStatusResponseType = {
-  remainingSpend: bigint;
-  nextPeriodStart: Date;
-  isActive: boolean;
-};
+	remainingSpend: bigint
+	nextPeriodStart: Date
+	isActive: boolean
+}
 
 /**
  * Gets the current status of a spend permission.
@@ -48,61 +48,61 @@ export type GetPermissionStatusResponseType = {
  * ```
  */
 const getPermissionStatusFn = async (
-  permission: SpendPermission
+	permission: SpendPermission,
 ): Promise<GetPermissionStatusResponseType> => {
-  const { chainId } = permission;
+	const { chainId } = permission
 
-  if (!chainId) {
-    throw new Error('chainId is missing in the spend permission');
-  }
+	if (!chainId) {
+		throw new Error('chainId is missing in the spend permission')
+	}
 
-  const client = getClient(chainId);
-  if (!client) {
-    throw new Error(
-      `No client available for chain ID ${chainId}. Make sure the SDK is in connected state.`
-    );
-  }
+	const client = getClient(chainId)
+	if (!client) {
+		throw new Error(
+			`No client available for chain ID ${chainId}. Make sure the SDK is in connected state.`,
+		)
+	}
 
-  const spendPermissionArgs = toSpendPermissionArgs(permission);
+	const spendPermissionArgs = toSpendPermissionArgs(permission)
 
-  const [currentPeriod, isRevoked, isValid] = await Promise.all([
-    readContract(client, {
-      address: spendPermissionManagerAddress,
-      abi: spendPermissionManagerAbi,
-      functionName: 'getCurrentPeriod',
-      args: [spendPermissionArgs],
-    }) as Promise<{ start: number; end: number; spend: bigint }>,
-    readContract(client, {
-      address: spendPermissionManagerAddress,
-      abi: spendPermissionManagerAbi,
-      functionName: 'isRevoked',
-      args: [spendPermissionArgs],
-    }) as Promise<boolean>,
-    readContract(client, {
-      address: spendPermissionManagerAddress,
-      abi: spendPermissionManagerAbi,
-      functionName: 'isValid',
-      args: [spendPermissionArgs],
-    }) as Promise<boolean>,
-  ]);
+	const [currentPeriod, isRevoked, isValid] = await Promise.all([
+		readContract(client, {
+			address: spendPermissionManagerAddress,
+			abi: spendPermissionManagerAbi,
+			functionName: 'getCurrentPeriod',
+			args: [spendPermissionArgs],
+		}) as Promise<{ start: number; end: number; spend: bigint }>,
+		readContract(client, {
+			address: spendPermissionManagerAddress,
+			abi: spendPermissionManagerAbi,
+			functionName: 'isRevoked',
+			args: [spendPermissionArgs],
+		}) as Promise<boolean>,
+		readContract(client, {
+			address: spendPermissionManagerAddress,
+			abi: spendPermissionManagerAbi,
+			functionName: 'isValid',
+			args: [spendPermissionArgs],
+		}) as Promise<boolean>,
+	])
 
-  // Calculate remaining spend in current period
-  const allowance = BigInt(permission.permission.allowance);
-  const spent = currentPeriod.spend;
-  const remainingSpend = allowance > spent ? allowance - spent : BigInt(0);
+	// Calculate remaining spend in current period
+	const allowance = BigInt(permission.permission.allowance)
+	const spent = currentPeriod.spend
+	const remainingSpend = allowance > spent ? allowance - spent : BigInt(0)
 
-  // Calculate next period start
-  // Next period starts immediately after current period ends
-  const nextPeriodStart = (Number(currentPeriod.end) + 1).toString();
+	// Calculate next period start
+	// Next period starts immediately after current period ends
+	const nextPeriodStart = (Number(currentPeriod.end) + 1).toString()
 
-  // Permission is active if it's not revoked and is still valid
-  const isActive = !isRevoked && isValid;
+	// Permission is active if it's not revoked and is still valid
+	const isActive = !isRevoked && isValid
 
-  return {
-    remainingSpend,
-    nextPeriodStart: timestampInSecondsToDate(Number(nextPeriodStart)),
-    isActive,
-  };
-};
+	return {
+		remainingSpend,
+		nextPeriodStart: timestampInSecondsToDate(Number(nextPeriodStart)),
+		isActive,
+	}
+}
 
-export const getPermissionStatus = withTelemetry(getPermissionStatusFn);
+export const getPermissionStatus = withTelemetry(getPermissionStatusFn)

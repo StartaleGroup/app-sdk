@@ -1,28 +1,28 @@
 {
-  "name": "app-sdk",
-  "version": "0.0.1",
-  "repository": "https://github.com/base/account-sdk",
-  "author": "Base",
-  "license": "MIT",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "examples/*"
-  ],
-  "scripts": {
-    "build:packages": "nr -filter @startale/app-sdk build",
-    "clean": "nr -recursive clean && rm -rf node_modules && pnpm install",
-    "deploy": "nr build:packages && nr -filter sdk-playground export",
-    "dev": "nr -recursive --parallel dev",
-    "lint": "nr -recursive lint",
-    "format": "nr -recursive format",
-    "format:check": "nr -recursive format:check",
-    "test": "nr -recursive test",
-    "typecheck": "nr -recursive typecheck"
-  },
-  "devDependencies": {
-    "@antfu/ni": "^25.0.0",
-    "@biomejs/biome": "^1.9.4"
-  },
-  "packageManager": "pnpm@10.18.2"
+	"name": "app-sdk",
+	"version": "0.0.1",
+	"repository": "https://github.com/base/account-sdk",
+	"author": "Base",
+	"license": "MIT",
+	"private": true,
+	"workspaces": [
+		"packages/*",
+		"examples/*"
+	],
+	"scripts": {
+		"build:packages": "nr -filter @startale/app-sdk build",
+		"clean": "nr -recursive clean && rm -rf node_modules && pnpm install",
+		"deploy": "nr build:packages && nr -filter sdk-playground export",
+		"dev": "nr -recursive --parallel dev",
+		"lint": "nr -recursive lint",
+		"format": "nr -recursive format",
+		"format:check": "nr -recursive format:check",
+		"test": "nr -recursive test",
+		"typecheck": "nr -recursive typecheck"
+	},
+	"devDependencies": {
+		"@antfu/ni": "^25.0.0",
+		"@biomejs/biome": "^2.2.6"
+	},
+	"packageManager": "pnpm@10.18.2"
 }

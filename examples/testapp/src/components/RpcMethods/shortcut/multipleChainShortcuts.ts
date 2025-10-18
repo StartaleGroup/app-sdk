@@ -1,54 +1,54 @@
-import { soneium, soneiumMinato } from 'viem/chains';
+import { soneium, soneiumMinato } from 'viem/chains'
 
-import { ShortcutType } from './ShortcutType';
+import { ShortcutType } from './ShortcutType'
 
 const walletSwitchEthereumChainShortcuts: ShortcutType[] = [
-  {
-    key: 'Soneium',
-    data: {
-      chainId: '1868',
-      chain: soneium,
-    },
-  },
-  {
-    key: 'Minato',
-    data: {
-      chainId: '1946',
-      chain: soneiumMinato,
-    },
-  },
-];
+	{
+		key: 'Soneium',
+		data: {
+			chainId: '1868',
+			chain: soneium,
+		},
+	},
+	{
+		key: 'Minato',
+		data: {
+			chainId: '1946',
+			chain: soneiumMinato,
+		},
+	},
+]
 
 const walletAddEthereumChainShortcuts: ShortcutType[] = [
-  {
-    key: 'Harmony',
-    data: {
-      chainId: '1666600000',
-      chainName: 'Harmony Mainnet',
-      currencyName: 'ONE',
-      currencySymbol: 'ONE',
-      decimals: '18',
-      rpcUrl: 'https://api.harmony.one',
-      blockExplorerUrl: 'https://explorer.harmony.one',
-      iconUrl: '',
-    },
-  },
-];
+	{
+		key: 'Harmony',
+		data: {
+			chainId: '1666600000',
+			chainName: 'Harmony Mainnet',
+			currencyName: 'ONE',
+			currencySymbol: 'ONE',
+			decimals: '18',
+			rpcUrl: 'https://api.harmony.one',
+			blockExplorerUrl: 'https://explorer.harmony.one',
+			iconUrl: '',
+		},
+	},
+]
 
 const walletWatchAsset: ShortcutType[] = [
-  {
-    key: 'WONE on Harmony',
-    data: {
-      type: 'ERC20',
-      contractAddress: '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a',
-      symbol: 'WONE',
-      decimals: '18',
-    },
-  },
-];
+	{
+		key: 'WONE on Harmony',
+		data: {
+			type: 'ERC20',
+			contractAddress: '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a',
+			symbol: 'WONE',
+			decimals: '18',
+		},
+	},
+]
 
 export const multiChainShortcutsMap = {
-  wallet_switchEthereumChain: walletSwitchEthereumChainShortcuts,
-  wallet_addEthereumChain: walletAddEthereumChainShortcuts,
-  wallet_watchAsset: walletWatchAsset,
-};
+	wallet_switchEthereumChain: walletSwitchEthereumChainShortcuts,
+	wallet_addEthereumChain: walletAddEthereumChainShortcuts,
+	wallet_watchAsset: walletWatchAsset,
+}

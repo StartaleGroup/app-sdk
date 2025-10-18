@@ -1,6 +1,6 @@
 const COOP_ERROR_MESSAGE = `Base Account SDK requires the Cross-Origin-Opener-Policy header to not be set to 'same-origin'. This is to ensure that the SDK can communicate with the Base Account app.
 
-Please see https://docs.base.org/smart-wallet/quickstart#cross-origin-opener-policy for more information.`;
+Please see https://docs.base.org/smart-wallet/quickstart#cross-origin-opener-policy for more information.`
 
 /**
  * Creates a checker for the Cross-Origin-Opener-Policy (COOP).
@@ -18,45 +18,49 @@ Please see https://docs.base.org/smart-wallet/quickstart#cross-origin-opener-pol
  * Logs an error if the policy is 'same-origin'.
  */
 const createCoopChecker = () => {
-  let crossOriginOpenerPolicy: string | undefined;
+	let crossOriginOpenerPolicy: string | undefined
 
-  return {
-    getCrossOriginOpenerPolicy: () => {
-      if (crossOriginOpenerPolicy === undefined) {
-        return 'undefined';
-      }
+	return {
+		getCrossOriginOpenerPolicy: () => {
+			if (crossOriginOpenerPolicy === undefined) {
+				return 'undefined'
+			}
 
-      return crossOriginOpenerPolicy;
-    },
-    checkCrossOriginOpenerPolicy: async () => {
-      if (typeof window === 'undefined') {
-        // Non-browser environment
-        crossOriginOpenerPolicy = 'non-browser-env';
-        return;
-      }
+			return crossOriginOpenerPolicy
+		},
+		checkCrossOriginOpenerPolicy: async () => {
+			if (typeof window === 'undefined') {
+				// Non-browser environment
+				crossOriginOpenerPolicy = 'non-browser-env'
+				return
+			}
 
-      try {
-        const url = `${window.location.origin}${window.location.pathname}`;
-        const response = await fetch(url, {
-          method: 'HEAD',
-        });
+			try {
+				const url = `${window.location.origin}${window.location.pathname}`
+				const response = await fetch(url, {
+					method: 'HEAD',
+				})
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`)
+				}
 
-        const result = response.headers.get('Cross-Origin-Opener-Policy');
-        crossOriginOpenerPolicy = result ?? 'null';
+				const result = response.headers.get('Cross-Origin-Opener-Policy')
+				crossOriginOpenerPolicy = result ?? 'null'
 
-        if (crossOriginOpenerPolicy === 'same-origin') {
-          console.error(COOP_ERROR_MESSAGE);
-        }
-      } catch (error) {
-        console.error('Error checking Cross-Origin-Opener-Policy:', (error as Error).message);
-        crossOriginOpenerPolicy = 'error';
-      }
-    },
-  };
-};
+				if (crossOriginOpenerPolicy === 'same-origin') {
+					console.error(COOP_ERROR_MESSAGE)
+				}
+			} catch (error) {
+				console.error(
+					'Error checking Cross-Origin-Opener-Policy:',
+					(error as Error).message,
+				)
+				crossOriginOpenerPolicy = 'error'
+			}
+		},
+	}
+}
 
-export const { checkCrossOriginOpenerPolicy, getCrossOriginOpenerPolicy } = createCoopChecker();
+export const { checkCrossOriginOpenerPolicy, getCrossOriginOpenerPolicy } =
+	createCoopChecker()

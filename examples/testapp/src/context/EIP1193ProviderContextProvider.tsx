@@ -1,103 +1,119 @@
-import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@startale/app-sdk';
-import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { DisconnectedAlert } from '../components/alerts/DisconnectedAlert';
-import { useEventListeners } from '../hooks/useEventListeners';
-import { useSpyOnDisconnectedError } from '../hooks/useSpyOnDisconnectedError';
-import { scwUrls } from '../store/config';
-import { useConfig } from './ConfigContextProvider';
+import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@startale/app-sdk'
+import {
+	ReactNode,
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react'
+import { DisconnectedAlert } from '../components/alerts/DisconnectedAlert'
+import { useEventListeners } from '../hooks/useEventListeners'
+import { useSpyOnDisconnectedError } from '../hooks/useSpyOnDisconnectedError'
+import { scwUrls } from '../store/config'
+import { useConfig } from './ConfigContextProvider'
 
 type EIP1193ProviderContextProviderProps = {
-  children: ReactNode;
-};
+	children: ReactNode
+}
 
 type EIP1193ProviderContextType = {
-  sdk: ReturnType<typeof createBaseAccountSDKHEAD>;
-  provider: ReturnType<EIP1193ProviderContextType['sdk']['getProvider']>;
-};
+	sdk: ReturnType<typeof createBaseAccountSDKHEAD>
+	provider: ReturnType<EIP1193ProviderContextType['sdk']['getProvider']>
+}
 
-const EIP1193ProviderContext = createContext<EIP1193ProviderContextType | null>(null);
+const EIP1193ProviderContext = createContext<EIP1193ProviderContextType | null>(
+	null,
+)
 
-export function EIP1193ProviderContextProvider({ children }: EIP1193ProviderContextProviderProps) {
-  const { scwUrl, config, subAccountsConfig } = useConfig();
-  const { addEventListeners, removeEventListeners } = useEventListeners();
-  const {
-    spyOnDisconnectedError,
-    isOpen: isDisconnectedAlertOpen,
-    onClose: onDisconnectedAlertClose,
-  } = useSpyOnDisconnectedError();
+export function EIP1193ProviderContextProvider({
+	children,
+}: EIP1193ProviderContextProviderProps) {
+	const { scwUrl, config, subAccountsConfig } = useConfig()
+	const { addEventListeners, removeEventListeners } = useEventListeners()
+	const {
+		spyOnDisconnectedError,
+		isOpen: isDisconnectedAlertOpen,
+		onClose: onDisconnectedAlertClose,
+	} = useSpyOnDisconnectedError()
 
-  const [sdk, setSdk] = useState(null);
-  const [provider, setProvider] = useState(null);
+	const [sdk, setSdk] = useState(null)
+	const [provider, setProvider] = useState(null)
 
-  useEffect(() => {
-    const paymasterId = process.env.NEXT_PUBLIC_PAYMASTER_ID;
-    const paymasterApiKey = process.env.NEXT_PUBLIC_PAYMASTER_API_KEY;
-    const bundlerApiKey = process.env.NEXT_PUBLIC_BUNDLER_API_KEY;
+	useEffect(() => {
+		const paymasterId = process.env.NEXT_PUBLIC_PAYMASTER_ID
+		const paymasterApiKey = process.env.NEXT_PUBLIC_PAYMASTER_API_KEY
+		const bundlerApiKey = process.env.NEXT_PUBLIC_BUNDLER_API_KEY
 
-    const sdkParams = {
-      appName: 'Startale app SDK Playground',
-      appLogoUrl: 'https://startale.com/image/symbol.png',
-      appChainIds: [1946, 1868],
-      preference: {
-        attribution: config.attribution,
-        walletUrl: scwUrl ?? scwUrls[0],
-        telemetry: false,
-      },
-      subAccounts: subAccountsConfig,
-      paymasterId,
-      paymasterApiKey,
-      bundlerApiKey,
-    };
+		const sdkParams = {
+			appName: 'Startale app SDK Playground',
+			appLogoUrl: 'https://startale.com/image/symbol.png',
+			appChainIds: [1946, 1868],
+			preference: {
+				attribution: config.attribution,
+				walletUrl: scwUrl ?? scwUrls[0],
+				telemetry: false,
+			},
+			subAccounts: subAccountsConfig,
+			paymasterId,
+			paymasterApiKey,
+			bundlerApiKey,
+		}
 
-    const sdk = createBaseAccountSDKHEAD(sdkParams);
+		const sdk = createBaseAccountSDKHEAD(sdkParams)
 
-    setSdk(sdk);
+		setSdk(sdk)
 
-    const newProvider = sdk.getProvider();
-    // biome-ignore lint/suspicious/noConsole: developer feedback
-    console.log('Provider:', newProvider);
+		const newProvider = sdk.getProvider()
+		// biome-ignore lint/suspicious/noConsole: developer feedback
+		console.log('Provider:', newProvider)
 
-    addEventListeners(newProvider);
-    spyOnDisconnectedError(newProvider);
+		addEventListeners(newProvider)
+		spyOnDisconnectedError(newProvider)
 
-    // @ts-ignore convenience for testing
-    window.ethereum = newProvider;
-    setProvider(newProvider);
+		// @ts-ignore convenience for testing
+		window.ethereum = newProvider
+		setProvider(newProvider)
 
-    return () => {
-      removeEventListeners(newProvider);
-    };
-  }, [
-    scwUrl,
-    config,
-    subAccountsConfig,
-    spyOnDisconnectedError,
-    addEventListeners,
-    removeEventListeners,
-  ]);
+		return () => {
+			removeEventListeners(newProvider)
+		}
+	}, [
+		scwUrl,
+		config,
+		subAccountsConfig,
+		spyOnDisconnectedError,
+		addEventListeners,
+		removeEventListeners,
+	])
 
-  const value = useMemo(
-    () => ({
-      sdk,
-      provider,
-    }),
-    [sdk, provider]
-  );
+	const value = useMemo(
+		() => ({
+			sdk,
+			provider,
+		}),
+		[sdk, provider],
+	)
 
-  return (
-    <EIP1193ProviderContext.Provider value={value}>
-      <>
-        {children}
-        <DisconnectedAlert isOpen={isDisconnectedAlertOpen} onClose={onDisconnectedAlertClose} />
-      </>
-    </EIP1193ProviderContext.Provider>
-  );
+	return (
+		<EIP1193ProviderContext.Provider value={value}>
+			<>
+				{children}
+				<DisconnectedAlert
+					isOpen={isDisconnectedAlertOpen}
+					onClose={onDisconnectedAlertClose}
+				/>
+			</>
+		</EIP1193ProviderContext.Provider>
+	)
 }
 
 export function useEIP1193Provider() {
-  const context = useContext(EIP1193ProviderContext);
-  if (context === undefined) {
-    throw new Error('useEIP1193Provider must be used within a EIP1193ProviderContextProvider');
-  }
-  return context;
+	const context = useContext(EIP1193ProviderContext)
+	if (context === undefined) {
+		throw new Error(
+			'useEIP1193Provider must be used within a EIP1193ProviderContextProvider',
+		)
+	}
+	return context
 }

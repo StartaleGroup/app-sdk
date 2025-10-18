@@ -2,23 +2,25 @@
 
 ## Startale App SDK allows dapps to connect to the Startale App
 
+> This repository uses `pnpm`. The examples below show the `pnpm` command first, followed by an `npm` alternative when helpful.
+
 ### Installing Startale App SDK
 
 1. Check available versions:
 
    ```shell
-     # yarn
-     yarn info @startale/app-sdk versions
+   # pnpm
+   pnpm view @startale/app-sdk versions
 
-     # npm
-     npm view @startale/app-sdk versions
+   # npm
+   npm view @startale/app-sdk versions
    ```
 
 2. Install latest version:
 
    ```shell
-   # yarn
-   yarn add @startale/app-sdk
+   # pnpm
+   pnpm add @startale/app-sdk
 
    # npm
    npm install @startale/app-sdk
@@ -27,8 +29,8 @@
 3. Check installed version:
 
    ```shell
-   # yarn
-   yarn list @startale/app-sdk
+   # pnpm
+   pnpm list @startale/app-sdk
 
    # npm
    npm list @startale/app-sdk
@@ -39,8 +41,8 @@
 1. Compare the installed version with the latest:
 
    ```shell
-   # yarn
-   yarn outdated @startale/app-sdk
+   # pnpm
+   pnpm outdated @startale/app-sdk
 
    # npm
    npm outdated @startale/app-sdk
@@ -49,8 +51,8 @@
 2. Update to latest:
 
    ```shell
-   # yarn
-   yarn upgrade @startale/app-sdk --latest
+   # pnpm
+   pnpm update @startale/app-sdk
 
    # npm
    npm update @startale/app-sdk
@@ -119,8 +121,8 @@
 - To run it locally follow these steps:
 
   1. Fork this repo and clone it
-  1. From the root dir run `yarn install`
-  1. From the root dir run `yarn dev`
+  1. From the repo root install dependencies with `pnpm install`
+  1. Start the workspace development servers with `pnpm dev` (the playground runs on http://localhost:3001 by default)
 
 ## Script Tag Usage
 

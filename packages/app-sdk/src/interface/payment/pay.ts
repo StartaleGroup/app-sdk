@@ -1,12 +1,12 @@
 import {
-  logPaymentCompleted,
-  logPaymentError,
-  logPaymentStarted,
-} from ':core/telemetry/events/payment.js';
-import type { PaymentOptions, PaymentResult } from './types.js';
-import { executePaymentWithSDK } from './utils/sdkManager.js';
-import { translatePaymentToSendCalls } from './utils/translatePayment.js';
-import { normalizeAddress, validateStringAmount } from './utils/validation.js';
+	logPaymentCompleted,
+	logPaymentError,
+	logPaymentStarted,
+} from ':core/telemetry/events/payment.js'
+import type { PaymentOptions, PaymentResult } from './types.js'
+import { executePaymentWithSDK } from './utils/sdkManager.js'
+import { translatePaymentToSendCalls } from './utils/translatePayment.js'
+import { normalizeAddress, validateStringAmount } from './utils/validation.js'
 
 /**
  * Pay a specified address with USDC on Base network using an ephemeral wallet
@@ -35,75 +35,86 @@ import { normalizeAddress, validateStringAmount } from './utils/validation.js';
  * ```
  */
 export async function pay(options: PaymentOptions): Promise<PaymentResult> {
-  const { amount, to, testnet = false, payerInfo, walletUrl, telemetry = true } = options;
+	const {
+		amount,
+		to,
+		testnet = false,
+		payerInfo,
+		walletUrl,
+		telemetry = true,
+	} = options
 
-  // Generate correlation ID for this payment request
-  const correlationId = crypto.randomUUID();
+	// Generate correlation ID for this payment request
+	const correlationId = crypto.randomUUID()
 
-  // Log payment started
-  if (telemetry) {
-    logPaymentStarted({ amount, testnet, correlationId });
-  }
+	// Log payment started
+	if (telemetry) {
+		logPaymentStarted({ amount, testnet, correlationId })
+	}
 
-  try {
-    validateStringAmount(amount, 6);
-    const normalizedAddress = normalizeAddress(to);
+	try {
+		validateStringAmount(amount, 6)
+		const normalizedAddress = normalizeAddress(to)
 
-    // Step 2: Translate payment to sendCalls format
-    const requestParams = translatePaymentToSendCalls(
-      normalizedAddress,
-      amount,
-      testnet,
-      payerInfo
-    );
+		// Step 2: Translate payment to sendCalls format
+		const requestParams = translatePaymentToSendCalls(
+			normalizedAddress,
+			amount,
+			testnet,
+			payerInfo,
+		)
 
-    // Step 3: Execute payment with SDK
-    const executionResult = await executePaymentWithSDK(
-      requestParams,
-      testnet,
-      walletUrl,
-      telemetry
-    );
+		// Step 3: Execute payment with SDK
+		const executionResult = await executePaymentWithSDK(
+			requestParams,
+			testnet,
+			walletUrl,
+			telemetry,
+		)
 
-    // Log payment completed
-    if (telemetry) {
-      logPaymentCompleted({ amount, testnet, correlationId });
-    }
+		// Log payment completed
+		if (telemetry) {
+			logPaymentCompleted({ amount, testnet, correlationId })
+		}
 
-    // Return success result
-    return {
-      success: true,
-      id: executionResult.transactionHash,
-      amount: amount,
-      to: normalizedAddress,
-      payerInfoResponses: executionResult.payerInfoResponses,
-    };
-  } catch (error) {
-    // Extract error message
-    let errorMessage = 'Unknown error occurred';
+		// Return success result
+		return {
+			success: true,
+			id: executionResult.transactionHash,
+			amount: amount,
+			to: normalizedAddress,
+			payerInfoResponses: executionResult.payerInfoResponses,
+		}
+	} catch (error) {
+		// Extract error message
+		let errorMessage = 'Unknown error occurred'
 
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else if (error && typeof error === 'object') {
-      // Check for various error message properties using optional chaining
-      const err = error as { message?: unknown; error?: { message?: unknown }; reason?: unknown };
-      if (typeof err?.message === 'string') {
-        errorMessage = err.message;
-      } else if (typeof err?.error?.message === 'string') {
-        errorMessage = err.error.message;
-      } else if (typeof err?.reason === 'string') {
-        errorMessage = err.reason;
-      }
-    }
+		if (error instanceof Error) {
+			errorMessage = error.message
+		} else if (typeof error === 'string') {
+			errorMessage = error
+		} else if (error && typeof error === 'object') {
+			// Check for various error message properties using optional chaining
+			const err = error as {
+				message?: unknown
+				error?: { message?: unknown }
+				reason?: unknown
+			}
+			if (typeof err?.message === 'string') {
+				errorMessage = err.message
+			} else if (typeof err?.error?.message === 'string') {
+				errorMessage = err.error.message
+			} else if (typeof err?.reason === 'string') {
+				errorMessage = err.reason
+			}
+		}
 
-    // Log payment error
-    if (telemetry) {
-      logPaymentError({ amount, testnet, correlationId, errorMessage });
-    }
+		// Log payment error
+		if (telemetry) {
+			logPaymentError({ amount, testnet, correlationId, errorMessage })
+		}
 
-    // Re-throw the original error
-    throw error;
-  }
+		// Re-throw the original error
+		throw error
+	}
 }

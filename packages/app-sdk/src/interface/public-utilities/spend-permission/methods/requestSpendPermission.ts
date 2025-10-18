@@ -1,22 +1,25 @@
-import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js';
+import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 
-import { ProviderInterface } from ':core/provider/interface.js';
-import { createSpendPermissionTypedData, dateToTimestampInSeconds } from '../utils.js';
-import { withTelemetry } from '../withTelemetry.js';
-import { getHash } from './getHash.js';
+import { ProviderInterface } from ':core/provider/interface.js'
+import {
+	createSpendPermissionTypedData,
+	dateToTimestampInSeconds,
+} from '../utils.js'
+import { withTelemetry } from '../withTelemetry.js'
+import { getHash } from './getHash.js'
 
 export type RequestSpendPermissionType = {
-  account: string;
-  spender: string;
-  token: string;
-  chainId: number;
-  allowance: bigint; // in wei
-  periodInDays: number;
-  start?: Date; // default to now
-  end?: Date; // default to never
-  salt?: string; // default to a random value by crypto.getRandomValues
-  extraData?: string; // default to '0x'
-};
+	account: string
+	spender: string
+	token: string
+	chainId: number
+	allowance: bigint // in wei
+	periodInDays: number
+	start?: Date // default to now
+	end?: Date // default to never
+	salt?: string // default to a random value by crypto.getRandomValues
+	extraData?: string // default to '0x'
+}
 
 /**
  * Requests user approval to create a new spend permission.
@@ -62,29 +65,29 @@ export type RequestSpendPermissionType = {
  * ```
  */
 const requestSpendPermissionFn = async (
-  request: RequestSpendPermissionType & { provider: ProviderInterface }
+	request: RequestSpendPermissionType & { provider: ProviderInterface },
 ): Promise<SpendPermission> => {
-  const { provider, account, chainId } = request;
+	const { provider, account, chainId } = request
 
-  const typedData = createSpendPermissionTypedData(request);
+	const typedData = createSpendPermissionTypedData(request)
 
-  const [signature, permissionHash] = await Promise.all([
-    provider.request({
-      method: 'eth_signTypedData_v4',
-      params: [account, typedData],
-    }) as Promise<string>,
-    getHash({ permission: typedData.message, chainId }),
-  ]);
+	const [signature, permissionHash] = await Promise.all([
+		provider.request({
+			method: 'eth_signTypedData_v4',
+			params: [account, typedData],
+		}) as Promise<string>,
+		getHash({ permission: typedData.message, chainId }),
+	])
 
-  const permission: SpendPermission = {
-    createdAt: dateToTimestampInSeconds(new Date()),
-    permissionHash,
-    signature,
-    chainId,
-    permission: typedData.message,
-  };
+	const permission: SpendPermission = {
+		createdAt: dateToTimestampInSeconds(new Date()),
+		permissionHash,
+		signature,
+		chainId,
+		permission: typedData.message,
+	}
 
-  return permission;
-};
+	return permission
+}
 
-export const requestSpendPermission = withTelemetry(requestSpendPermissionFn);
+export const requestSpendPermission = withTelemetry(requestSpendPermissionFn)

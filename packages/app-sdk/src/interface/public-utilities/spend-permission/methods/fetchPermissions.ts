@@ -1,15 +1,15 @@
-import { ProviderInterface } from ':core/provider/interface.js';
+import { ProviderInterface } from ':core/provider/interface.js'
 import {
-  FetchPermissionsResponse,
-  SpendPermission,
-} from ':core/rpc/coinbase_fetchSpendPermissions.js';
-import { withTelemetry } from '../withTelemetry.js';
+	FetchPermissionsResponse,
+	SpendPermission,
+} from ':core/rpc/coinbase_fetchSpendPermissions.js'
+import { withTelemetry } from '../withTelemetry.js'
 
 type FetchPermissionsType = {
-  account: string;
-  chainId: number;
-  spender: string;
-};
+	account: string
+	chainId: number
+	spender: string
+}
 
 /**
  * Fetches existing spend permissions for a specific account, spender, and chain.
@@ -48,23 +48,25 @@ type FetchPermissionsType = {
  * ```
  */
 const fetchPermissionsFn = async ({
-  provider,
-  account,
-  chainId,
-  spender,
-}: FetchPermissionsType & { provider: ProviderInterface }): Promise<SpendPermission[]> => {
-  const response = (await provider.request({
-    method: 'coinbase_fetchPermissions',
-    params: [
-      {
-        account,
-        chainId: `0x${chainId.toString(16)}`,
-        spender,
-      },
-    ],
-  })) as FetchPermissionsResponse;
+	provider,
+	account,
+	chainId,
+	spender,
+}: FetchPermissionsType & { provider: ProviderInterface }): Promise<
+	SpendPermission[]
+> => {
+	const response = (await provider.request({
+		method: 'coinbase_fetchPermissions',
+		params: [
+			{
+				account,
+				chainId: `0x${chainId.toString(16)}`,
+				spender,
+			},
+		],
+	})) as FetchPermissionsResponse
 
-  return response.permissions;
-};
+	return response.permissions
+}
 
-export const fetchPermissions = withTelemetry(fetchPermissionsFn);
+export const fetchPermissions = withTelemetry(fetchPermissionsFn)

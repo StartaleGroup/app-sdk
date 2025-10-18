@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
-import indexeddb from 'fake-indexeddb';
+import '@testing-library/jest-dom'
+import indexeddb from 'fake-indexeddb'
 
-globalThis.indexedDB = indexeddb;
+globalThis.indexedDB = indexeddb

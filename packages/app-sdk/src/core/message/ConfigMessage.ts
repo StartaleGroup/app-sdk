@@ -1,7 +1,7 @@
-import { Message } from './Message.js';
+import { Message } from './Message.js'
 
 export interface ConfigMessage extends Message {
-  event: ConfigEvent;
+	event: ConfigEvent
 }
 
-export type ConfigEvent = 'PopupLoaded' | 'PopupUnload';
+export type ConfigEvent = 'PopupLoaded' | 'PopupUnload'
