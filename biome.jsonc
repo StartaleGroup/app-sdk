@@ -796,7 +796,7 @@
 		},
 		"parser": {
 			"allowWrongLineComments": false,
-			"cssModules": false
+			"cssModules": true
 		}
 	},
 	"json": {

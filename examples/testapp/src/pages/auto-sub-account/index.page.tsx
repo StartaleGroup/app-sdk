@@ -1,634 +1,669 @@
-import { getCryptoKeyAccount } from '@startale/app-sdk';
+import { getCryptoKeyAccount } from '@startale/app-sdk'
 import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormControl,
-  FormLabel,
-  HStack,
-  Input,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+	Box,
+	Button,
+	Checkbox,
+	Container,
+	FormControl,
+	FormLabel,
+	HStack,
+	Input,
+	Radio,
+	RadioGroup,
+	Stack,
+	Text,
+	VStack,
+} from '@chakra-ui/react'
+import React, { useEffect, useState } from 'react'
 import {
-  createPublicClient,
-  encodeFunctionData,
-  http,
-  numberToHex,
-  parseEther,
-  parseUnits,
-} from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { baseSepolia } from 'viem/chains';
-import { useConfig } from '../../context/ConfigContextProvider';
-import { useEIP1193Provider } from '../../context/EIP1193ProviderContextProvider';
-import { unsafe_generateOrLoadPrivateKey } from '../../utils/unsafe_generateOrLoadPrivateKey';
+	createPublicClient,
+	encodeFunctionData,
+	http,
+	numberToHex,
+	parseEther,
+	parseUnits,
+} from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { baseSepolia } from 'viem/chains'
+import { useConfig } from '../../context/ConfigContextProvider'
+import { useEIP1193Provider } from '../../context/EIP1193ProviderContextProvider'
+import { unsafe_generateOrLoadPrivateKey } from '../../utils/unsafe_generateOrLoadPrivateKey'
 
-type SignerType = 'cryptokey' | 'secp256k1';
+type SignerType = 'cryptokey' | 'secp256k1'
 
 interface WalletConnectResponse {
-  accounts: Array<{
-    address: string;
-    capabilities?: Record<string, unknown>;
-  }>;
+	accounts: Array<{
+		address: string
+		capabilities?: Record<string, unknown>
+	}>
 }
 
 export default function AutoSubAccount() {
-  const [accounts, setAccounts] = useState<string[]>([]);
-  const [lastResult, setLastResult] = useState<string>();
-  const [sendingAmounts, setSendingAmounts] = useState<Record<number, boolean>>({});
-  const [sendingUsdcAmounts, setSendingUsdcAmounts] = useState<Record<string, boolean>>({});
-  const [signerType, setSignerType] = useState<SignerType>('cryptokey');
-  const [walletConnectCapabilities, setWalletConnectCapabilities] = useState({
-    siwe: false,
-    addSubAccount: false,
-  });
-  const { subAccountsConfig, setSubAccountsConfig, config, setConfig } = useConfig();
-  const { provider } = useEIP1193Provider();
+	const [accounts, setAccounts] = useState<string[]>([])
+	const [lastResult, setLastResult] = useState<string>()
+	const [sendingAmounts, setSendingAmounts] = useState<
+		Record<number, boolean>
+	>({})
+	const [sendingUsdcAmounts, setSendingUsdcAmounts] = useState<
+		Record<string, boolean>
+	>({})
+	const [signerType, setSignerType] = useState<SignerType>('cryptokey')
+	const [walletConnectCapabilities, setWalletConnectCapabilities] = useState({
+		siwe: false,
+		addSubAccount: false,
+	})
+	const { subAccountsConfig, setSubAccountsConfig, config, setConfig } =
+		useConfig()
+	const { provider } = useEIP1193Provider()
 
-  useEffect(() => {
-    const stored = localStorage.getItem('signer-type');
-    if (stored !== null) {
-      setSignerType(stored as SignerType);
-    }
-  }, []);
+	useEffect(() => {
+		const stored = localStorage.getItem('signer-type')
+		if (stored !== null) {
+			setSignerType(stored as SignerType)
+		}
+	}, [])
 
-  useEffect(() => {
-    localStorage.setItem('signer-type', signerType);
-  }, [signerType]);
+	useEffect(() => {
+		localStorage.setItem('signer-type', signerType)
+	}, [signerType])
 
-  useEffect(() => {
-    const getSigner =
-      signerType === 'cryptokey'
-        ? getCryptoKeyAccount
-        : async () => {
-            // THIS IS NOT SAFE, THIS IS ONLY FOR TESTING
-            // IN A REAL APP YOU SHOULD NOT STORE/EXPOSE A PRIVATE KEY
-            const privateKey = unsafe_generateOrLoadPrivateKey();
-            return {
-              account: privateKeyToAccount(privateKey),
-            };
-          };
+	useEffect(() => {
+		const getSigner =
+			signerType === 'cryptokey'
+				? getCryptoKeyAccount
+				: async () => {
+						// THIS IS NOT SAFE, THIS IS ONLY FOR TESTING
+						// IN A REAL APP YOU SHOULD NOT STORE/EXPOSE A PRIVATE KEY
+						const privateKey = unsafe_generateOrLoadPrivateKey()
+						return {
+							account: privateKeyToAccount(privateKey),
+						}
+					}
 
-    setSubAccountsConfig((prev) => ({ ...prev, toOwnerAccount: getSigner }));
-  }, [signerType, setSubAccountsConfig]);
+		setSubAccountsConfig((prev) => ({ ...prev, toOwnerAccount: getSigner }))
+	}, [signerType, setSubAccountsConfig])
 
-  const handleRequestAccounts = async () => {
-    if (!provider) return;
+	const handleRequestAccounts = async () => {
+		if (!provider) return
 
-    try {
-      const response = await provider.request({
-        method: 'eth_requestAccounts',
-        params: [],
-      });
-      setAccounts(response as string[]);
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    }
-  };
+		try {
+			const response = await provider.request({
+				method: 'eth_requestAccounts',
+				params: [],
+			})
+			setAccounts(response as string[])
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		}
+	}
 
-  const handleEthAccounts = async () => {
-    if (!provider) return;
+	const handleEthAccounts = async () => {
+		if (!provider) return
 
-    try {
-      const response = await provider.request({
-        method: 'eth_accounts',
-        params: [],
-      });
-      setAccounts(response as string[]);
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    }
-  };
+		try {
+			const response = await provider.request({
+				method: 'eth_accounts',
+				params: [],
+			})
+			setAccounts(response as string[])
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		}
+	}
 
-  const handleSendTransaction = async () => {
-    if (!provider || !accounts.length) return;
+	const handleSendTransaction = async () => {
+		if (!provider || !accounts.length) return
 
-    try {
-      const response = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-            value: '0x0',
-            data: '0x',
-          },
-        ],
-      });
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    }
-  };
+		try {
+			const response = await provider.request({
+				method: 'eth_sendTransaction',
+				params: [
+					{
+						from: accounts[0],
+						to: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+						value: '0x0',
+						data: '0x',
+					},
+				],
+			})
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		}
+	}
 
-  const handleSignTypedData = async () => {
-    if (!provider || !accounts.length) return;
+	const handleSignTypedData = async () => {
+		if (!provider || !accounts.length) return
 
-    try {
-      const typedData = {
-        types: {
-          EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
-          ],
-          Person: [
-            { name: 'name', type: 'string' },
-            { name: 'wallet', type: 'address' },
-          ],
-        },
-        primaryType: 'Person',
-        domain: {
-          name: 'Test Domain',
-          version: '1',
-          chainId: baseSepolia.id,
-          verifyingContract: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-        },
-        message: {
-          name: 'Test User',
-          wallet: accounts[0],
-        },
-      };
+		try {
+			const typedData = {
+				types: {
+					EIP712Domain: [
+						{ name: 'name', type: 'string' },
+						{ name: 'version', type: 'string' },
+						{ name: 'chainId', type: 'uint256' },
+						{ name: 'verifyingContract', type: 'address' },
+					],
+					Person: [
+						{ name: 'name', type: 'string' },
+						{ name: 'wallet', type: 'address' },
+					],
+				},
+				primaryType: 'Person',
+				domain: {
+					name: 'Test Domain',
+					version: '1',
+					chainId: baseSepolia.id,
+					verifyingContract:
+						'0x0000000000000000000000000000000000000000' as `0x${string}`,
+				},
+				message: {
+					name: 'Test User',
+					wallet: accounts[0],
+				},
+			}
 
-      const response = await provider.request({
-        method: 'eth_signTypedData_v4',
-        params: [accounts[0], JSON.stringify(typedData)],
-      });
+			const response = await provider.request({
+				method: 'eth_signTypedData_v4',
+				params: [accounts[0], JSON.stringify(typedData)],
+			})
 
-      const publicClient = createPublicClient({
-        chain: baseSepolia,
-        transport: http(),
-      });
+			const publicClient = createPublicClient({
+				chain: baseSepolia,
+				transport: http(),
+			})
 
-      const isValid = await publicClient.verifyTypedData({
-        address: accounts[0] as `0x${string}`,
-        domain: typedData.domain,
-        types: typedData.types,
-        primaryType: typedData.primaryType,
-        message: typedData.message,
-        signature: response as `0x${string}`,
-      });
+			const isValid = await publicClient.verifyTypedData({
+				address: accounts[0] as `0x${string}`,
+				domain: typedData.domain,
+				types: typedData.types,
+				primaryType: typedData.primaryType,
+				message: typedData.message,
+				signature: response as `0x${string}`,
+			})
 
-      setLastResult(`isValid: ${isValid}\n${response}`);
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    }
-  };
+			setLastResult(`isValid: ${isValid}\n${response}`)
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		}
+	}
 
-  const handleWalletConnect = async () => {
-    if (!provider) return;
+	const handleWalletConnect = async () => {
+		if (!provider) return
 
-    let params: unknown[] = [];
+		let params: unknown[] = []
 
-    // Build params based on selected capabilities
-    if (walletConnectCapabilities.siwe || walletConnectCapabilities.addSubAccount) {
-      const capabilities: Record<string, unknown> = {};
+		// Build params based on selected capabilities
+		if (
+			walletConnectCapabilities.siwe ||
+			walletConnectCapabilities.addSubAccount
+		) {
+			const capabilities: Record<string, unknown> = {}
 
-      // Add SIWE capability if selected
-      if (walletConnectCapabilities.siwe) {
-        capabilities.signInWithEthereum = {
-          chainId: 84532,
-          nonce: Math.random().toString(36).substring(2, 15),
-        };
-      }
+			// Add SIWE capability if selected
+			if (walletConnectCapabilities.siwe) {
+				capabilities.signInWithEthereum = {
+					chainId: 84532,
+					nonce: Math.random().toString(36).substring(2, 15),
+				}
+			}
 
-      // Add addSubAccount capability if selected
-      if (walletConnectCapabilities.addSubAccount) {
-        const { account: ownerAccount } = await subAccountsConfig.toOwnerAccount();
-        capabilities.addSubAccount = {
-          account: {
-            type: 'create',
-            keys: [
-              {
-                type: ownerAccount.address ? 'address' : 'webauthn-p256',
-                publicKey: ownerAccount.address ?? ownerAccount.publicKey,
-              },
-            ],
-          },
-        };
-      }
+			// Add addSubAccount capability if selected
+			if (walletConnectCapabilities.addSubAccount) {
+				const { account: ownerAccount } =
+					await subAccountsConfig.toOwnerAccount()
+				capabilities.addSubAccount = {
+					account: {
+						type: 'create',
+						keys: [
+							{
+								type: ownerAccount.address
+									? 'address'
+									: 'webauthn-p256',
+								publicKey:
+									ownerAccount.address ?? ownerAccount.publicKey,
+							},
+						],
+					},
+				}
+			}
 
-      params = [
-        {
-          ...(walletConnectCapabilities.siwe && { version: '1' }),
-          capabilities,
-        },
-      ];
-    }
+			params = [
+				{
+					...(walletConnectCapabilities.siwe && { version: '1' }),
+					capabilities,
+				},
+			]
+		}
 
-    try {
-      const response = (await provider.request({
-        method: 'wallet_connect',
-        params,
-      })) as WalletConnectResponse;
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    }
-  };
+		try {
+			const response = (await provider.request({
+				method: 'wallet_connect',
+				params,
+			})) as WalletConnectResponse
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		}
+	}
 
-  const handleEthSend = async (amount: string) => {
-    if (!provider || !accounts.length) return;
+	const handleEthSend = async (amount: string) => {
+		if (!provider || !accounts.length) return
 
-    try {
-      setSendingAmounts((prev) => ({ ...prev, [amount]: true }));
-      const to = '0x8d25687829d6b85d9e0020b8c89e3ca24de20a89';
-      const value = parseEther(amount);
+		try {
+			setSendingAmounts((prev) => ({ ...prev, [amount]: true }))
+			const to = '0x8d25687829d6b85d9e0020b8c89e3ca24de20a89'
+			const value = parseEther(amount)
 
-      const response = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: to,
-            value: numberToHex(value),
-            data: '0x',
-          },
-        ],
-      });
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    } finally {
-      setSendingAmounts((prev) => ({ ...prev, [amount]: false }));
-    }
-  };
+			const response = await provider.request({
+				method: 'eth_sendTransaction',
+				params: [
+					{
+						from: accounts[0],
+						to: to,
+						value: numberToHex(value),
+						data: '0x',
+					},
+				],
+			})
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		} finally {
+			setSendingAmounts((prev) => ({ ...prev, [amount]: false }))
+		}
+	}
 
-  const handleUsdcSend = async (amount: string) => {
-    if (!provider || accounts.length < 2) return;
+	const handleUsdcSend = async (amount: string) => {
+		if (!provider || accounts.length < 2) return
 
-    try {
-      setSendingUsdcAmounts((prev) => ({ ...prev, [amount]: true }));
-      const usdcAddress = '0x036cbd53842c5426634e7929541ec2318f3dcf7e';
-      const to = '0x8d25687829d6b85d9e0020b8c89e3ca24de20a89';
-      const value = parseUnits(amount, 6); // USDC has 6 decimals
+		try {
+			setSendingUsdcAmounts((prev) => ({ ...prev, [amount]: true }))
+			const usdcAddress = '0x036cbd53842c5426634e7929541ec2318f3dcf7e'
+			const to = '0x8d25687829d6b85d9e0020b8c89e3ca24de20a89'
+			const value = parseUnits(amount, 6) // USDC has 6 decimals
 
-      // Encode ERC20 transfer function call
-      const data = encodeFunctionData({
-        abi: [
-          {
-            name: 'transfer',
-            type: 'function',
-            inputs: [
-              { name: 'to', type: 'address' },
-              { name: 'amount', type: 'uint256' },
-            ],
-            outputs: [{ name: '', type: 'bool' }],
-          },
-        ],
-        functionName: 'transfer',
-        args: [to, value],
-      });
+			// Encode ERC20 transfer function call
+			const data = encodeFunctionData({
+				abi: [
+					{
+						name: 'transfer',
+						type: 'function',
+						inputs: [
+							{ name: 'to', type: 'address' },
+							{ name: 'amount', type: 'uint256' },
+						],
+						outputs: [{ name: '', type: 'bool' }],
+					},
+				],
+				functionName: 'transfer',
+				args: [to, value],
+			})
 
-      const response = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: accounts[0],
-            to: usdcAddress,
-            value: '0x0',
-            data,
-          },
-        ],
-      });
-      setLastResult(JSON.stringify(response, null, 2));
-    } catch (e) {
-      console.error('error', e);
-      setLastResult(JSON.stringify(e, null, 2));
-    } finally {
-      setSendingUsdcAmounts((prev) => ({ ...prev, [amount]: false }));
-    }
-  };
+			const response = await provider.request({
+				method: 'eth_sendTransaction',
+				params: [
+					{
+						from: accounts[0],
+						to: usdcAddress,
+						value: '0x0',
+						data,
+					},
+				],
+			})
+			setLastResult(JSON.stringify(response, null, 2))
+		} catch (e) {
+			console.error('error', e)
+			setLastResult(JSON.stringify(e, null, 2))
+		} finally {
+			setSendingUsdcAmounts((prev) => ({ ...prev, [amount]: false }))
+		}
+	}
 
-  const handleAttributionDataSuffixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value) {
-      setConfig({
-        ...config,
-        attribution: { dataSuffix: value as `0x${string}` },
-      });
-    } else {
-      const { attribution, ...rest } = config;
-      setConfig(rest);
-    }
-  };
+	const handleAttributionDataSuffixChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const value = e.target.value
+		if (value) {
+			setConfig({
+				...config,
+				attribution: { dataSuffix: value as `0x${string}` },
+			})
+		} else {
+			const { attribution, ...rest } = config
+			setConfig(rest)
+		}
+	}
 
-  const handleAttributionModeChange = (value: string) => {
-    if (value === 'auto') {
-      setConfig({
-        ...config,
-        attribution: { auto: true },
-      });
-    } else if (value === 'manual') {
-      setConfig({
-        ...config,
-        attribution: { dataSuffix: '0x' as `0x${string}` },
-      });
-    } else {
-      const { attribution, ...restConfig } = config;
-      setConfig(restConfig);
-    }
-  };
+	const handleAttributionModeChange = (value: string) => {
+		if (value === 'auto') {
+			setConfig({
+				...config,
+				attribution: { auto: true },
+			})
+		} else if (value === 'manual') {
+			setConfig({
+				...config,
+				attribution: { dataSuffix: '0x' as `0x${string}` },
+			})
+		} else {
+			const { attribution, ...restConfig } = config
+			setConfig(restConfig)
+		}
+	}
 
-  const getAttributionMode = () => {
-    if (!config.attribution) return 'none';
-    if (config.attribution.auto) return 'auto';
-    return 'manual';
-  };
+	const getAttributionMode = () => {
+		if (!config.attribution) return 'none'
+		if (config.attribution.auto) return 'auto'
+		return 'manual'
+	}
 
-  return (
-    <Container mb={16}>
-      <Text fontSize="3xl" fontWeight="bold" mb={4}>
-        Auto Sub Account
-      </Text>
-      <VStack w="full" spacing={4}>
-        <Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
-          Configuration
-        </Box>
-        <FormControl>
-          <FormLabel>Select Signer Type</FormLabel>
-          <RadioGroup value={signerType} onChange={(value: SignerType) => setSignerType(value)}>
-            <Stack direction="row">
-              <Radio value="cryptokey">CryptoKey</Radio>
-              <Radio value="secp256k1">secp256k1</Radio>
-            </Stack>
-          </RadioGroup>
-        </FormControl>
-        <FormControl>
-          <FormLabel>Auto Sub-Accounts</FormLabel>
-          <RadioGroup
-            value={(subAccountsConfig?.enableAutoSubAccounts || false).toString()}
-            onChange={(value) =>
-              setSubAccountsConfig((prev) => ({
-                ...prev,
-                enableAutoSubAccounts: value === 'true',
-              }))
-            }
-          >
-            <Stack direction="row">
-              <Radio value="true">Enabled</Radio>
-              <Radio value="false">Disabled</Radio>
-            </Stack>
-          </RadioGroup>
-        </FormControl>
-        <FormControl>
-          <FormLabel>Enable Auto Spend Permissions (Unstable)</FormLabel>
-          <RadioGroup
-            value={(subAccountsConfig?.unstable_enableAutoSpendPermissions ?? true).toString()}
-            onChange={(value) =>
-              setSubAccountsConfig((prev) => ({
-                ...prev,
-                unstable_enableAutoSpendPermissions: value === 'true',
-              }))
-            }
-          >
-            <Stack direction="row">
-              <Radio value="true">Enabled</Radio>
-              <Radio value="false">Disabled</Radio>
-            </Stack>
-          </RadioGroup>
-        </FormControl>
-        <FormControl>
-          <FormLabel>Attribution</FormLabel>
-          <RadioGroup value={getAttributionMode()} onChange={handleAttributionModeChange}>
-            <Stack direction="row">
-              <Radio value="none">None</Radio>
-              <Radio value="auto">Auto</Radio>
-              <Radio value="manual">Manual</Radio>
-            </Stack>
-          </RadioGroup>
-        </FormControl>
-        {getAttributionMode() === 'manual' && (
-          <FormControl>
-            <FormLabel>Attribution Data Suffix (hex)</FormLabel>
-            <Input
-              placeholder="0x..."
-              value={config.attribution?.dataSuffix || ''}
-              onChange={handleAttributionDataSuffixChange}
-            />
-          </FormControl>
-        )}
-        <FormControl>
-          <FormLabel>wallet_connect Capabilities</FormLabel>
-          <Stack spacing={2}>
-            <Checkbox
-              isChecked={walletConnectCapabilities.siwe}
-              onChange={(e) =>
-                setWalletConnectCapabilities((prev) => ({ ...prev, siwe: e.target.checked }))
-              }
-            >
-              SIWE (Sign In With Ethereum)
-            </Checkbox>
-            <Checkbox
-              isChecked={walletConnectCapabilities.addSubAccount}
-              onChange={(e) =>
-                setWalletConnectCapabilities((prev) => ({
-                  ...prev,
-                  addSubAccount: e.target.checked,
-                }))
-              }
-            >
-              Add Sub Account
-            </Checkbox>
-          </Stack>
-        </FormControl>
-        {accounts.length > 0 && (
-          <Box w="full">
-            <Box fontSize="lg" fontWeight="bold" mb={2}>
-              Connected Accounts
-            </Box>
-            <VStack w="full" spacing={2} align="stretch">
-              {accounts.map((account) => (
-                <Box
-                  key={account}
-                  p={3}
-                  bg="gray.100"
-                  borderRadius="md"
-                  fontFamily="monospace"
-                  fontSize="sm"
-                  color="gray.800"
-                  _dark={{ bg: 'gray.700', color: 'gray.200' }}
-                >
-                  {account}
-                </Box>
-              ))}
-            </VStack>
-          </Box>
-        )}
-        <Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
-          RPCs
-        </Box>
-        <Button
-          w="full"
-          onClick={handleRequestAccounts}
-          bg="blue.500"
-          color="white"
-          border="1px solid"
-          borderColor="blue.500"
-          _hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
-          _dark={{
-            bg: 'blue.600',
-            borderColor: 'blue.600',
-            _hover: { bg: 'blue.700', borderColor: 'blue.700' },
-          }}
-        >
-          eth_requestAccounts
-        </Button>
-        <Button
-          w="full"
-          onClick={handleEthAccounts}
-          bg="blue.500"
-          color="white"
-          border="1px solid"
-          borderColor="blue.500"
-          _hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
-          _dark={{
-            bg: 'blue.600',
-            borderColor: 'blue.600',
-            _hover: { bg: 'blue.700', borderColor: 'blue.700' },
-          }}
-        >
-          eth_accounts
-        </Button>
-        <Button
-          w="full"
-          onClick={handleSendTransaction}
-          isDisabled={!accounts.length}
-          bg="blue.500"
-          color="white"
-          border="1px solid"
-          borderColor="blue.500"
-          _hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
-          _dark={{
-            bg: 'blue.600',
-            borderColor: 'blue.600',
-            _hover: { bg: 'blue.700', borderColor: 'blue.700' },
-          }}
-        >
-          eth_sendTransaction
-        </Button>
-        <Button
-          w="full"
-          onClick={handleSignTypedData}
-          isDisabled={!accounts.length}
-          bg="blue.500"
-          color="white"
-          border="1px solid"
-          borderColor="blue.500"
-          _hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
-          _dark={{
-            bg: 'blue.600',
-            borderColor: 'blue.600',
-            _hover: { bg: 'blue.700', borderColor: 'blue.700' },
-          }}
-        >
-          eth_signTypedData_v4
-        </Button>
-        <Button
-          w="full"
-          onClick={handleWalletConnect}
-          bg="blue.500"
-          color="white"
-          border="1px solid"
-          borderColor="blue.500"
-          _hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
-          _dark={{
-            bg: 'blue.600',
-            borderColor: 'blue.600',
-            _hover: { bg: 'blue.700', borderColor: 'blue.700' },
-          }}
-        >
-          wallet_connect
-        </Button>
-        <Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
-          Send
-        </Box>
-        <HStack w="full" spacing={4}>
-          {['0.0001', '0.001', '0.01'].map((amount) => (
-            <Button
-              key={amount}
-              flex={1}
-              onClick={() => handleEthSend(amount)}
-              isDisabled={!accounts.length || sendingAmounts[amount]}
-              isLoading={sendingAmounts[amount]}
-              loadingText="Sending..."
-              size="lg"
-              bg="green.500"
-              color="white"
-              border="1px solid"
-              borderColor="green.500"
-              _hover={{ bg: 'green.600', borderColor: 'green.600' }}
-              _dark={{
-                bg: 'green.600',
-                borderColor: 'green.600',
-                _hover: { bg: 'green.700', borderColor: 'green.700' },
-              }}
-            >
-              {amount} ETH
-            </Button>
-          ))}
-        </HStack>
-        <Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
-          Send USDC
-        </Box>
-        <HStack w="full" spacing={4}>
-          {['0.01', '0.1', '1'].map((amount) => (
-            <Button
-              key={amount}
-              flex={1}
-              onClick={() => handleUsdcSend(amount)}
-              isDisabled={accounts.length < 2 || sendingUsdcAmounts[amount]}
-              isLoading={sendingUsdcAmounts[amount]}
-              loadingText="Sending..."
-              size="lg"
-              bg="purple.500"
-              color="white"
-              border="1px solid"
-              borderColor="purple.500"
-              _hover={{ bg: 'purple.600', borderColor: 'purple.600' }}
-              _dark={{
-                bg: 'purple.600',
-                borderColor: 'purple.600',
-                _hover: { bg: 'purple.700', borderColor: 'purple.700' },
-              }}
-            >
-              {amount} USDC
-            </Button>
-          ))}
-        </HStack>
-        {lastResult && (
-          <Box
-            as="pre"
-            w="full"
-            p={2}
-            bg="gray.50"
-            borderRadius="md"
-            border="1px solid"
-            borderColor="gray.300"
-            overflow="auto"
-            whiteSpace="pre-wrap"
-            color="gray.800"
-            _dark={{ bg: 'gray.900', borderColor: 'gray.700', color: 'gray.200' }}
-          >
-            {lastResult}
-          </Box>
-        )}
-      </VStack>
-    </Container>
-  );
+	return (
+		<Container mb={16}>
+			<Text fontSize="3xl" fontWeight="bold" mb={4}>
+				Auto Sub Account
+			</Text>
+			<VStack w="full" spacing={4}>
+				<Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
+					Configuration
+				</Box>
+				<FormControl>
+					<FormLabel>Select Signer Type</FormLabel>
+					<RadioGroup
+						value={signerType}
+						onChange={(value: SignerType) => setSignerType(value)}
+					>
+						<Stack direction="row">
+							<Radio value="cryptokey">CryptoKey</Radio>
+							<Radio value="secp256k1">secp256k1</Radio>
+						</Stack>
+					</RadioGroup>
+				</FormControl>
+				<FormControl>
+					<FormLabel>Auto Sub-Accounts</FormLabel>
+					<RadioGroup
+						value={(
+							subAccountsConfig?.enableAutoSubAccounts || false
+						).toString()}
+						onChange={(value) =>
+							setSubAccountsConfig((prev) => ({
+								...prev,
+								enableAutoSubAccounts: value === 'true',
+							}))
+						}
+					>
+						<Stack direction="row">
+							<Radio value="true">Enabled</Radio>
+							<Radio value="false">Disabled</Radio>
+						</Stack>
+					</RadioGroup>
+				</FormControl>
+				<FormControl>
+					<FormLabel>Enable Auto Spend Permissions (Unstable)</FormLabel>
+					<RadioGroup
+						value={(
+							subAccountsConfig?.unstable_enableAutoSpendPermissions ??
+							true
+						).toString()}
+						onChange={(value) =>
+							setSubAccountsConfig((prev) => ({
+								...prev,
+								unstable_enableAutoSpendPermissions: value === 'true',
+							}))
+						}
+					>
+						<Stack direction="row">
+							<Radio value="true">Enabled</Radio>
+							<Radio value="false">Disabled</Radio>
+						</Stack>
+					</RadioGroup>
+				</FormControl>
+				<FormControl>
+					<FormLabel>Attribution</FormLabel>
+					<RadioGroup
+						value={getAttributionMode()}
+						onChange={handleAttributionModeChange}
+					>
+						<Stack direction="row">
+							<Radio value="none">None</Radio>
+							<Radio value="auto">Auto</Radio>
+							<Radio value="manual">Manual</Radio>
+						</Stack>
+					</RadioGroup>
+				</FormControl>
+				{getAttributionMode() === 'manual' && (
+					<FormControl>
+						<FormLabel>Attribution Data Suffix (hex)</FormLabel>
+						<Input
+							placeholder="0x..."
+							value={config.attribution?.dataSuffix || ''}
+							onChange={handleAttributionDataSuffixChange}
+						/>
+					</FormControl>
+				)}
+				<FormControl>
+					<FormLabel>wallet_connect Capabilities</FormLabel>
+					<Stack spacing={2}>
+						<Checkbox
+							isChecked={walletConnectCapabilities.siwe}
+							onChange={(e) =>
+								setWalletConnectCapabilities((prev) => ({
+									...prev,
+									siwe: e.target.checked,
+								}))
+							}
+						>
+							SIWE (Sign In With Ethereum)
+						</Checkbox>
+						<Checkbox
+							isChecked={walletConnectCapabilities.addSubAccount}
+							onChange={(e) =>
+								setWalletConnectCapabilities((prev) => ({
+									...prev,
+									addSubAccount: e.target.checked,
+								}))
+							}
+						>
+							Add Sub Account
+						</Checkbox>
+					</Stack>
+				</FormControl>
+				{accounts.length > 0 && (
+					<Box w="full">
+						<Box fontSize="lg" fontWeight="bold" mb={2}>
+							Connected Accounts
+						</Box>
+						<VStack w="full" spacing={2} align="stretch">
+							{accounts.map((account) => (
+								<Box
+									key={account}
+									p={3}
+									bg="gray.100"
+									borderRadius="md"
+									fontFamily="monospace"
+									fontSize="sm"
+									color="gray.800"
+									_dark={{ bg: 'gray.700', color: 'gray.200' }}
+								>
+									{account}
+								</Box>
+							))}
+						</VStack>
+					</Box>
+				)}
+				<Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
+					RPCs
+				</Box>
+				<Button
+					w="full"
+					onClick={handleRequestAccounts}
+					bg="blue.500"
+					color="white"
+					border="1px solid"
+					borderColor="blue.500"
+					_hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
+					_dark={{
+						bg: 'blue.600',
+						borderColor: 'blue.600',
+						_hover: { bg: 'blue.700', borderColor: 'blue.700' },
+					}}
+				>
+					eth_requestAccounts
+				</Button>
+				<Button
+					w="full"
+					onClick={handleEthAccounts}
+					bg="blue.500"
+					color="white"
+					border="1px solid"
+					borderColor="blue.500"
+					_hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
+					_dark={{
+						bg: 'blue.600',
+						borderColor: 'blue.600',
+						_hover: { bg: 'blue.700', borderColor: 'blue.700' },
+					}}
+				>
+					eth_accounts
+				</Button>
+				<Button
+					w="full"
+					onClick={handleSendTransaction}
+					isDisabled={!accounts.length}
+					bg="blue.500"
+					color="white"
+					border="1px solid"
+					borderColor="blue.500"
+					_hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
+					_dark={{
+						bg: 'blue.600',
+						borderColor: 'blue.600',
+						_hover: { bg: 'blue.700', borderColor: 'blue.700' },
+					}}
+				>
+					eth_sendTransaction
+				</Button>
+				<Button
+					w="full"
+					onClick={handleSignTypedData}
+					isDisabled={!accounts.length}
+					bg="blue.500"
+					color="white"
+					border="1px solid"
+					borderColor="blue.500"
+					_hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
+					_dark={{
+						bg: 'blue.600',
+						borderColor: 'blue.600',
+						_hover: { bg: 'blue.700', borderColor: 'blue.700' },
+					}}
+				>
+					eth_signTypedData_v4
+				</Button>
+				<Button
+					w="full"
+					onClick={handleWalletConnect}
+					bg="blue.500"
+					color="white"
+					border="1px solid"
+					borderColor="blue.500"
+					_hover={{ bg: 'blue.600', borderColor: 'blue.600' }}
+					_dark={{
+						bg: 'blue.600',
+						borderColor: 'blue.600',
+						_hover: { bg: 'blue.700', borderColor: 'blue.700' },
+					}}
+				>
+					wallet_connect
+				</Button>
+				<Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
+					Send
+				</Box>
+				<HStack w="full" spacing={4}>
+					{['0.0001', '0.001', '0.01'].map((amount) => (
+						<Button
+							key={amount}
+							flex={1}
+							onClick={() => handleEthSend(amount)}
+							isDisabled={!accounts.length || sendingAmounts[amount]}
+							isLoading={sendingAmounts[amount]}
+							loadingText="Sending..."
+							size="lg"
+							bg="green.500"
+							color="white"
+							border="1px solid"
+							borderColor="green.500"
+							_hover={{ bg: 'green.600', borderColor: 'green.600' }}
+							_dark={{
+								bg: 'green.600',
+								borderColor: 'green.600',
+								_hover: { bg: 'green.700', borderColor: 'green.700' },
+							}}
+						>
+							{amount} ETH
+						</Button>
+					))}
+				</HStack>
+				<Box w="full" textAlign="left" fontSize="lg" fontWeight="bold">
+					Send USDC
+				</Box>
+				<HStack w="full" spacing={4}>
+					{['0.01', '0.1', '1'].map((amount) => (
+						<Button
+							key={amount}
+							flex={1}
+							onClick={() => handleUsdcSend(amount)}
+							isDisabled={
+								accounts.length < 2 || sendingUsdcAmounts[amount]
+							}
+							isLoading={sendingUsdcAmounts[amount]}
+							loadingText="Sending..."
+							size="lg"
+							bg="purple.500"
+							color="white"
+							border="1px solid"
+							borderColor="purple.500"
+							_hover={{ bg: 'purple.600', borderColor: 'purple.600' }}
+							_dark={{
+								bg: 'purple.600',
+								borderColor: 'purple.600',
+								_hover: { bg: 'purple.700', borderColor: 'purple.700' },
+							}}
+						>
+							{amount} USDC
+						</Button>
+					))}
+				</HStack>
+				{lastResult && (
+					<Box
+						as="pre"
+						w="full"
+						p={2}
+						bg="gray.50"
+						borderRadius="md"
+						border="1px solid"
+						borderColor="gray.300"
+						overflow="auto"
+						whiteSpace="pre-wrap"
+						color="gray.800"
+						_dark={{
+							bg: 'gray.900',
+							borderColor: 'gray.700',
+							color: 'gray.200',
+						}}
+					>
+						{lastResult}
+					</Box>
+				)}
+			</VStack>
+		</Container>
+	)
 }

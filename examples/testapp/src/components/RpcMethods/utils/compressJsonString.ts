@@ -18,9 +18,10 @@
  * ```
  */
 export const compressJsonString = (jsonString: string): string => {
-  if (!jsonString) return '';
+	if (!jsonString) return ''
 
-  return jsonString.replace(/("[^"\\]*(?:\\.[^"\\]*)*")|[\s\n\t]+/g, (_, group) =>
-    group ? group : ''
-  );
-};
+	return jsonString.replace(
+		/("[^"\\]*(?:\\.[^"\\]*)*")|[\s\n\t]+/g,
+		(_, group) => (group ? group : ''),
+	)
+}
