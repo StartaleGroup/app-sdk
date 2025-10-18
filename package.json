@@ -10,18 +10,19 @@
     "examples/*"
   ],
   "scripts": {
-    "build:packages": "yarn workspace @startale/app-sdk build ",
-    "clean": "yarn workspaces foreach -A -ipv run clean && rm -rf node_modules && yarn",
-    "deploy": "yarn build:packages && yarn workspace sdk-playground export",
-    "dev": "yarn workspaces foreach -A -ipv run dev",
-    "lint": "yarn workspaces foreach -A -pt run lint",
-    "format": "yarn workspaces foreach -A -pt run format",
-    "format:check": "yarn workspaces foreach -A -pt run format:check",
-    "test": "yarn workspaces foreach -A -ipv run test",
-    "typecheck": "yarn workspaces foreach -A -pt run typecheck"
+    "build:packages": "nr -filter @startale/app-sdk build",
+    "clean": "nr -recursive clean && rm -rf node_modules && pnpm install",
+    "deploy": "nr build:packages && nr -filter sdk-playground export",
+    "dev": "nr -recursive --parallel dev",
+    "lint": "nr -recursive lint",
+    "format": "nr -recursive format",
+    "format:check": "nr -recursive format:check",
+    "test": "nr -recursive test",
+    "typecheck": "nr -recursive typecheck"
   },
   "devDependencies": {
+    "@antfu/ni": "^25.0.0",
     "@biomejs/biome": "^1.9.4"
   },
-  "packageManager": "yarn@4.8.1"
+  "packageManager": "pnpm@10.18.2"
 }

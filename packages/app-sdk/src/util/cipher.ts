@@ -38,7 +38,7 @@ export async function encrypt(sharedSecret: CryptoKey, plainText: string): Promi
   const cipherText = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv,
+      iv: iv.buffer as ArrayBuffer,
     },
     sharedSecret,
     new TextEncoder().encode(plainText)
@@ -54,7 +54,7 @@ export async function decrypt(
   const plainText = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv,
+      iv: iv.buffer as ArrayBuffer,
     },
     sharedSecret,
     cipherText
@@ -86,10 +86,10 @@ export async function importKeyFromHexString(
   hexString: string
 ): Promise<CryptoKey> {
   const format = getFormat(type);
-  const arrayBuffer = hexStringToUint8Array(hexString).buffer;
+  const arrayBuffer = hexStringToUint8Array(hexString).buffer as ArrayBuffer;
   return await crypto.subtle.importKey(
     format,
-    new Uint8Array(arrayBuffer),
+    arrayBuffer,
     {
       name: 'ECDH',
       namedCurve: 'P-256',
