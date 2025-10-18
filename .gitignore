@@ -49,3 +49,5 @@ examples/testapp/out/
 examples/testapp/.next/
 
 /**/tsconfig.tsbuildinfo
+
+.editorconfig
