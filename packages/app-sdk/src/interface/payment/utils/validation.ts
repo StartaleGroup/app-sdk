@@ -1,4 +1,4 @@
-import { type Address, getAddress } from 'viem';
+import { type Address, getAddress } from 'viem'
 
 /**
  * Validates that the amount is a positive string with max decimal places
@@ -6,29 +6,34 @@ import { type Address, getAddress } from 'viem';
  * @param maxDecimals - Maximum number of decimal places allowed
  * @throws Error if amount is invalid
  */
-export function validateStringAmount(amount: string, maxDecimals: number): void {
-  if (typeof amount !== 'string') {
-    throw new Error('Invalid amount: must be a string');
-  }
+export function validateStringAmount(
+	amount: string,
+	maxDecimals: number,
+): void {
+	if (typeof amount !== 'string') {
+		throw new Error('Invalid amount: must be a string')
+	}
 
-  const numAmount = parseFloat(amount);
+	const numAmount = parseFloat(amount)
 
-  if (isNaN(numAmount)) {
-    throw new Error('Invalid amount: must be a valid number');
-  }
+	if (isNaN(numAmount)) {
+		throw new Error('Invalid amount: must be a valid number')
+	}
 
-  if (numAmount <= 0) {
-    throw new Error('Invalid amount: must be greater than 0');
-  }
+	if (numAmount <= 0) {
+		throw new Error('Invalid amount: must be greater than 0')
+	}
 
-  // Only allow specified decimal places
-  const decimalIndex = amount.indexOf('.');
-  if (decimalIndex !== -1) {
-    const decimalPlaces = amount.length - decimalIndex - 1;
-    if (decimalPlaces > maxDecimals) {
-      throw new Error(`Invalid amount: pay only supports up to ${maxDecimals} decimal places`);
-    }
-  }
+	// Only allow specified decimal places
+	const decimalIndex = amount.indexOf('.')
+	if (decimalIndex !== -1) {
+		const decimalPlaces = amount.length - decimalIndex - 1
+		if (decimalPlaces > maxDecimals) {
+			throw new Error(
+				`Invalid amount: pay only supports up to ${maxDecimals} decimal places`,
+			)
+		}
+	}
 }
 
 /**
@@ -38,15 +43,15 @@ export function validateStringAmount(amount: string, maxDecimals: number): void 
  * @returns The checksummed address
  */
 export function normalizeAddress(address: string): Address {
-  if (!address) {
-    throw new Error('Invalid address: address is required');
-  }
+	if (!address) {
+		throw new Error('Invalid address: address is required')
+	}
 
-  try {
-    // getAddress will normalize the address to its checksummed version
-    // It will throw if the address is invalid
-    return getAddress(address);
-  } catch (_error) {
-    throw new Error('Invalid address: must be a valid Ethereum address');
-  }
+	try {
+		// getAddress will normalize the address to its checksummed version
+		// It will throw if the address is invalid
+		return getAddress(address)
+	} catch (_error) {
+		throw new Error('Invalid address: must be a valid Ethereum address')
+	}
 }

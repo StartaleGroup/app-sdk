@@ -1,16 +1,16 @@
-import { Address, Hex } from 'viem';
+import { Address, Hex } from 'viem'
 
 export type GetSubAccountsRequest = {
-  account: Address;
-  domain: string;
-};
+	account: Address
+	domain: string
+}
 
 export type GetSubAccountsResponseItem = {
-  address: Address;
-  factory: Address;
-  factoryData: Hex;
-};
+	address: Address
+	factory: Address
+	factoryData: Hex
+}
 
 export type GetSubAccountsResponse = {
-  subAccounts: GetSubAccountsResponseItem[];
-};
+	subAccounts: GetSubAccountsResponseItem[]
+}

@@ -1,11 +1,11 @@
 import {
-  spendPermissionManagerAbi,
-  spendPermissionManagerAddress,
-} from ':sign/app-sdk/utils/constants.js';
-import { getClient } from ':store/chain-clients/utils.js';
-import { readContract } from 'viem/actions';
-import { SpendPermissionTypedData } from '../utils.js';
-import { withTelemetry } from '../withTelemetry.js';
+	spendPermissionManagerAbi,
+	spendPermissionManagerAddress,
+} from ':sign/app-sdk/utils/constants.js'
+import { getClient } from ':store/chain-clients/utils.js'
+import { readContract } from 'viem/actions'
+import { SpendPermissionTypedData } from '../utils.js'
+import { withTelemetry } from '../withTelemetry.js'
 
 /**
  * Gets the hash of a spend permission from the SpendPermissionManager contract.
@@ -42,34 +42,34 @@ import { withTelemetry } from '../withTelemetry.js';
  * ```
  */
 const getHashFn = async ({
-  permission,
-  chainId,
+	permission,
+	chainId,
 }: {
-  permission: SpendPermissionTypedData['message'];
-  chainId: number;
+	permission: SpendPermissionTypedData['message']
+	chainId: number
 }): Promise<`0x${string}`> => {
-  const client = getClient(chainId);
+	const client = getClient(chainId)
 
-  if (!client) {
-    throw new Error(
-      `No client found for chain ID ${chainId}. Please ensure SDK is in connected state`
-    );
-  }
+	if (!client) {
+		throw new Error(
+			`No client found for chain ID ${chainId}. Please ensure SDK is in connected state`,
+		)
+	}
 
-  const spendPermissionArgs = {
-    ...permission,
-    allowance: BigInt(permission.allowance),
-    salt: BigInt(permission.salt),
-  };
+	const spendPermissionArgs = {
+		...permission,
+		allowance: BigInt(permission.allowance),
+		salt: BigInt(permission.salt),
+	}
 
-  const hash = await readContract(client, {
-    address: spendPermissionManagerAddress,
-    abi: spendPermissionManagerAbi,
-    functionName: 'getHash',
-    args: [spendPermissionArgs],
-  });
+	const hash = await readContract(client, {
+		address: spendPermissionManagerAddress,
+		abi: spendPermissionManagerAbi,
+		functionName: 'getHash',
+		args: [spendPermissionArgs],
+	})
 
-  return hash;
-};
+	return hash
+}
 
-export const getHash = withTelemetry(getHashFn);
+export const getHash = withTelemetry(getHashFn)

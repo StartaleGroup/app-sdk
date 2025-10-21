@@ -1,6 +1,6 @@
-import { encodeFunctionData, parseUnits, type Address, type Hex } from 'viem';
-import { CHAIN_IDS, ERC20_TRANSFER_ABI, TOKENS } from '../constants.js';
-import type { PayerInfo } from '../types.js';
+import { encodeFunctionData, parseUnits, type Address, type Hex } from 'viem'
+import { CHAIN_IDS, ERC20_TRANSFER_ABI, TOKENS } from '../constants.js'
+import type { PayerInfo } from '../types.js'
 
 /**
  * Encodes an ERC20 transfer call
@@ -9,14 +9,14 @@ import type { PayerInfo } from '../types.js';
  * @returns The encoded function data
  */
 export function encodeTransferCall(recipient: Address, amount: string): Hex {
-  const amountInUnits = parseUnits(amount, TOKENS.USDC.decimals);
+	const amountInUnits = parseUnits(amount, TOKENS.USDC.decimals)
 
-  // Encode the transfer function call
-  return encodeFunctionData({
-    abi: ERC20_TRANSFER_ABI,
-    functionName: 'transfer',
-    args: [recipient, amountInUnits],
-  });
+	// Encode the transfer function call
+	return encodeFunctionData({
+		abi: ERC20_TRANSFER_ABI,
+		functionName: 'transfer',
+		args: [recipient, amountInUnits],
+	})
 }
 
 /**
@@ -26,41 +26,45 @@ export function encodeTransferCall(recipient: Address, amount: string): Hex {
  * @param payerInfo - Optional payer information configuration for data callbacks
  * @returns The request parameters for wallet_sendCalls
  */
-export function buildSendCallsRequest(transferData: Hex, testnet: boolean, payerInfo?: PayerInfo) {
-  const network = testnet ? 'baseSepolia' : 'base';
-  const chainId = CHAIN_IDS[network];
-  const usdcAddress = TOKENS.USDC.addresses[network];
+export function buildSendCallsRequest(
+	transferData: Hex,
+	testnet: boolean,
+	payerInfo?: PayerInfo,
+) {
+	const network = testnet ? 'baseSepolia' : 'base'
+	const chainId = CHAIN_IDS[network]
+	const usdcAddress = TOKENS.USDC.addresses[network]
 
-  // Build the call object
-  const call = {
-    to: usdcAddress as Address,
-    data: transferData,
-    value: '0x0' as Hex, // No ETH value for ERC20 transfer
-  };
+	// Build the call object
+	const call = {
+		to: usdcAddress as Address,
+		data: transferData,
+		value: '0x0' as Hex, // No ETH value for ERC20 transfer
+	}
 
-  // Build the capabilities object
-  const capabilities: Record<string, unknown> = {};
+	// Build the capabilities object
+	const capabilities: Record<string, unknown> = {}
 
-  // Add dataCallback capability if payerInfo is provided
-  if (payerInfo && payerInfo.requests.length > 0) {
-    capabilities.dataCallback = {
-      requests: payerInfo.requests.map((request) => ({
-        type: request.type,
-        optional: request.optional ?? false,
-      })),
-      ...(payerInfo.callbackURL && { callbackURL: payerInfo.callbackURL }),
-    };
-  }
+	// Add dataCallback capability if payerInfo is provided
+	if (payerInfo && payerInfo.requests.length > 0) {
+		capabilities.dataCallback = {
+			requests: payerInfo.requests.map((request) => ({
+				type: request.type,
+				optional: request.optional ?? false,
+			})),
+			...(payerInfo.callbackURL && { callbackURL: payerInfo.callbackURL }),
+		}
+	}
 
-  // Build the request parameters
-  const requestParams = {
-    version: '2.0.0',
-    chainId: chainId,
-    calls: [call],
-    capabilities,
-  };
+	// Build the request parameters
+	const requestParams = {
+		version: '2.0.0',
+		chainId: chainId,
+		calls: [call],
+		capabilities,
+	}
 
-  return requestParams;
+	return requestParams
 }
 
 /**
@@ -72,14 +76,14 @@ export function buildSendCallsRequest(transferData: Hex, testnet: boolean, payer
  * @returns The complete request parameters
  */
 export function translatePaymentToSendCalls(
-  recipient: Address,
-  amount: string,
-  testnet: boolean,
-  payerInfo?: PayerInfo
+	recipient: Address,
+	amount: string,
+	testnet: boolean,
+	payerInfo?: PayerInfo,
 ) {
-  // Encode the transfer call
-  const transferData = encodeTransferCall(recipient, amount);
+	// Encode the transfer call
+	const transferData = encodeTransferCall(recipient, amount)
 
-  // Build and return the sendCalls request
-  return buildSendCallsRequest(transferData, testnet, payerInfo);
+	// Build and return the sendCalls request
+	return buildSendCallsRequest(transferData, testnet, payerInfo)
 }
