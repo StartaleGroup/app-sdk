@@ -56,7 +56,7 @@
 		"build": "node compile-assets.cjs && tsc -p ./tsconfig.build.json && tsc-alias && pnpm run build:browser",
 		"build:browser": "rollup -c rollup.config.js",
 		"prepublishOnly": "pnpm run build",
-		"dev": "pnpm run build && tsc --watch & nodemon --watch dist --delay 1 --exec tsc-alias",
+		"dev": "pnpm run build && tsc --watch & tsc-alias --watch",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome lint .",
 		"format": "biome format . --write",

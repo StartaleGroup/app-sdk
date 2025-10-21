@@ -35,7 +35,7 @@ describe('logEvent', () => {
 		window.location = {
 			...originalLocation,
 			origin: 'https://example.com',
-		}
+		} as unknown as Location & string
 
 		mockStore.config = {
 			get: vi.fn().mockReturnValue({
@@ -49,7 +49,7 @@ describe('logEvent', () => {
 	})
 
 	afterEach(() => {
-		window.location = originalLocation
+		window.location = originalLocation as unknown as Location & string
 		delete (window as any).ClientAnalytics
 	})
 
