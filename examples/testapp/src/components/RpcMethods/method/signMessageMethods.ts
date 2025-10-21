@@ -1,4 +1,4 @@
-import { Chain, createPublicClient, http, TypedDataDomain } from 'viem'
+import { Address, Chain, Hex, concat, createPublicClient, domainSeparator, hashTypedData, http, keccak256 } from 'viem';
 
 import { parseMessage } from '../shortcut/ShortcutType'
 import { RpcRequestInput } from './RpcRequestInput'
@@ -91,42 +91,58 @@ export const verifySignMsg = async ({
 				transport: http(),
 			})
 
-			const valid = await client.verifyMessage({
-				address: from as `0x${string}`,
-				message: message as string,
-				signature: sign as `0x${string}`,
-			})
-			if (valid) {
-				return `SigUtil Successfully verified signer as ${from}`
-			}
-			return 'SigUtil Failed to verify signer'
-		}
-		case 'eth_signTypedData_v1':
-		case 'eth_signTypedData_v3':
-		case 'eth_signTypedData_v4': {
-			const client = createPublicClient({
-				chain,
-				transport: http(),
-			})
+      const valid = await client.verifyMessage({
+        address: from as `0x${string}`,
+        message: message as string,
+        signature: sign as `0x${string}`,
+      });
+      if (valid) {
+        return `SigUtil Successfully verified signer as ${from}`;
+      }
+      return 'SigUtil Failed to verify signer';
+    }
+    case 'eth_signTypedData_v1':
+    case 'eth_signTypedData_v3':
+    case 'eth_signTypedData_v4': {
+      const eip1271MagicValue: Hex = '0x1626ba7e'
+      const publicClient = createPublicClient({
+        chain,
+        transport: http(),
+      });
 
-			// Parse the message if it's a string
-			const typedData =
-				typeof message === 'string' ? JSON.parse(message) : message
+      const typedData = typeof message === 'string' ? JSON.parse(message) : message;
+      const appDomainSeparator = domainSeparator({ domain: typedData.domain });
+      const messageHash = hashTypedData(typedData);
+      const finalHash = keccak256(concat(['0x1901', appDomainSeparator, messageHash]));
 
-			const valid = await client.verifyTypedData({
-				address: from as `0x${string}`,
-				domain: typedData['domain'] as TypedDataDomain,
-				types: typedData['types'],
-				primaryType: typedData['primaryType'] as string,
-				message: typedData['message'],
-				signature: sign as `0x${string}`,
-			})
-			if (valid) {
-				return `SigUtil Successfully verified signer as ${from}`
-			}
-			return 'SigUtil Failed to verify signer'
-		}
-		default:
-			return null
-	}
-}
+      try {
+        const response = await publicClient.readContract({
+          address: from as Address,
+          abi: [
+            {
+              inputs: [
+                { name: 'hash', type: 'bytes32' },
+                { name: 'signature', type: 'bytes' },
+              ],
+              name: 'isValidSignature',
+              outputs: [{ name: '', type: 'bytes4' }],
+              type: 'function',
+            },
+          ],
+          functionName: 'isValidSignature',
+          args: [finalHash, sign as Hex],
+        });
+
+        const valid = response === eip1271MagicValue;
+        if (valid) {
+          return `SigUtil Successfully verified signer as ${from}`;
+        }
+        return 'SigUtil Failed to verify signer';
+      } catch (error) {
+        return `Error verifying signature: ${error}`;
+      }
+    }
+    default: 
+      return null;
+  }
+};
