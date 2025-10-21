@@ -1,7 +1,6 @@
 import { store } from ':store/store.js'
 import { hashTypedData, hexToBigInt, numberToHex } from 'viem'
 import {
-	SpendPermissionBatch,
 	addSenderToRequest,
 	appendWithoutDuplicates,
 	assertFetchPermissionsRequest,
@@ -17,6 +16,7 @@ import {
 	isSendCallsParams,
 	prependWithoutDuplicates,
 	requestHasCapability,
+	type SpendPermissionBatch,
 } from './utils.js'
 
 // Valid Ethereum addresses for testing
@@ -217,7 +217,7 @@ describe('injectRequestCapabilities', () => {
 
 	it('should merge capabilities for wallet_connect method', () => {
 		const siweCapability = {
-			chainId: 84532,
+			chainId: 84_532,
 			nonce: Math.random().toString(36).substring(2, 15),
 		}
 		const request = {
@@ -372,12 +372,14 @@ describe('fillMissingParamsForFetchPermissions', () => {
 				chain: { id: 1 },
 			},
 			subAccount: { address: '0x456' },
+			subAccountConfig: {},
 			chains: [],
 			keys: {},
 			spendPermissions: [],
 			config: {
 				version: '1.0.0',
 			},
+			userInfo: {},
 		}))
 		const request = {
 			method: 'coinbase_fetchPermissions',
@@ -394,9 +396,9 @@ describe('createSpendPermissionBatchMessage', () => {
 	it('should create a correctly structured batch message that produces the expected hash', () => {
 		const spendPermissionBatch: SpendPermissionBatch = {
 			account: '0x1234567890123456789012345678901234567890' as `0x${string}`,
-			period: 86400,
-			start: 1745516872,
-			end: 1748108872,
+			period: 86_400,
+			start: 1_745_516_872,
+			end: 1_748_108_872,
 			permissions: [
 				{
 					spender:
@@ -695,9 +697,9 @@ describe('getCachedWalletConnectResponse', () => {
 					spender: '0xspender1',
 					token: '0xtoken1',
 					allowance: '1000000',
-					period: 86400,
-					start: 1234567890,
-					end: 1234567890 + 86400,
+					period: 86_400,
+					start: 1_234_567_890,
+					end: 1_234_567_890 + 86_400,
 					salt: '0xsalt1',
 					extraData: '0x',
 				},
@@ -710,9 +712,9 @@ describe('getCachedWalletConnectResponse', () => {
 					spender: '0xspender2',
 					token: '0xtoken2',
 					allowance: '2000000',
-					period: 86400,
-					start: 1234567890,
-					end: 1234567890 + 86400,
+					period: 86_400,
+					start: 1_234_567_890,
+					end: 1_234_567_890 + 86_400,
 					salt: '0xsalt2',
 					extraData: '0x',
 				},
@@ -736,9 +738,9 @@ describe('getCachedWalletConnectResponse', () => {
 										spender: '0xspender1',
 										token: '0xtoken1',
 										allowance: '1000000',
-										period: 86400,
-										start: 1234567890,
-										end: 1234567890 + 86400,
+										period: 86_400,
+										start: 1_234_567_890,
+										end: 1_234_567_890 + 86_400,
 										salt: '0xsalt1',
 										extraData: '0x',
 									},
@@ -751,9 +753,9 @@ describe('getCachedWalletConnectResponse', () => {
 										spender: '0xspender2',
 										token: '0xtoken2',
 										allowance: '2000000',
-										period: 86400,
-										start: 1234567890,
-										end: 1234567890 + 86400,
+										period: 86_400,
+										start: 1_234_567_890,
+										end: 1_234_567_890 + 86_400,
 										salt: '0xsalt2',
 										extraData: '0x',
 									},
@@ -782,9 +784,9 @@ describe('getCachedWalletConnectResponse', () => {
 					spender: '0xspender1',
 					token: '0xtoken1',
 					allowance: '1000000',
-					period: 86400,
-					start: 1234567890,
-					end: 1234567890 + 86400,
+					period: 86_400,
+					start: 1_234_567_890,
+					end: 1_234_567_890 + 86_400,
 					salt: '0xsalt1',
 					extraData: '0x',
 				},
@@ -814,9 +816,9 @@ describe('getCachedWalletConnectResponse', () => {
 										spender: '0xspender1',
 										token: '0xtoken1',
 										allowance: '1000000',
-										period: 86400,
-										start: 1234567890,
-										end: 1234567890 + 86400,
+										period: 86_400,
+										start: 1_234_567_890,
+										end: 1_234_567_890 + 86_400,
 										salt: '0xsalt1',
 										extraData: '0x',
 									},
