@@ -1,15 +1,14 @@
-import {
+import type {
 	AppMetadata,
 	ConstructorOptions,
 	Preference,
 	ProviderInterface,
 	SubAccountOptions,
 } from ':core/provider/interface.js'
-import { AddSubAccountAccount } from ':core/rpc/wallet_addSubAccount.js'
-import { WalletConnectResponse } from ':core/rpc/wallet_connect.js'
-import { loadTelemetryScript } from ':core/telemetry/initCCA.js'
+import type { AddSubAccountAccount } from ':core/rpc/wallet_addSubAccount.js'
+import type { WalletConnectResponse } from ':core/rpc/wallet_connect.js'
 import { abi } from ':sign/app-sdk/utils/constants.js'
-import { SubAccount, ToOwnerAccountFn, store } from ':store/store.js'
+import { store, type SubAccount, type ToOwnerAccountFn } from ':store/store.js'
 import { assertPresence } from ':util/assertPresence.js'
 import { checkCrossOriginOpenerPolicy } from ':util/checkCrossOriginOpenerPolicy.js'
 import {
@@ -74,9 +73,9 @@ export function createBaseAccountSDK(params: CreateProviderOptions) {
 
 	validatePreferences(options.preference)
 
-	if (options.preference.telemetry !== false) {
-		void loadTelemetryScript()
-	}
+	// if (options.preference.telemetry !== false) {
+	// 	void loadTelemetryScript()
+	// }
 
 	//  ====================================================================
 	//  Return the provider

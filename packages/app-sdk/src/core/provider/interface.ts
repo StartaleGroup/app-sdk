@@ -1,8 +1,8 @@
-import { ToOwnerAccountFn } from ':store/store.js'
+import type { ToOwnerAccountFn } from ':store/store.js'
 import { EventEmitter } from 'eventemitter3'
-import { Address, Hex } from 'viem'
+import type { Address, Hex } from 'viem'
 
-export interface RequestArguments {
+export type RequestArguments = {
 	readonly method: string
 	readonly params?: readonly unknown[] | object
 }
@@ -13,7 +13,7 @@ export interface ProviderRpcError extends Error {
 	data?: unknown
 }
 
-interface ProviderConnectInfo {
+type ProviderConnectInfo = {
 	readonly chainId: string
 }
 
@@ -51,7 +51,7 @@ export type SpendPermissionConfig = {
 	extraData?: Hex
 }
 
-export interface AppMetadata {
+export type AppMetadata = {
 	/** Application name */
 	appName: string
 	/** Application logo image URL; favicon is used if unspecified */
@@ -88,7 +88,7 @@ export type Preference = {
 	attribution?: Attribution
 	/**
 	 * Whether to enable functional telemetry.
-	 * @default true
+	 * @default false
 	 */
 	telemetry?: boolean
 } & Record<string, unknown>
@@ -108,7 +108,7 @@ export type SubAccountOptions = {
 	unstable_enableAutoSpendPermissions?: boolean
 }
 
-export interface ConstructorOptions {
+export type ConstructorOptions = {
 	metadata: AppMetadata
 	preference: Preference
 	paymasterUrls?: Record<number, string>
