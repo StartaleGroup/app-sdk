@@ -19,5 +19,5 @@ git pull base master
 git push origin base-master
 ```
 
-Note: A GH action pulls the upstream once a day, so the last `push` command is not necessarry.
+Note: A GH action pulls the upstream once a day, so the last `push` command is not necessary.
 
