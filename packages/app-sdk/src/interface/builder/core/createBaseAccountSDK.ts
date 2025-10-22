@@ -24,6 +24,7 @@ export type CreateProviderOptions = Partial<AppMetadata> & {
 	preference?: Preference
 	subAccounts?: Omit<SubAccountOptions, 'enableAutoSubAccounts'>
 	paymasterUrls?: Record<number, string>
+	rpcUrls?: Record<number, string>
 }
 
 /**
@@ -40,6 +41,7 @@ export function createBaseAccountSDK(params: CreateProviderOptions) {
 		},
 		preference: params.preference ?? {},
 		paymasterUrls: params.paymasterUrls,
+		rpcUrls: params.rpcUrls,
 	}
 
 	//  ====================================================================

@@ -7,6 +7,7 @@ import {
 	useMemo,
 	useState,
 } from 'react'
+import { soneium, soneiumMinato } from 'viem/chains'
 import { DisconnectedAlert } from '../components/alerts/DisconnectedAlert'
 import { useEventListeners } from '../hooks/useEventListeners'
 import { useSpyOnDisconnectedError } from '../hooks/useSpyOnDisconnectedError'
@@ -48,7 +49,7 @@ export function EIP1193ProviderContextProvider({
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',
 			appLogoUrl: 'https://startale.com/image/symbol.png',
-			appChainIds: [1946, 1868],
+			appChainIds: [soneiumMinato.id, soneium.id],
 			preference: {
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],
@@ -58,6 +59,10 @@ export function EIP1193ProviderContextProvider({
 			paymasterId,
 			paymasterApiKey,
 			bundlerApiKey,
+			rpcUrls: {
+				[soneium.id]: process.env.NEXT_PUBLIC_SONEIUM_RPC_URL,
+				[soneiumMinato.id]: process.env.NEXT_PUBLIC_MINATO_RPC_URL,
+			},
 		}
 
 		const sdk = createBaseAccountSDKHEAD(sdkParams)
