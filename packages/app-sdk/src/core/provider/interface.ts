@@ -112,4 +112,5 @@ export interface ConstructorOptions {
 	metadata: AppMetadata
 	preference: Preference
 	paymasterUrls?: Record<number, string>
+	rpcUrls?: Record<number, string>
 }

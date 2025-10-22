@@ -49,7 +49,7 @@ import {
 	getClient,
 } from ':store/chain-clients/utils.js'
 import { correlationIds } from ':store/correlation-ids/store.js'
-import { spendPermissions, store } from ':store/store.js'
+import { config, spendPermissions, store } from ':store/store.js'
 import { assertArrayPresence, assertPresence } from ':util/assertPresence.js'
 import { assertSubAccount } from ':util/assertSubAccount.js'
 import {
@@ -621,12 +621,13 @@ export class Signer {
 		const availableChains = response.data?.chains
 		if (availableChains) {
 			const nativeCurrencies = response.data?.nativeCurrencies
+			const rpcUrls = config.get().rpcUrls
 			const chains: SDKChain[] = Object.entries(availableChains).map(
 				([id, rpcUrl]) => {
 					const nativeCurrency = nativeCurrencies?.[Number(id)]
 					return {
 						id: Number(id),
-						rpcUrl,
+						rpcUrl: rpcUrls?.[Number(id)] ?? rpcUrl,
 						...(nativeCurrency ? { nativeCurrency } : {}),
 					}
 				},
