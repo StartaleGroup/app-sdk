@@ -18,7 +18,8 @@
 		"format": "nr -recursive format",
 		"format:check": "nr -recursive format:check",
 		"test": "nr -recursive test",
-		"typecheck": "nr -recursive typecheck"
+		"typecheck": "nr -recursive typecheck",
+		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public"
 	},
 	"devDependencies": {
 		"@antfu/ni": "^25.0.0",
