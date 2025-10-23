@@ -1,6 +1,6 @@
 # Base Account SDK
 
-[![npm](https://img.shields.io/npm/v/%40startale%2Fapp-sdk.svg)](https://www.npmjs.com/package/@startale/app-sdk)
+[![npm](https://img.shields.io/npm/v/@startale/app-sdk.svg)](https://www.npmjs.com/package/@startale/app-sdk)
 
 ## Developing locally and running the test app
 
