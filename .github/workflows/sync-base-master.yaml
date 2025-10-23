@@ -1,0 +1,60 @@
+name: Sync base-master from base/account-sdk
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Runs every midnight. Cron is in UTC.
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: write  # required to push back to the repo
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # we need full history to update branches cleanly
+
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote "base"
+        run: |
+          # If it already exists, this won't error thanks to || true
+          git remote add base https://github.com/base/account-sdk.git || true
+          git fetch base master --prune
+
+      - name: Update base-master from base/master (fast-forward when possible)
+        run: |
+          # Ensure we have a local branch that we can update
+          if git show-ref --verify --quiet refs/heads/base-master; then
+            git checkout base-master
+          else
+            # First run: create it from upstream/master
+            git checkout -b base-master base/master
+          fi
+
+          # Try a clean fast-forward to upstream/master; if that fails (e.g. upstream rebased),
+          # hard reset to make base-master exactly match upstream/master.
+          if git merge-base --is-ancestor base/master HEAD; then
+            git merge --ff-only base/master
+          else
+            git reset --hard base/master
+          fi
+
+          # Push updates to your repo
+          git push origin base-master
+
+      # Optional: assert that base-master now matches upstream (useful for logs)
+      - name: Verify sync
+        run: |
+          UP=$(git rev-parse base/master)
+          OURS=$(git rev-parse origin/base-master)
+          echo "Upstream base/master: $UP"
+          echo "Origin   base-master: $OURS"
+          test "$UP" = "$OURS"
