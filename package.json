@@ -25,5 +25,11 @@
 		"@antfu/ni": "^25.0.0",
 		"@biomejs/biome": "^2.2.6"
 	},
-	"packageManager": "pnpm@10.18.2"
+	"engines": {
+		"node": ">=24 <25"
+	},
+	"packageManager": "pnpm@10.18.2",
+	"volta": {
+		"node": "24.10.0"
+	}
 }
