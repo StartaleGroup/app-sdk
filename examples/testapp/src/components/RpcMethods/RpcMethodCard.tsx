@@ -26,6 +26,7 @@ import { Chain, hexToNumber } from 'viem'
 import { soneium } from 'viem/chains'
 
 import { useEIP1193Provider } from '../../context/EIP1193ProviderContextProvider'
+import { resolveWalletSendCallsFrom } from '../../utils/resolveWalletSendCallsFrom'
 import { verifySignMsg } from './method/signMessageMethods'
 import { ADDR_TO_FILL, CHAIN_ID_TO_FILL } from './shortcut/const'
 import { multiChainShortcutsMap } from './shortcut/multipleChainShortcuts'
@@ -118,28 +119,13 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 			let values = dataToSubmit
 			if (format) {
 				const getCurrentAddress = async () => {
-					try {
-						const subAccounts = (await provider.request({
-							method: 'wallet_getSubAccounts',
-							params: [],
-						})) as { subAccounts?: { address?: string }[] } | null
-
-						const firstSubAccount = subAccounts?.subAccounts?.find(
-							(entry) => typeof entry.address === 'string',
-						)
-						if (firstSubAccount?.address) {
-							return [firstSubAccount.address] as [string]
-						}
-					} catch (error) {
-						console.warn(
-							'Failed to fetch subaccount address, falling back to eth_accounts',
-							error,
-						)
+					const { primaryAccount } = await resolveWalletSendCallsFrom(
+						provider,
+					)
+					if (primaryAccount) {
+						return [primaryAccount] as [string]
 					}
-
-					return (await provider.request({ method: 'eth_accounts' })) as [
-						string,
-					]
+					return []
 				}
 
 				for (const key in dataToSubmit) {

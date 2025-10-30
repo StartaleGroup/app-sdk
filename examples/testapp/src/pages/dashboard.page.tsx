@@ -29,6 +29,7 @@ import { signMessageShortcutsMap } from '../components/RpcMethods/shortcut/signM
 import { walletTxShortcutsMap } from '../components/RpcMethods/shortcut/walletTxShortcuts'
 import { SDKConfig } from '../components/SDKConfig/SDKConfig'
 import { useEIP1193Provider } from '../context/EIP1193ProviderContextProvider'
+import { resolveWalletSendCallsFrom } from '../utils/resolveWalletSendCallsFrom'
 
 export default function Dashboard() {
 	const { provider } = useEIP1193Provider()
@@ -86,17 +87,12 @@ export default function Dashboard() {
 		setUserOpHash(null)
 
 		try {
-			const subAccountResponse = (await provider.request({
-				method: 'wallet_getSubAccounts',
-				params: [],
-			})) as { subAccounts?: { address?: string }[] } | null
+			const { from: fromAddress } = await resolveWalletSendCallsFrom(
+				provider,
+			)
 
-			const subAccountAddress = subAccountResponse?.subAccounts?.[0]?.address
-
-			if (!subAccountAddress) {
-				throw new Error(
-					'No subaccount available. Connect and ensure a subaccount is provisioned.',
-				)
+			if (!fromAddress) {
+				throw new Error('No wallet account available. Connect and try again.')
 			}
 
 			const data = encodeFunctionData({
@@ -132,7 +128,7 @@ export default function Dashboard() {
 					{
 						version: '1.0',
 						chainId: chainIdHex,
-						from: subAccountAddress,
+						from: fromAddress,
 						calls,
 						capabilities: {},
 					},
