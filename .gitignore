@@ -51,3 +51,6 @@ examples/testapp/.next/
 /**/tsconfig.tsbuildinfo
 
 .editorconfig
+
+CLAUDE.md
+AGENTS.md

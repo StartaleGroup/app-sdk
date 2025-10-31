@@ -17,6 +17,7 @@ import { walletTxMethods } from '../components/RpcMethods/method/walletTxMethods
 import { connectionMethodShortcutsMap } from '../components/RpcMethods/shortcut/connectionMethodShortcuts'
 import { walletTxShortcutsMap } from '../components/RpcMethods/shortcut/walletTxShortcuts'
 import { useEIP1193Provider } from '../context/EIP1193ProviderContextProvider'
+import { resolveWalletSendCallsFrom } from '../utils/resolveWalletSendCallsFrom'
 
 export default function UserOps() {
 	const { provider } = useEIP1193Provider()
@@ -70,17 +71,12 @@ export default function UserOps() {
 		setUserOpHash(null)
 
 		try {
-			const subAccountResponse = (await provider.request({
-				method: 'wallet_getSubAccounts',
-				params: [],
-			})) as { subAccounts?: { address?: string }[] } | null
+			const { from: fromAddress } = await resolveWalletSendCallsFrom(
+				provider,
+			)
 
-			const subAccountAddress = subAccountResponse?.subAccounts?.[0]?.address
-
-			if (!subAccountAddress) {
-				throw new Error(
-					'No subaccount available. Connect and ensure a subaccount is provisioned.',
-				)
+			if (!fromAddress) {
+				throw new Error('No wallet account available. Connect and try again.')
 			}
 
 			const data = encodeFunctionData({
@@ -116,7 +112,7 @@ export default function UserOps() {
 					{
 						version: '1.0',
 						chainId,
-						from: subAccountAddress,
+						from: fromAddress,
 						calls,
 						capabilities: {},
 					},
