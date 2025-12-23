@@ -6,7 +6,8 @@ export type SDKVersionType = (typeof sdkVersions)[number]
 
 export const SELECTED_SCW_URL_KEY = 'scw_url'
 export const scwUrls = [
-	'https://deploy-sub-account-poc-for-yoake-sa-228.d3qb16qon2uoic.amplifyapp.com',
+	'https://app.startale.com/',
 	'http://localhost:3000/',
+	'https://keys.coinbase.com/connect'
 ] as const
 export type ScwUrlType = (typeof scwUrls)[number]
