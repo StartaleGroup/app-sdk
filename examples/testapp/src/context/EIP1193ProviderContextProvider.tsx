@@ -1,4 +1,4 @@
-import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@startale/app-sdk'
+import { createStartaleAccountSDK as createStartaleAccountSDKHEAD } from '@startale/app-sdk'
 import {
 	ReactNode,
 	createContext,
@@ -19,7 +19,7 @@ type EIP1193ProviderContextProviderProps = {
 }
 
 type EIP1193ProviderContextType = {
-	sdk: ReturnType<typeof createBaseAccountSDKHEAD>
+	sdk: ReturnType<typeof createStartaleAccountSDKHEAD>
 	provider: ReturnType<EIP1193ProviderContextType['sdk']['getProvider']>
 }
 
@@ -61,7 +61,7 @@ export function EIP1193ProviderContextProvider({
 			bundlerApiKey,
 		}
 
-		const sdk = createBaseAccountSDKHEAD(sdkParams)
+		const sdk = createStartaleAccountSDKHEAD(sdkParams)
 
 		setSdk(sdk)
 

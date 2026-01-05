@@ -1,11 +1,11 @@
-import { createBaseAccountSDK } from '@startale/app-sdk'
+import { createStartaleAccountSDK } from '@startale/app-sdk'
 import { Box, Button } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { numberToHex } from 'viem'
 import { SmartAccount } from 'viem/account-abstraction'
 
 type AddSubAccountUndeployedProps = {
-	sdk: ReturnType<typeof createBaseAccountSDK>
+	sdk: ReturnType<typeof createStartaleAccountSDK>
 	subAccount: SmartAccount
 }
 

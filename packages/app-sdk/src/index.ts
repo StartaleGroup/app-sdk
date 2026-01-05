@@ -5,7 +5,7 @@ export type {
 	ProviderInterface,
 } from ':core/provider/interface.js'
 
-export { createBaseAccountSDK } from './interface/builder/core/createBaseAccountSDK.js'
+export { createStartaleAccountSDK } from './interface/builder/core/createStartaleAccountSDK.js'
 
 export { getCryptoKeyAccount, removeCryptoKey } from './kms/crypto-key/index.js'
 

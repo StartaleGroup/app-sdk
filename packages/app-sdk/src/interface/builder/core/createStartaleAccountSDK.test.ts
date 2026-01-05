@@ -6,8 +6,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { BaseAccountProvider } from './BaseAccountProvider.js'
 import {
 	CreateProviderOptions,
-	createBaseAccountSDK,
-} from './createBaseAccountSDK.js'
+	createStartaleAccountSDK,
+} from './createStartaleAccountSDK.js'
 import * as getInjectedProviderModule from './getInjectedProvider.js'
 
 // Mock all dependencies
@@ -70,7 +70,7 @@ describe('createProvider', () => {
 
 	describe('Basic functionality', () => {
 		it('should create a provider with minimal parameters', () => {
-			const result = createBaseAccountSDK({}).getProvider()
+			const result = createStartaleAccountSDK({}).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith({
 				metadata: {
@@ -92,7 +92,7 @@ describe('createProvider', () => {
 				appChainIds: [1, 137],
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith({
 				metadata: {
@@ -112,7 +112,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith({
 				metadata: {
@@ -135,7 +135,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -159,7 +159,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
@@ -177,7 +177,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockValidateSubAccount).not.toHaveBeenCalled()
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
@@ -192,7 +192,7 @@ describe('createProvider', () => {
 				subAccounts: undefined,
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
 				toOwnerAccount: undefined,
@@ -212,7 +212,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
@@ -230,7 +230,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
 				toOwnerAccount: mockToOwnerAccount,
@@ -248,7 +248,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
 				toOwnerAccount: mockToOwnerAccount,
@@ -266,7 +266,7 @@ describe('createProvider', () => {
 				paymasterUrls: { 1: 'https://paymaster.example.com' },
 			}
 
-			createBaseAccountSDK(params).getProvider()
+			createStartaleAccountSDK(params).getProvider()
 
 			expect(mockStore.config.set).toHaveBeenCalledWith({
 				metadata: {
@@ -280,7 +280,7 @@ describe('createProvider', () => {
 		})
 
 		it('should rehydrate store from storage', () => {
-			createBaseAccountSDK({}).getProvider()
+			createStartaleAccountSDK({}).getProvider()
 
 			expect(mockStore.persist.rehydrate).toHaveBeenCalled()
 		})
@@ -289,14 +289,14 @@ describe('createProvider', () => {
 	describe('Validation', () => {
 		it('should validate preferences', () => {
 			const preference = { telemetry: true }
-			createBaseAccountSDK({ preference }).getProvider()
+			createStartaleAccountSDK({ preference }).getProvider()
 
 			expect(mockValidatePreferences).toHaveBeenCalledWith(preference)
 		})
 
 		it('should validate sub-account when toOwnerAccount is provided', () => {
 			const mockToOwnerAccount = vi.fn()
-			createBaseAccountSDK({
+			createStartaleAccountSDK({
 				subAccounts: { toOwnerAccount: mockToOwnerAccount },
 			}).getProvider()
 
@@ -304,7 +304,7 @@ describe('createProvider', () => {
 		})
 
 		it('should check cross-origin opener policy', () => {
-			createBaseAccountSDK({}).getProvider()
+			createStartaleAccountSDK({}).getProvider()
 
 			expect(mockCheckCrossOriginOpenerPolicy).toHaveBeenCalled()
 		})
@@ -312,7 +312,7 @@ describe('createProvider', () => {
 
 	describe('Telemetry', () => {
 		it('should load telemetry script when telemetry is not disabled', () => {
-			createBaseAccountSDK({
+			createStartaleAccountSDK({
 				preference: { telemetry: true },
 			}).getProvider()
 
@@ -320,7 +320,7 @@ describe('createProvider', () => {
 		})
 
 		it('should load telemetry script when telemetry is undefined (default)', () => {
-			createBaseAccountSDK({
+			createStartaleAccountSDK({
 				preference: {},
 			}).getProvider()
 
@@ -328,7 +328,7 @@ describe('createProvider', () => {
 		})
 
 		it('should not load telemetry script when telemetry is disabled', () => {
-			createBaseAccountSDK({
+			createStartaleAccountSDK({
 				preference: { telemetry: false },
 			}).getProvider()
 
@@ -343,7 +343,7 @@ describe('createProvider', () => {
 			})
 
 			expect(() => {
-				createBaseAccountSDK({
+				createStartaleAccountSDK({
 					subAccounts: { toOwnerAccount: 'not-a-function' as any },
 				}).getProvider()
 			}).toThrow('Invalid sub-account function')
@@ -359,7 +359,7 @@ describe('createProvider', () => {
 			}
 			mockGetInjectedProvider.mockReturnValue(mockInjectedProvider)
 
-			const result = createBaseAccountSDK({}).getProvider()
+			const result = createStartaleAccountSDK({}).getProvider()
 
 			expect(mockGetInjectedProvider).toHaveBeenCalled()
 			expect(mockBaseAccountProvider).not.toHaveBeenCalled()
@@ -369,7 +369,7 @@ describe('createProvider', () => {
 		it('should fallback to BaseAccountProvider when getInjectedProvider returns null', () => {
 			mockGetInjectedProvider.mockReturnValue(null)
 
-			const result = createBaseAccountSDK({}).getProvider()
+			const result = createStartaleAccountSDK({}).getProvider()
 
 			expect(mockGetInjectedProvider).toHaveBeenCalled()
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith({
@@ -405,7 +405,7 @@ describe('createProvider', () => {
 				},
 			}
 
-			const result = createBaseAccountSDK(params).getProvider()
+			const result = createStartaleAccountSDK(params).getProvider()
 
 			// Check sub-account validation and configuration
 			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
@@ -463,7 +463,7 @@ describe('createProvider', () => {
 
 	describe('Edge cases', () => {
 		it('should handle null app logo URL', () => {
-			createBaseAccountSDK({ appLogoUrl: null }).getProvider()
+			createStartaleAccountSDK({ appLogoUrl: null }).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -475,7 +475,7 @@ describe('createProvider', () => {
 		})
 
 		it('should handle empty app chain IDs array', () => {
-			createBaseAccountSDK({ appChainIds: [] }).getProvider()
+			createStartaleAccountSDK({ appChainIds: [] }).getProvider()
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -493,7 +493,7 @@ describe('createProvider', () => {
 				customProperty: 'custom value',
 			}
 
-			createBaseAccountSDK({ preference: complexPreference }).getProvider()
+			createStartaleAccountSDK({ preference: complexPreference }).getProvider()
 
 			expect(mockValidatePreferences).toHaveBeenCalledWith(complexPreference)
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(

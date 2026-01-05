@@ -1,10 +1,10 @@
-import { createBaseAccountSDK, getCryptoKeyAccount } from '@startale/app-sdk'
+import { createStartaleAccountSDK, getCryptoKeyAccount } from '@startale/app-sdk'
 import { Box, Button } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { numberToHex } from 'viem'
 
 type AddSubAccountProps = {
-	sdk: ReturnType<typeof createBaseAccountSDK>
+	sdk: ReturnType<typeof createStartaleAccountSDK>
 	onAddSubAccount: (address: string) => void
 	signerFn: typeof getCryptoKeyAccount
 }
