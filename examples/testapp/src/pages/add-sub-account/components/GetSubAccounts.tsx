@@ -1,9 +1,9 @@
-import { createBaseAccountSDK } from '@startale/app-sdk'
+import { createStartaleAccountSDK } from '@startale/app-sdk'
 import { Box, Button } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
 type GetSubAccountsProps = {
-	sdk: ReturnType<typeof createBaseAccountSDK>
+	sdk: ReturnType<typeof createStartaleAccountSDK>
 }
 
 export function GetSubAccounts({ sdk }: GetSubAccountsProps) {

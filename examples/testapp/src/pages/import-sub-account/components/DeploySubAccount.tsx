@@ -1,4 +1,4 @@
-import { createBaseAccountSDK } from '@startale/app-sdk'
+import { createStartaleAccountSDK } from '@startale/app-sdk'
 import { Box, Button } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { Client, createPublicClient, http } from 'viem'
@@ -13,7 +13,7 @@ export function DeploySubAccount({
 	sdk,
 	subAccount,
 }: {
-	sdk: ReturnType<typeof createBaseAccountSDK>
+	sdk: ReturnType<typeof createStartaleAccountSDK>
 	subAccount: SmartAccount
 }) {
 	const [state, setState] = useState<string>()

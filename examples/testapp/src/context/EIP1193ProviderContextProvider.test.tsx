@@ -1,4 +1,4 @@
-import { createBaseAccountSDK as createBaseAccountSDKHEAD } from '@startale/app-sdk'
+import { createStartaleAccountSDK as createStartaleAccountSDKHEAD } from '@startale/app-sdk'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -13,7 +13,7 @@ import {
 } from './EIP1193ProviderContextProvider'
 
 vi.mock('@startale/app-sdk', () => ({
-	createBaseAccountSDK: vi.fn(() => ({
+	createStartaleAccountSDK: vi.fn(() => ({
 		getProvider: vi.fn(() => mockProvider),
 	})),
 }))
@@ -88,7 +88,7 @@ describe('EIP1193ProviderContextProvider', () => {
 			</EIP1193ProviderContextProvider>,
 		)
 
-		expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith(
+		expect(createStartaleAccountSDKHEAD).toHaveBeenCalledWith(
 			expect.objectContaining({
 				appName: 'Startale app SDK Playground',
 				appLogoUrl: 'https://startale.com/image/symbol.png',
@@ -132,7 +132,7 @@ describe('EIP1193ProviderContextProvider', () => {
 			</EIP1193ProviderContextProvider>,
 		)
 
-		expect(createBaseAccountSDKHEAD).toHaveBeenCalledWith(
+		expect(createStartaleAccountSDKHEAD).toHaveBeenCalledWith(
 			expect.objectContaining({
 				appName: 'Startale app SDK Playground',
 				appLogoUrl: 'https://startale.com/image/symbol.png',

@@ -1,5 +1,5 @@
 import type { Hex } from 'viem'
-import { createBaseAccountSDK } from '../../builder/core/createBaseAccountSDK.js'
+import { createStartaleAccountSDK } from '../../builder/core/createStartaleAccountSDK.js'
 import { CHAIN_IDS } from '../constants.js'
 import type { PayerInfoResponses } from '../types.js'
 
@@ -51,7 +51,7 @@ export function createEphemeralSDK(
 	const appName =
 		typeof window !== 'undefined' ? window.location.origin : 'Base Pay SDK'
 
-	const sdk = createBaseAccountSDK({
+	const sdk = createStartaleAccountSDK({
 		appName: appName,
 		appChainIds: [chainId],
 		preference: {
@@ -70,7 +70,7 @@ export function createEphemeralSDK(
  * @returns The payment execution result with transaction hash and optional info responses
  */
 export async function executePayment(
-	sdk: ReturnType<typeof createBaseAccountSDK>,
+	sdk: ReturnType<typeof createStartaleAccountSDK>,
 	requestParams: WalletSendCallsRequestParams,
 ): Promise<PaymentExecutionResult> {
 	const provider = sdk.getProvider()

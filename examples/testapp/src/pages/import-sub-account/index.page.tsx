@@ -1,4 +1,4 @@
-import { createBaseAccountSDK } from '@startale/app-sdk'
+import { createStartaleAccountSDK } from '@startale/app-sdk'
 import { Container, Text, VStack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { Client, Hex, createPublicClient, http } from 'viem'
@@ -16,7 +16,7 @@ import { PersonalSign } from './components/PersonalSign'
 import { SendCalls } from './components/SendCalls'
 
 export default function SubAccounts() {
-	const [sdk, setSDK] = useState<ReturnType<typeof createBaseAccountSDK>>()
+	const [sdk, setSDK] = useState<ReturnType<typeof createStartaleAccountSDK>>()
 	const [subAccount, setSubAccount] = useState<SmartAccount>()
 	const [deployed, setDeployed] = useState<boolean>(false)
 
@@ -41,7 +41,7 @@ export default function SubAccounts() {
 		const pk = unsafe_generateOrLoadPrivateKey()
 		const account = privateKeyToAccount(pk)
 
-		const sdk = createBaseAccountSDK({
+		const sdk = createStartaleAccountSDK({
 			appName: 'CryptoPlayground',
 			preference: {
 				walletUrl: 'http://localhost:3005/connect',

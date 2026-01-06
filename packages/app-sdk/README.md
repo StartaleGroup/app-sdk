@@ -63,7 +63,7 @@
 1. Initialize Startale App SDK
 
    ```js
-   const sdk = createBaseAccountSDK({
+   const sdk = createStartaleAccountSDK({
      appName: 'SDK Playground',
    });
    ```

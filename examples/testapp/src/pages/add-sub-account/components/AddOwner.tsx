@@ -1,4 +1,4 @@
-import { createBaseAccountSDK, getCryptoKeyAccount } from '@startale/app-sdk'
+import { createStartaleAccountSDK, getCryptoKeyAccount } from '@startale/app-sdk'
 import { Box, Button } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { baseSepolia } from 'viem/chains'
@@ -6,7 +6,7 @@ import { baseSepolia } from 'viem/chains'
 export function AddOwner({
 	sdk,
 }: {
-	sdk: ReturnType<typeof createBaseAccountSDK>
+	sdk: ReturnType<typeof createStartaleAccountSDK>
 }) {
 	const [subAccount, setSubAccount] = useState<string>()
 
