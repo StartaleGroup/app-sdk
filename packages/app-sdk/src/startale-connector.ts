@@ -221,7 +221,7 @@ export function startaleConnector(parameters: BaseAccountParameters = {}) {
           preference: {
             ...preference,
             telemetry: false,
-            walletUrl: "http://localhost:3001", //"https://app.startale.com",
+            walletUrl: "https://app.startale.com",
           },
         });
 
