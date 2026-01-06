@@ -49,7 +49,7 @@ export function EIP1193ProviderContextProvider({
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',
 			appLogoUrl: 'https://startale.com/image/symbol.png',
-			appChainIds: [soneiumMinato.id, soneium.id, mainnet.id],
+			appChainIds: [soneium.id, soneiumMinato.id, mainnet.id],
 			preference: {
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],
