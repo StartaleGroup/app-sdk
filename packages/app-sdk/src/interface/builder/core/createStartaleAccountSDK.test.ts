@@ -130,8 +130,8 @@ describe('createProvider', () => {
 		it('should create a provider with paymaster options', () => {
 			const params: CreateProviderOptions = {
 				paymasterOptions: {
-					1: {url: 'https://paymaster.example.com', id: 'pm-1'},
-					137: {url: 'https://paymaster-polygon.example.com', id: 'pm-137'},
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
+					137: { url: 'https://paymaster-polygon.example.com', id: 'pm-137' },
 				},
 			}
 
@@ -140,8 +140,8 @@ describe('createProvider', () => {
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
 				expect.objectContaining({
 					paymasterOptions: {
-						1: {url: 'https://paymaster.example.com', id: 'pm-1'},
-						137: {url: 'https://paymaster-polygon.example.com', id: 'pm-137'},
+						1: { url: 'https://paymaster.example.com', id: 'pm-1' },
+						137: { url: 'https://paymaster-polygon.example.com', id: 'pm-137' },
 					},
 				}),
 			)
@@ -263,7 +263,7 @@ describe('createProvider', () => {
 			const params: CreateProviderOptions = {
 				appName: 'Test App',
 				preference: {},
-				paymasterOptions: { 1: {url: 'https://paymaster.example.com', id: 'pm-1'} },
+				paymasterOptions: { 1: { url: 'https://paymaster.example.com', id: 'pm-1' } },
 			}
 
 			createStartaleAccountSDK(params).getProvider()
@@ -275,7 +275,7 @@ describe('createProvider', () => {
 					appChainIds: [],
 				},
 				preference: {},
-				paymasterOptions: { 1: {url: 'https://paymaster.example.com', id: 'pm-1'} },
+				paymasterOptions: { 1: { url: 'https://paymaster.example.com', id: 'pm-1' } },
 			})
 		})
 
@@ -401,7 +401,7 @@ describe('createProvider', () => {
 					enableAutoSubAccounts: true,
 				},
 				paymasterOptions: {
-					1: {url: 'https://paymaster.example.com', id: 'pm-1'},
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			}
 
@@ -426,7 +426,7 @@ describe('createProvider', () => {
 					telemetry: true,
 				},
 				paymasterOptions: {
-					1: {url: 'https://paymaster.example.com', id: 'pm-1'},
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			})
 
@@ -453,7 +453,7 @@ describe('createProvider', () => {
 					telemetry: true,
 				},
 				paymasterOptions: {
-					1: {url: 'https://paymaster.example.com', id: 'pm-1'},
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			})
 
