@@ -643,7 +643,7 @@ export function addPaymasterToRequest<T extends RequestArguments>(
 	request: T,
 	chainId: number,
 ): T {
-	if(request.method !== 'wallet_sendCalls')	 {
+	if (request.method !== 'wallet_sendCalls') {
 		return request
 	}
 
