@@ -474,7 +474,7 @@ describe('createWalletSendCallsRequest', () => {
 			params: [
 				expect.objectContaining({
 					capabilities: {
-						paymasterService: { url: 'https://paymaster.example.com', id: 'pm-1'},
+						paymasterService: { url: 'https://paymaster.example.com', id: 'pm-1' },
 					},
 				}),
 			],
