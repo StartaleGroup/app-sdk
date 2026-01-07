@@ -110,7 +110,7 @@ export type SubAccountOptions = {
 
 export type PaymasterOptions = {
 	url: string
-	id:string
+	id: string
 }
 
 export interface ConstructorOptions {
