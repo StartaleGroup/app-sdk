@@ -57,7 +57,7 @@ export function EIP1193ProviderContextProvider({
 			},
 			subAccounts: subAccountsConfig,
 			paymasterOptions: paymasterId && paymasterApiKey ? {
-				1868: { url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, id:paymasterId}} : undefined,
+				1868: { url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, id: paymasterId}} : undefined,
 		}
 
 		const sdk = createStartaleAccountSDKHEAD(sdkParams)
