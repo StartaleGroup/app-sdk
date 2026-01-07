@@ -639,6 +639,11 @@ export async function getCachedWalletConnectResponse(): Promise<WalletConnectRes
 	}
 }
 
+/** Adds paymaster service information to a wallet_sendCalls request if configured for the given chainId
+ * @param request The original request object
+ * @param chainId The chain ID to check for paymaster configuration
+ * @returns The modified request object with paymaster information if applicable
+ */
 export function addPaymasterToRequest<T extends RequestArguments>(
 	request: T,
 	chainId: number,
