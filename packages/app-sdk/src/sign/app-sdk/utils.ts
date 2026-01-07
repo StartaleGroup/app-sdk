@@ -638,3 +638,25 @@ export async function getCachedWalletConnectResponse(): Promise<WalletConnectRes
 		accounts: walletConnectAccounts,
 	}
 }
+
+export function addPaymasterToRequest<T extends RequestArguments>(
+	request: T,
+	chainId: number,
+): T {
+	if(request.method !== 'wallet_sendCalls')	 {
+		return request
+	}
+
+	const paymasterOptions = config.get().paymasterOptions
+	const paymasterForChain = paymasterOptions?.[chainId]
+	if (!paymasterForChain) {
+		return request
+	}
+
+	return injectRequestCapabilities(request, {
+		paymasterService: {
+			url: paymasterForChain.url,
+			id: paymasterForChain.id,
+		},
+	})
+}

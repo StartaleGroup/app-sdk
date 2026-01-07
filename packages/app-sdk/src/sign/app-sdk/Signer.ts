@@ -62,6 +62,7 @@ import { fetchRPCRequest } from ':util/provider.js'
 import { getCryptoKeyAccount } from '../../kms/crypto-key/index.js'
 import { SCWKeyManager } from './SCWKeyManager.js'
 import {
+	addPaymasterToRequest,
 	addSenderToRequest,
 	appendWithoutDuplicates,
 	assertFetchPermissionsRequest,
@@ -369,10 +370,11 @@ export class Signer {
 		// This is to ensure that the popup is not blocked by some browsers (i.e. Safari)
 		await this.communicator.waitForPopupLoaded?.()
 
-		const response = await this.sendEncryptedRequest(request)
+		const requestWithPaymaster = addPaymasterToRequest(request, this.chain.id)
+		const response = await this.sendEncryptedRequest(requestWithPaymaster)
 		const decrypted = await this.decryptResponseMessage(response)
 
-		return this.handleResponse(request, decrypted)
+		return this.handleResponse(requestWithPaymaster, decrypted)
 	}
 
 	private async handleResponse(
