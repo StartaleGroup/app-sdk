@@ -108,8 +108,13 @@ export type SubAccountOptions = {
 	unstable_enableAutoSpendPermissions?: boolean
 }
 
+export type PaymasterOptions = {
+	url: string
+	id:string
+}
+
 export interface ConstructorOptions {
 	metadata: AppMetadata
 	preference: Preference
-	paymasterUrls?: Record<number, string>
+	paymasterOptions?: Record<number, PaymasterOptions>
 }

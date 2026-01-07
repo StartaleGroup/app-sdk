@@ -448,11 +448,11 @@ describe('createSpendPermissionBatchMessage', () => {
 })
 
 describe('createWalletSendCallsRequest', () => {
-	it('should inject paymaster url if provided', () => {
+	it('should inject paymaster info if provided', () => {
 		// mock store config
 		vi.spyOn(store.config, 'get').mockReturnValue({
-			paymasterUrls: {
-				1: 'https://paymaster.example.com',
+			paymasterOptions: {
+				1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 			},
 			version: '1.0.0',
 		})
@@ -474,7 +474,7 @@ describe('createWalletSendCallsRequest', () => {
 			params: [
 				expect.objectContaining({
 					capabilities: {
-						paymasterService: { url: 'https://paymaster.example.com' },
+						paymasterService: { url: 'https://paymaster.example.com', id: 'pm-1'},
 					},
 				}),
 			],

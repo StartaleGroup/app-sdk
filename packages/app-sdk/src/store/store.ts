@@ -1,8 +1,9 @@
 import { PACKAGE_VERSION } from ':core/constants.js'
 import {
 	AppMetadata,
+	PaymasterOptions,
 	Preference,
-	SubAccountOptions,
+	SubAccountOptions
 } from ':core/provider/interface.js'
 import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 import { OwnerAccount } from ':core/type/index.js'
@@ -45,7 +46,7 @@ type Config = {
 	preference?: Preference
 	version: string
 	deviceId?: string
-	paymasterUrls?: Record<number, string>
+	paymasterOptions?: Record<number, PaymasterOptions>
 }
 
 type ChainSlice = {

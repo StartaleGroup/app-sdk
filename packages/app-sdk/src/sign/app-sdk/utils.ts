@@ -413,7 +413,7 @@ export function createWalletSendCallsRequest({
 	chainId: number
 	capabilities?: Record<string, unknown>
 }) {
-	const paymasterUrls = config.get().paymasterUrls
+	const paymasterOptions = config.get().paymasterOptions
 
 	let request: {
 		method: 'wallet_sendCalls'
@@ -432,9 +432,9 @@ export function createWalletSendCallsRequest({
 		],
 	}
 
-	if (paymasterUrls?.[chainId]) {
+	if (paymasterOptions?.[chainId]) {
 		request = injectRequestCapabilities(request, {
-			paymasterService: { url: paymasterUrls?.[chainId] },
+			paymasterService: { url: paymasterOptions?.[chainId].url, id: paymasterOptions?.[chainId].id },
 		})
 	}
 

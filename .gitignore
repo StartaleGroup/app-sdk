@@ -51,6 +51,7 @@ examples/testapp/.next/
 /**/tsconfig.tsbuildinfo
 
 .editorconfig
+.env
 
 CLAUDE.md
 AGENTS.md
