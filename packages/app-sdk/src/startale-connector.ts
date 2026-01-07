@@ -1,4 +1,5 @@
-import { createStartaleAccountSDK, type ProviderInterface } from "@startale/app-sdk";
+// https://github.com/wevm/wagmi/blob/main/packages/connectors/src/baseAccount.ts
+import { createStartaleAccountSDK, type ProviderInterface as Provider } from "@startale/app-sdk";
 import { ChainNotConfiguredError, type Connector, createConnector } from "@wagmi/core";
 import type { Mutable, Omit } from "@wagmi/core/internal";
 import {
@@ -20,7 +21,6 @@ export type BaseAccountParameters = Mutable<
 >;
 
 export function startaleConnector(parameters: BaseAccountParameters = {}) {
-  type Provider = ProviderInterface;
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters?: {
       chainId?: number | undefined;
@@ -67,12 +67,12 @@ export function startaleConnector(parameters: BaseAccountParameters = {}) {
   let disconnect: Connector["onDisconnect"] | undefined;
 
   return createConnector<Provider, Properties>((config) => ({
-    id: "startaleWallet",
-    name: "Startale Wallet",
-    rdns: "com.startale.app.wallet",
-    type: "startaleWallet",
+    id: "startaleApp",
+    name: "Startale App",
+    rdns: "com.startale.app",
+    type: "startaleApp",
     iconUrl: "https://startale.com/image/symbol.png",
-    iconBackground: "#fff",
+    iconBackground: "#000",
     async connect({ chainId, withCapabilities, ...rest } = {}) {
       try {
         const provider = await this.getProvider();
@@ -125,7 +125,7 @@ export function startaleConnector(parameters: BaseAccountParameters = {}) {
               address: getAddress(account.address),
               capabilities: account.capabilities ?? {},
             })),
-            currentChainId: Number(response.chainIds[0]), // TODO add chainIds to response
+            currentChainId: Number(response.chainIds[0]),
           };
         })();
 
@@ -205,7 +205,7 @@ export function startaleConnector(parameters: BaseAccountParameters = {}) {
       return Number(chainId);
     },
 
-    async getProvider(): Promise<ProviderInterface> {
+    async getProvider(): Promise<Provider> {
       if (!walletProvider) {
         const preference = (() => {
           if (typeof parameters.preference === "string") return { options: parameters.preference };
