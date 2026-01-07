@@ -648,15 +648,15 @@ export function addPaymasterToRequest<T extends RequestArguments>(
 	}
 
 	const paymasterOptions = config.get().paymasterOptions
-	const paymasterForChain = paymasterOptions?.[chainId]
-	if (!paymasterForChain) {
+	const optionsForChain = paymasterOptions?.[chainId]
+	if (!optionsForChain) {
 		return request
 	}
 
 	return injectRequestCapabilities(request, {
 		paymasterService: {
-			url: paymasterForChain.url,
-			id: paymasterForChain.id,
+			url: optionsForChain.url,
+			id: optionsForChain.id,
 		},
 	})
 }
