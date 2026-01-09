@@ -1,6 +1,7 @@
-import { store } from ':store/store.js'
+import { config, store } from ':store/store.js'
 import { hashTypedData, hexToBigInt, numberToHex } from 'viem'
 import {
+	addPaymasterToRequest,
 	addSenderToRequest,
 	appendWithoutDuplicates,
 	assertFetchPermissionsRequest,
@@ -448,11 +449,11 @@ describe('createSpendPermissionBatchMessage', () => {
 })
 
 describe('createWalletSendCallsRequest', () => {
-	it('should inject paymaster url if provided', () => {
+	it('should inject paymaster info if provided', () => {
 		// mock store config
 		vi.spyOn(store.config, 'get').mockReturnValue({
-			paymasterUrls: {
-				1: 'https://paymaster.example.com',
+			paymasterOptions: {
+				1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 			},
 			version: '1.0.0',
 		})
@@ -474,7 +475,7 @@ describe('createWalletSendCallsRequest', () => {
 			params: [
 				expect.objectContaining({
 					capabilities: {
-						paymasterService: { url: 'https://paymaster.example.com' },
+						paymasterService: { url: 'https://paymaster.example.com', id: 'pm-1' },
 					},
 				}),
 			],
@@ -828,6 +829,466 @@ describe('getCachedWalletConnectResponse', () => {
 					},
 				},
 			],
+		})
+	})
+})
+
+describe('addPaymasterToRequest', () => {
+	const chainId = 1
+	const paymasterUrl = 'https://paymaster.example.com'
+	const paymasterId = 'test-paymaster-id'
+
+	beforeEach(() => {
+		vi.spyOn(config, 'get').mockReturnValue({
+			paymasterOptions: {},
+			version: '1.0.0',
+		} as any)
+	})
+
+	afterEach(() => {
+		vi.clearAllMocks()
+	})
+
+	describe('non-wallet_sendCalls requests', () => {
+		it('should return request unchanged for eth_sendTransaction', () => {
+			const request = {
+				method: 'eth_sendTransaction',
+				params: [{ from: VALID_ADDRESS_1, to: VALID_ADDRESS_2, value: '0x0' }],
+			}
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+
+		it('should return request unchanged for personal_sign', () => {
+			const request = {
+				method: 'personal_sign',
+				params: ['0xmessage', VALID_ADDRESS_1],
+			}
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+
+		it('should return request unchanged for eth_signTypedData_v4', () => {
+			const request = {
+				method: 'eth_signTypedData_v4',
+				params: [VALID_ADDRESS_1, { some: 'data' }],
+			}
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+
+		it('should return request unchanged for wallet_connect', () => {
+			const request = {
+				method: 'wallet_connect',
+				params: [{ chainId: '0x1' }],
+			}
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+	})
+
+	describe('wallet_sendCalls requests - no paymaster options', () => {
+		it('should return request unchanged when no paymaster options are configured', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+
+		it('should return request unchanged when paymasterOptions is undefined', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: undefined,
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+			expect(result).toEqual(request)
+		})
+
+		it('should return request unchanged when paymasterOptions for chainId is not configured', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					137: { url: 'https://paymaster-polygon.com', id: 'polygon-id' },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, 1)
+			expect(result).toEqual(request)
+		})
+	})
+
+	describe('wallet_sendCalls requests - with paymaster options', () => {
+		it('should add paymaster capability when paymaster options exist for chainId', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [
+							{
+								to: VALID_ADDRESS_2,
+								data: '0x',
+								value: '0x0',
+							},
+						],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect(result.method).toBe('wallet_sendCalls')
+			expect((result.params[0] as any).capabilities).toBeDefined()
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: paymasterUrl,
+				id: paymasterId,
+			})
+		})
+
+		it('should preserve existing capabilities when adding paymaster', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+						capabilities: {
+							someExisting: { capability: 'value' },
+						},
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect((result.params[0] as any).capabilities.someExisting).toEqual({
+				capability: 'value',
+			})
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: paymasterUrl,
+				id: paymasterId,
+			})
+		})
+
+		it('should preserve existing paymasterService capability (not override)', () => {
+			const oldPaymasterUrl = 'https://old-paymaster.com'
+			const oldPaymasterId = 'old-id'
+
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+						capabilities: {
+							paymasterService: {
+								url: oldPaymasterUrl,
+								id: oldPaymasterId,
+							},
+						},
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			// Existing paymasterService takes precedence due to capability merge order
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: oldPaymasterUrl,
+				id: oldPaymasterId,
+			})
+		})
+
+		it('should handle multiple chains with different paymaster options', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x89',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			const polygonChainId = 137
+			const polygonPaymasterUrl = 'https://paymaster-polygon.com'
+			const polygonPaymasterId = 'polygon-id'
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+					[polygonChainId]: {
+						url: polygonPaymasterUrl,
+						id: polygonPaymasterId,
+					},
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, polygonChainId)
+
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: polygonPaymasterUrl,
+				id: polygonPaymasterId,
+			})
+		})
+
+		it('should create capabilities object if it does not exist', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect((result.params[0] as any).capabilities).toBeDefined()
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: paymasterUrl,
+				id: paymasterId,
+			})
+		})
+
+		it('should preserve other request properties when adding paymaster', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [
+							{
+								to: VALID_ADDRESS_2,
+								data: '0xdeadbeef',
+								value: '0x100',
+							},
+						],
+						atomicRequired: true,
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect((result.params[0] as any).version).toBe('1.0')
+			expect((result.params[0] as any).chainId).toBe('0x1')
+			expect((result.params[0] as any).from).toBe(VALID_ADDRESS_1)
+			expect((result.params[0] as any).calls).toEqual([
+				{
+					to: VALID_ADDRESS_2,
+					data: '0xdeadbeef',
+					value: '0x100',
+				},
+			])
+			expect((result.params[0] as any).atomicRequired).toBe(true)
+		})
+
+		it('should maintain request type identity', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect(result.method).toBe(request.method)
+			expect(typeof result.params).toBe(typeof request.params)
+		})
+
+		it('should handle chainId as string representation', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					1: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, 1)
+
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: paymasterUrl,
+				id: paymasterId,
+			})
+		})
+	})
+
+	describe('edge cases', () => {
+		it('should handle empty calls array', () => {
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: paymasterUrl, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect((result.params[0] as any).calls).toEqual([])
+			expect((result.params[0] as any).capabilities.paymasterService).toEqual({
+				url: paymasterUrl,
+				id: paymasterId,
+			})
+		})
+
+		it('should handle paymaster URL with query parameters', () => {
+			const urlWithParams = 'https://paymaster.example.com?key=value&foo=bar'
+
+			const request = {
+				method: 'wallet_sendCalls',
+				params: [
+					{
+						version: '1.0',
+						chainId: '0x1',
+						from: VALID_ADDRESS_1,
+						calls: [],
+					},
+				],
+			}
+
+			vi.mocked(config.get).mockReturnValue({
+				paymasterOptions: {
+					[chainId]: { url: urlWithParams, id: paymasterId },
+				},
+				version: '1.0.0',
+			} as any)
+
+			const result = addPaymasterToRequest(request, chainId)
+
+			expect((result.params[0] as any).capabilities.paymasterService.url).toBe(
+				urlWithParams,
+			)
 		})
 	})
 })

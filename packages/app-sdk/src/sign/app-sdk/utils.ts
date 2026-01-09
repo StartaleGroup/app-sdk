@@ -413,7 +413,7 @@ export function createWalletSendCallsRequest({
 	chainId: number
 	capabilities?: Record<string, unknown>
 }) {
-	const paymasterUrls = config.get().paymasterUrls
+	const paymasterOptions = config.get().paymasterOptions
 
 	let request: {
 		method: 'wallet_sendCalls'
@@ -432,9 +432,9 @@ export function createWalletSendCallsRequest({
 		],
 	}
 
-	if (paymasterUrls?.[chainId]) {
+	if (paymasterOptions?.[chainId]) {
 		request = injectRequestCapabilities(request, {
-			paymasterService: { url: paymasterUrls?.[chainId] },
+			paymasterService: { url: paymasterOptions?.[chainId].url, id: paymasterOptions?.[chainId].id },
 		})
 	}
 
@@ -637,4 +637,31 @@ export async function getCachedWalletConnectResponse(): Promise<WalletConnectRes
 	return {
 		accounts: walletConnectAccounts,
 	}
+}
+
+/** Adds paymaster service information to a wallet_sendCalls request if configured for the given chainId
+ * @param request The original request object
+ * @param chainId The chain ID to check for paymaster configuration
+ * @returns The modified request object with paymaster information if applicable
+ */
+export function addPaymasterToRequest<T extends RequestArguments>(
+	request: T,
+	chainId: number,
+): T {
+	if (request.method !== 'wallet_sendCalls') {
+		return request
+	}
+
+	const paymasterOptions = config.get().paymasterOptions
+	const optionsForChain = paymasterOptions?.[chainId]
+	if (!optionsForChain) {
+		return request
+	}
+
+	return injectRequestCapabilities(request, {
+		paymasterService: {
+			url: optionsForChain.url,
+			id: optionsForChain.id,
+		},
+	})
 }

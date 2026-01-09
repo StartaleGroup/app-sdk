@@ -79,7 +79,7 @@ describe('createProvider', () => {
 					appChainIds: [],
 				},
 				preference: {},
-				paymasterUrls: undefined,
+				paymasterOptions: undefined,
 			})
 
 			expect(result).toEqual({ mockProvider: true })
@@ -101,7 +101,7 @@ describe('createProvider', () => {
 					appChainIds: [1, 137],
 				},
 				preference: {},
-				paymasterUrls: undefined,
+				paymasterOptions: undefined,
 			})
 		})
 
@@ -123,15 +123,15 @@ describe('createProvider', () => {
 				preference: {
 					attribution: { auto: true },
 				},
-				paymasterUrls: undefined,
+				paymasterOptions: undefined,
 			})
 		})
 
-		it('should create a provider with paymaster URLs', () => {
+		it('should create a provider with paymaster options', () => {
 			const params: CreateProviderOptions = {
-				paymasterUrls: {
-					1: 'https://paymaster.example.com',
-					137: 'https://paymaster-polygon.example.com',
+				paymasterOptions: {
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
+					137: { url: 'https://paymaster-polygon.example.com', id: 'pm-137' },
 				},
 			}
 
@@ -139,9 +139,9 @@ describe('createProvider', () => {
 
 			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
 				expect.objectContaining({
-					paymasterUrls: {
-						1: 'https://paymaster.example.com',
-						137: 'https://paymaster-polygon.example.com',
+					paymasterOptions: {
+						1: { url: 'https://paymaster.example.com', id: 'pm-1' },
+						137: { url: 'https://paymaster-polygon.example.com', id: 'pm-137' },
 					},
 				}),
 			)
@@ -263,7 +263,7 @@ describe('createProvider', () => {
 			const params: CreateProviderOptions = {
 				appName: 'Test App',
 				preference: {},
-				paymasterUrls: { 1: 'https://paymaster.example.com' },
+				paymasterOptions: { 1: { url: 'https://paymaster.example.com', id: 'pm-1' } },
 			}
 
 			createStartaleAccountSDK(params).getProvider()
@@ -275,7 +275,7 @@ describe('createProvider', () => {
 					appChainIds: [],
 				},
 				preference: {},
-				paymasterUrls: { 1: 'https://paymaster.example.com' },
+				paymasterOptions: { 1: { url: 'https://paymaster.example.com', id: 'pm-1' } },
 			})
 		})
 
@@ -379,7 +379,7 @@ describe('createProvider', () => {
 					appChainIds: [],
 				},
 				preference: {},
-				paymasterUrls: undefined,
+				paymasterOptions: undefined,
 			})
 			expect(result).toEqual({ mockProvider: true })
 		})
@@ -400,8 +400,8 @@ describe('createProvider', () => {
 					// @ts-expect-error - enableAutoSubAccounts is not officially supported yet
 					enableAutoSubAccounts: true,
 				},
-				paymasterUrls: {
-					1: 'https://paymaster.example.com',
+				paymasterOptions: {
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			}
 
@@ -425,8 +425,8 @@ describe('createProvider', () => {
 				preference: {
 					telemetry: true,
 				},
-				paymasterUrls: {
-					1: 'https://paymaster.example.com',
+				paymasterOptions: {
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			})
 
@@ -452,8 +452,8 @@ describe('createProvider', () => {
 				preference: {
 					telemetry: true,
 				},
-				paymasterUrls: {
-					1: 'https://paymaster.example.com',
+				paymasterOptions: {
+					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			})
 

@@ -12,7 +12,7 @@
 ## Sync `base-master` locally from upstream (Base Account SDK)
 
 ```bash
-git remote add base https://github.com/base/account-sdk.git
+git remote add base https://github.com/StartaleGroup/app-sdk.git
 git fetch base
 git checkout base-master
 git pull base master

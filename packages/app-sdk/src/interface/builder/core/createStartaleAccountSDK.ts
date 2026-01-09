@@ -1,9 +1,10 @@
 import {
 	AppMetadata,
 	ConstructorOptions,
+	PaymasterOptions,
 	Preference,
 	ProviderInterface,
-	SubAccountOptions,
+	SubAccountOptions
 } from ':core/provider/interface.js'
 import { AddSubAccountAccount } from ':core/rpc/wallet_addSubAccount.js'
 import { WalletConnectResponse } from ':core/rpc/wallet_connect.js'
@@ -23,7 +24,7 @@ import { getInjectedProvider } from './getInjectedProvider.js'
 export type CreateProviderOptions = Partial<AppMetadata> & {
 	preference?: Preference
 	subAccounts?: Omit<SubAccountOptions, 'enableAutoSubAccounts'>
-	paymasterUrls?: Record<number, string>
+	paymasterOptions?: Record<number, PaymasterOptions>
 }
 
 /**
@@ -39,7 +40,7 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 			appChainIds: params.appChainIds || [],
 		},
 		preference: params.preference ?? {},
-		paymasterUrls: params.paymasterUrls,
+		paymasterOptions: params.paymasterOptions,
 	}
 
 	//  ====================================================================

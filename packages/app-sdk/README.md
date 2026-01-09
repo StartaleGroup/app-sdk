@@ -68,7 +68,7 @@
    });
    ```
 
-2. Make Base Account Provider
+2. Make Startale App Provider
 
    ```js
    const provider = sdk.getProvider();
