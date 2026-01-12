@@ -64,8 +64,9 @@
 		"size": "size-limit"
 	},
 	"dependencies": {
-		"abitype": "^1.1.1",
 		"@noble/hashes": "1.4.0",
+		"@wagmi/core": "^3.0.2",
+		"abitype": "^1.1.1",
 		"clsx": "1.2.1",
 		"eventemitter3": "5.0.1",
 		"idb-keyval": "6.2.1",

@@ -70,7 +70,7 @@ async function getAccount(): Promise<WebAuthnAccount> {
 	const sign = async (payload: Hex.Hex) => {
 		const { payload: message, metadata } = WebAuthnP256.getSignPayload({
 			challenge: payload,
-			origin: 'https://keys.coinbase.com',
+			origin: 'https://app.startale.com',
 			userVerification: 'preferred',
 		})
 		const signature = await WebCryptoP256.sign({

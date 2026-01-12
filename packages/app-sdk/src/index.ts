@@ -2,7 +2,7 @@
 export type {
 	AppMetadata,
 	Preference,
-	ProviderInterface,
+	ProviderInterface
 } from ':core/provider/interface.js'
 
 export { createStartaleAccountSDK } from './interface/builder/core/createStartaleAccountSDK.js'
@@ -20,5 +20,7 @@ export type {
 	PaymentStatus,
 	PaymentStatusOptions,
 	PaymentStatusType,
-	PaymentSuccess,
+	PaymentSuccess
 } from './interface/payment/index.js'
+
+export { startaleConnector } from './startale-connector.js'
