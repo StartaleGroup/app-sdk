@@ -94,10 +94,12 @@ export type Preference = {
 	/** EOA authentication type
 	 * @description Specifies the type of authentication to be initiated by Startale app.
 	 * Supported values are 'google', 'line', and 'apple'.
+	 * @default undefined
 	 */
 	authType?: 'google' | 'line' | 'apple'
 	/** EOA authentication only
 	 * @description When set to true, only EOA authentication will be used, disabling other authentication methods.
+	 * @default false - when not set, other authentication methods remain available.
 	 */
 	eoaAuthOnly?: boolean
 } & Record<string, unknown>
