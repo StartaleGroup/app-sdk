@@ -91,6 +91,15 @@ export type Preference = {
 	 * @default true
 	 */
 	telemetry?: boolean
+	/** EOA authentication type
+	 * @description Specifies the type of authentication to be initiated by Startale app.
+	 * Supported values are 'google', 'line', and 'apple'.
+	 */
+	authType?: 'google' | 'line' | 'apple'
+	/** EOA authentication only
+	 * @description When set to true, only EOA authentication will be used, disabling other authentication methods.
+	 */
+	eoaAuthOnly?: boolean
 } & Record<string, unknown>
 
 export type SubAccountOptions = {

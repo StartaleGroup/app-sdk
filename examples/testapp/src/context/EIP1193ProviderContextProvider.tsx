@@ -54,6 +54,8 @@ export function EIP1193ProviderContextProvider({
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],
 				telemetry: false,
+				eoaAuthOnly: false,
+				authType: undefined,
 			},
 			subAccounts: subAccountsConfig,
 			paymasterOptions: paymasterId && paymasterApiKey ? {
