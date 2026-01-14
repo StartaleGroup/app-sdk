@@ -194,7 +194,7 @@ export const sdkstore = createStore(
 			...createUserInfoSlice(...args),
 		}),
 		{
-			name: 'base-acc-sdk.store',
+			name: 'startale-app-sdk.store',
 			storage: createJSONStorage(() => localStorage),
 			partialize: (state) => {
 				// Explicitly select only the data properties we want to persist
