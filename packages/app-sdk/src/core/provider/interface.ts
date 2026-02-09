@@ -101,7 +101,7 @@ export type Preference = {
 	 * @description When set to true, only EOA authentication will be used, disabling other authentication methods.
 	 * @default false - when not set, other authentication methods remain available.
 	 */
-	eoaAuthOnly?: boolean
+	eoaRequired?: boolean
 } & Record<string, unknown>
 
 export type SubAccountOptions = {
