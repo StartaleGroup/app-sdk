@@ -37,6 +37,16 @@ export function SDKConfig() {
 		[config, setConfig],
 	)
 
+	const handleSetEoaRequired = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			setConfig((prev) => ({
+				...prev,
+				eoaRequired: event.target.checked,
+			}))
+		},
+		[setConfig],
+	)
+
 	const handleSetDataSuffix = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
 			const value = event.target.value
@@ -119,6 +129,23 @@ export function SDKConfig() {
 						</Box>
 					</Flex>
 				)}
+				<Heading mt={4} size="md">
+					EOA Required
+				</Heading>
+				<Flex justify="space-between" align="center" mt={4}>
+					<Flex alignItems="center">
+						<Heading size="sm">Enable</Heading>
+						<Code ml={2}>eoaRequired</Code>
+					</Flex>
+					<Box>
+						<FormControl mt={2}>
+							<Switch
+								isChecked={(config.eoaRequired as boolean) ?? false}
+								onChange={handleSetEoaRequired}
+							/>
+						</FormControl>
+					</Box>
+				</Flex>
 			</CardBody>
 		</Card>
 	)
