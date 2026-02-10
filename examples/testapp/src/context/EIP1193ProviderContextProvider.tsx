@@ -54,12 +54,14 @@ export function EIP1193ProviderContextProvider({
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],
 				telemetry: false,
-				eoaAuthOnly: false,
+				eoaRequired: config.eoaRequired ?? false,
 				authType: undefined,
 			},
 			subAccounts: subAccountsConfig,
-			paymasterOptions: paymasterId && paymasterApiKey ? {
-				1868: { url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, id: paymasterId}} : undefined,
+			paymasterOptions: paymasterId && paymasterApiKey ? {	
+				[soneium.id]: {url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, 
+				id: paymasterId}
+			} : undefined,
 		}
 
 		const sdk = createStartaleAccountSDKHEAD(sdkParams)

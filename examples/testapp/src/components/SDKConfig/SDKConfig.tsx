@@ -1,4 +1,3 @@
-import { Preference } from '@startale/app-sdk'
 import {
 	Box,
 	Card,
@@ -11,6 +10,7 @@ import {
 	Switch,
 	Text,
 } from '@chakra-ui/react'
+import { Preference } from '@startale/app-sdk'
 import React, { useCallback, useMemo, useState } from 'react'
 import { keccak256, slice, toHex } from 'viem'
 
@@ -35,6 +35,16 @@ export function SDKConfig() {
 			setConfig(config_)
 		},
 		[config, setConfig],
+	)
+
+	const handleSetEoaRequired = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			setConfig((prev) => ({
+				...prev,
+				eoaRequired: event.target.checked,
+			}))
+		},
+		[setConfig],
 	)
 
 	const handleSetDataSuffix = useCallback(
@@ -119,6 +129,23 @@ export function SDKConfig() {
 						</Box>
 					</Flex>
 				)}
+				<Heading mt={4} size="md">
+					EOA Required
+				</Heading>
+				<Flex justify="space-between" align="center" mt={4}>
+					<Flex alignItems="center">
+						<Heading size="sm">Enable</Heading>
+						<Code ml={2}>eoaRequired</Code>
+					</Flex>
+					<Box>
+						<FormControl mt={2}>
+							<Switch
+								isChecked={config.eoaRequired ?? false}
+								onChange={handleSetEoaRequired}
+							/>
+						</FormControl>
+					</Box>
+				</Flex>
 			</CardBody>
 		</Card>
 	)
