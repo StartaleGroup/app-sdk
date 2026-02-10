@@ -1,4 +1,3 @@
-import { Preference } from '@startale/app-sdk'
 import {
 	Box,
 	Card,
@@ -11,6 +10,7 @@ import {
 	Switch,
 	Text,
 } from '@chakra-ui/react'
+import { Preference } from '@startale/app-sdk'
 import React, { useCallback, useMemo, useState } from 'react'
 import { keccak256, slice, toHex } from 'viem'
 
@@ -140,7 +140,7 @@ export function SDKConfig() {
 					<Box>
 						<FormControl mt={2}>
 							<Switch
-								isChecked={(config.eoaRequired as boolean) ?? false}
+								isChecked={config.eoaRequired ?? false}
 								onChange={handleSetEoaRequired}
 							/>
 						</FormControl>
