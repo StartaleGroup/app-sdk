@@ -97,9 +97,9 @@ export type Preference = {
 	 * @default undefined
 	 */
 	authType?: 'google' | 'line' | 'apple'
-	/** EOA authentication only
-	 * @description When set to true, only EOA authentication will be used, disabling other authentication methods.
-	 * @default false - when not set, other authentication methods remain available.
+	/** Require EOA wallet linking
+	 * @description When set to true, the user will be required to link an EOA wallet. Other authentication methods remain available.
+	 * @default false
 	 */
 	eoaRequired?: boolean
 } & Record<string, unknown>
