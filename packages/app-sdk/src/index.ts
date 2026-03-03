@@ -5,6 +5,9 @@ export type {
 	ProviderInterface
 } from ':core/provider/interface.js'
 
+export type { ICommunicator } from './core/communicator/ICommunicator.js'
+export { IframeCommunicator } from './core/communicator/IframeCommunicator.js'
+
 export { createStartaleAccountSDK } from './interface/builder/core/createStartaleAccountSDK.js'
 
 export { getCryptoKeyAccount, removeCryptoKey } from './kms/crypto-key/index.js'

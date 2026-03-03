@@ -10,6 +10,7 @@ import { closePopup, openPopup } from ':util/web.js'
 
 import { ConfigMessage } from '../message/ConfigMessage.js'
 import { Message, MessageID } from '../message/Message.js'
+import type { ICommunicator } from './ICommunicator.js'
 
 export type CommunicatorOptions = {
 	url?: string
@@ -26,7 +27,7 @@ export type CommunicatorOptions = {
  *
  * It also handles cleanup of event listeners and the popup window itself when necessary.
  */
-export class Communicator {
+export class Communicator implements ICommunicator {
 	private readonly metadata: AppMetadata
 	private readonly preference: Preference
 	private readonly url: URL

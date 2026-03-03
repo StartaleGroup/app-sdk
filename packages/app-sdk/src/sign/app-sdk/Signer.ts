@@ -1,7 +1,7 @@
 import { CB_WALLET_RPC_URL } from ':core/constants.js'
 import { Hex, hexToNumber, isAddressEqual, numberToHex } from 'viem'
 
-import { Communicator } from ':core/communicator/Communicator.js'
+import type { ICommunicator } from ':core/communicator/ICommunicator.js'
 import {
 	isActionableHttpRequestError,
 	isViemError,
@@ -85,12 +85,12 @@ import { routeThroughGlobalAccount } from './utils/routeThroughGlobalAccount.js'
 
 type ConstructorOptions = {
 	metadata: AppMetadata
-	communicator: Communicator
+	communicator: ICommunicator
 	callback: ProviderEventCallback | null
 }
 
 export class Signer {
-	private readonly communicator: Communicator
+	private readonly communicator: ICommunicator
 	private readonly keyManager: SCWKeyManager
 	private callback: ProviderEventCallback | null
 

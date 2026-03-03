@@ -21,7 +21,7 @@ export function serializeError(error: unknown) {
 
 	return {
 		...serialized,
-		docUrl: docUrl.href,
+		docUrl: '', // Don't include since we don't have it yet.
 	}
 }
 

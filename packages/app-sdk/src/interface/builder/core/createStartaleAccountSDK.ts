@@ -1,3 +1,6 @@
+import type { ICommunicator } from ':core/communicator/ICommunicator.js'
+import { IframeCommunicator } from ':core/communicator/IframeCommunicator.js'
+import { shouldUseIframeMode } from ':core/communicator/iframeUtils.js'
 import {
 	AppMetadata,
 	ConstructorOptions,
@@ -71,7 +74,12 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 	//  Validation and telemetry
 	//  ====================================================================
 
-	void checkCrossOriginOpenerPolicy()
+	const useIframe = shouldUseIframeMode()
+
+	// Skip COOP check in iframe mode (it's only relevant for popups)
+	if (!useIframe) {
+		void checkCrossOriginOpenerPolicy()
+	}
 
 	validatePreferences(options.preference)
 
@@ -88,7 +96,20 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 	const sdk = {
 		getProvider: () => {
 			if (!provider) {
-				provider = getInjectedProvider() ?? new BaseAccountProvider(options)
+				if (useIframe) {
+					const communicator: ICommunicator = new IframeCommunicator({
+						metadata: options.metadata,
+						preference: options.preference,
+					})
+					provider = new BaseAccountProvider(options, communicator)
+				} else {
+					const injected = getInjectedProvider()
+					if (injected) {
+						provider = injected
+					} else {
+						provider = new BaseAccountProvider(options)
+					}
+				}
 			}
 
 			return provider
