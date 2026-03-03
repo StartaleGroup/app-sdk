@@ -37,17 +37,17 @@ describe('IframeCommunicator', () => {
 		})
 	})
 
-	function dispatchParentMessage(data: Record<string, unknown>) {
+	function dispatchParentMessage(data: Record<string, unknown>, origin = PARENT_ORIGIN) {
 		const event = new MessageEvent('message', {
 			data,
-			origin: PARENT_ORIGIN,
+			origin,
 			source: mockParent as unknown as MessageEventSource,
 		})
 		window.dispatchEvent(event)
 	}
 
-	function queueParentMessage(data: Record<string, unknown>, delay = 50) {
-		setTimeout(() => dispatchParentMessage(data), delay)
+	function queueParentMessage(data: Record<string, unknown>, delay = 50, origin = PARENT_ORIGIN) {
+		setTimeout(() => dispatchParentMessage(data, origin), delay)
 	}
 
 	describe('constructor', () => {
@@ -88,41 +88,9 @@ describe('IframeCommunicator', () => {
 			}).toThrow('Iframe communication is not allowed')
 		})
 
-		it('should throw for empty origin when document.referrer is not set', () => {
-			expect(() => {
-				new IframeCommunicator({ metadata, preference })
-			}).toThrow('Iframe communication is not allowed')
-		})
-
-		it('should derive origin from document.referrer when parentOrigin not provided', () => {
-			Object.defineProperty(document, 'referrer', {
-				value: 'https://app.startale.com/miniapp?url=test',
-				configurable: true,
-			})
-
+		it('should succeed without parentOrigin and defer origin discovery to handshake', () => {
 			const communicator = new IframeCommunicator({ metadata, preference })
 			expect(communicator).toBeDefined()
-
-			Object.defineProperty(document, 'referrer', {
-				value: '',
-				configurable: true,
-			})
-		})
-
-		it('should throw when document.referrer has disallowed origin', () => {
-			Object.defineProperty(document, 'referrer', {
-				value: 'https://evil.com/page',
-				configurable: true,
-			})
-
-			expect(() => {
-				new IframeCommunicator({ metadata, preference })
-			}).toThrow('Iframe communication is not allowed')
-
-			Object.defineProperty(document, 'referrer', {
-				value: '',
-				configurable: true,
-			})
 		})
 	})
 
@@ -256,6 +224,66 @@ describe('IframeCommunicator', () => {
 					},
 				},
 				PARENT_ORIGIN,
+			)
+
+			spy.mockRestore()
+		})
+
+		it('should discover parentOrigin from handshake event origin when not provided upfront', async () => {
+			const mockUUID = 'mock-discover-uuid'
+			const spy = vi
+				.spyOn(crypto, 'randomUUID')
+				.mockReturnValue(
+					mockUUID as `${string}-${string}-${string}-${string}-${string}`,
+				)
+
+			const communicator = new IframeCommunicator({ metadata, preference })
+
+			queueParentMessage({ requestId: mockUUID, id: 'setup-id' })
+
+			await expect(communicator.waitForPopupLoaded()).resolves.toBeUndefined()
+
+			spy.mockRestore()
+		})
+
+		it('should reject during handshake when event origin is disallowed', async () => {
+			const mockUUID = 'mock-disallowed-uuid'
+			const spy = vi
+				.spyOn(crypto, 'randomUUID')
+				.mockReturnValue(
+					mockUUID as `${string}-${string}-${string}-${string}-${string}`,
+				)
+
+			const communicator = new IframeCommunicator({ metadata, preference })
+
+			queueParentMessage({ requestId: mockUUID, id: 'setup-id' }, 50, 'https://evil.com')
+
+			await expect(communicator.waitForPopupLoaded()).rejects.toThrow(
+				'Iframe communication is not allowed',
+			)
+
+			spy.mockRestore()
+		})
+
+		it('should reject when setup message is missing an id', async () => {
+			const mockUUID = 'mock-missing-id-uuid'
+			const spy = vi
+				.spyOn(crypto, 'randomUUID')
+				.mockReturnValue(
+					mockUUID as `${string}-${string}-${string}-${string}-${string}`,
+				)
+
+			const communicator = new IframeCommunicator({
+				metadata,
+				preference,
+				parentOrigin: PARENT_ORIGIN,
+			})
+
+			// Setup response without an id field
+			queueParentMessage({ requestId: mockUUID })
+
+			await expect(communicator.waitForPopupLoaded()).rejects.toThrow(
+				'Setup message from parent is missing an id',
 			)
 
 			spy.mockRestore()

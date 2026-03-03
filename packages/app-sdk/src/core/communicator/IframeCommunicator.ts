@@ -121,7 +121,7 @@ export class IframeCommunicator implements ICommunicator {
 
 		// Wait for setup response. Use a direct listener so we can access
 		// event.origin to discover and validate the parent origin.
-		const setupMessage = await new Promise<Message>((resolve, reject) => {
+		const setupMessage = await new Promise<Message & { id: MessageID }>((resolve, reject) => {
 			const listener = (event: MessageEvent) => {
 				if (event.source !== window.parent) return
 				if (event.data?.requestId !== popupLoadedMessage.id) return
@@ -142,8 +142,19 @@ export class IframeCommunicator implements ICommunicator {
 					return // Wrong origin, ignore
 				}
 
+				const msg = event.data as Message
+				if (!msg.id) {
+					window.removeEventListener('message', listener)
+					reject(
+						standardErrors.provider.unauthorized(
+							'Setup message from parent is missing an id',
+						),
+					)
+					return
+				}
+
 				window.removeEventListener('message', listener)
-				resolve(event.data as Message)
+				resolve(msg as Message & { id: MessageID })
 			}
 
 			window.addEventListener('message', listener)
@@ -179,6 +190,9 @@ export class IframeCommunicator implements ICommunicator {
 	}
 
 	private isFromParent(event: MessageEvent): boolean {
-		// Before handshake completes, only check event.source.
-		// After handshake, also check origin.
-		if (this.parentOri
+		if (this.parentOrigin !== '*' && event.origin !== this.parentOrigin) {
+			return false
+		}
+		return event.source === window.parent
+	}
+}
