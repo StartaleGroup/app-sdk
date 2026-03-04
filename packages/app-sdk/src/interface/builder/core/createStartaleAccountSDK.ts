@@ -1,5 +1,4 @@
-import type { ICommunicator } from ':core/communicator/ICommunicator.js'
-import { IframeCommunicator } from ':core/communicator/IframeCommunicator.js'
+import { FarcasterProvider } from ':core/communicator/FarcasterProvider.js'
 import { shouldUseIframeMode } from ':core/communicator/iframeUtils.js'
 import {
 	AppMetadata,
@@ -97,11 +96,7 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 		getProvider: () => {
 			if (!provider) {
 				if (useIframe) {
-					const communicator: ICommunicator = new IframeCommunicator({
-						metadata: options.metadata,
-						preference: options.preference,
-					})
-					provider = new BaseAccountProvider(options, communicator)
+					provider = new FarcasterProvider()
 				} else {
 					const injected = getInjectedProvider()
 					if (injected) {

@@ -1,4 +1,4 @@
-import * as iframeCommunicatorModule from ':core/communicator/IframeCommunicator.js'
+import * as farcasterProviderModule from ':core/communicator/FarcasterProvider.js'
 import * as telemetryModule from ':core/telemetry/initCCA.js'
 import { store } from ':store/store.js'
 import * as checkCrossOriginModule from ':util/checkCrossOriginOpenerPolicy.js'
@@ -47,8 +47,8 @@ vi.mock('./getInjectedProvider.js', () => ({
 	getInjectedProvider: vi.fn(),
 }))
 
-vi.mock(':core/communicator/IframeCommunicator.js', () => ({
-	IframeCommunicator: vi.fn(),
+vi.mock(':core/communicator/FarcasterProvider.js', () => ({
+	FarcasterProvider: vi.fn(),
 }))
 
 const mockStore = store as any
@@ -62,8 +62,8 @@ const mockValidateSubAccount =
 const mockBaseAccountProvider = BaseAccountProvider as any
 const mockGetInjectedProvider =
 	getInjectedProviderModule.getInjectedProvider as any
-const mockIframeCommunicator =
-	iframeCommunicatorModule.IframeCommunicator as any
+const mockFarcasterProvider =
+	farcasterProviderModule.FarcasterProvider as any
 
 describe('createProvider', () => {
 	beforeEach(() => {
@@ -514,16 +514,10 @@ describe('createProvider', () => {
 	describe('Iframe mode', () => {
 		let originalParent: typeof window.parent
 
-		function setupIframeMode(
-			referrer = 'https://app.startale.com/miniapp',
-		) {
+		function setupIframeMode() {
 			Object.defineProperty(window, 'parent', {
 				value: { postMessage: vi.fn() },
 				writable: true,
-				configurable: true,
-			})
-			Object.defineProperty(document, 'referrer', {
-				value: referrer,
 				configurable: true,
 			})
 		}
@@ -534,10 +528,6 @@ describe('createProvider', () => {
 				writable: true,
 				configurable: true,
 			})
-			Object.defineProperty(document, 'referrer', {
-				value: '',
-				configurable: true,
-			})
 		}
 
 		beforeEach(() => {
@@ -545,35 +535,21 @@ describe('createProvider', () => {
 			originalParent = window.parent
 			mockBaseAccountProvider.mockReturnValue({ mockProvider: true })
 			mockGetInjectedProvider.mockReturnValue(null)
-			mockIframeCommunicator.mockReturnValue({ mockCommunicator: true })
+			mockFarcasterProvider.mockReturnValue({ mockFarcasterProvider: true })
 		})
 
 		afterEach(() => {
 			teardownIframeMode()
 		})
 
-		it('should use IframeCommunicator when embedded in allowed iframe', () => {
+		it('should use FarcasterProvider when embedded in iframe', () => {
 			setupIframeMode()
 
 			const result = createStartaleAccountSDK({}).getProvider()
 
-			expect(mockIframeCommunicator).toHaveBeenCalledWith({
-				metadata: { appName: 'App', appLogoUrl: '', appChainIds: [] },
-				preference: {},
-			})
-			expect(mockBaseAccountProvider).toHaveBeenCalledWith(
-				{
-					metadata: {
-						appName: 'App',
-						appLogoUrl: '',
-						appChainIds: [],
-					},
-					preference: {},
-					paymasterOptions: undefined,
-				},
-				{ mockCommunicator: true },
-			)
-			expect(result).toEqual({ mockProvider: true })
+			expect(mockFarcasterProvider).toHaveBeenCalled()
+			expect(mockBaseAccountProvider).not.toHaveBeenCalled()
+			expect(result).toEqual({ mockFarcasterProvider: true })
 		})
 
 		it('should not call getInjectedProvider in iframe mode', () => {
@@ -596,59 +572,9 @@ describe('createProvider', () => {
 			// window.parent === window by default in jsdom (not in iframe)
 			createStartaleAccountSDK({}).getProvider()
 
-			expect(mockIframeCommunicator).not.toHaveBeenCalled()
+			expect(mockFarcasterProvider).not.toHaveBeenCalled()
 			expect(mockGetInjectedProvider).toHaveBeenCalled()
 			expect(mockCheckCrossOriginOpenerPolicy).toHaveBeenCalled()
-		})
-
-		it('should use normal mode when parent origin is not allowed', () => {
-			setupIframeMode('https://evil.com/page')
-
-			createStartaleAccountSDK({}).getProvider()
-
-			expect(mockIframeCommunicator).not.toHaveBeenCalled()
-			expect(mockGetInjectedProvider).toHaveBeenCalled()
-			expect(mockCheckCrossOriginOpenerPolicy).toHaveBeenCalled()
-		})
-
-		it('should use iframe mode when parent is localhost', () => {
-			setupIframeMode('http://localhost:3000/miniapp')
-
-			createStartaleAccountSDK({}).getProvider()
-
-			expect(mockIframeCommunicator).toHaveBeenCalled()
-			expect(mockGetInjectedProvider).not.toHaveBeenCalled()
-		})
-
-		it('should use iframe mode when parent is 127.0.0.1', () => {
-			setupIframeMode('http://127.0.0.1:8080/miniapp')
-
-			createStartaleAccountSDK({}).getProvider()
-
-			expect(mockIframeCommunicator).toHaveBeenCalled()
-			expect(mockGetInjectedProvider).not.toHaveBeenCalled()
-		})
-
-		it('should pass custom metadata and preference to IframeCommunicator', () => {
-			setupIframeMode()
-
-			const params: CreateProviderOptions = {
-				appName: 'Test App',
-				appLogoUrl: 'https://example.com/logo.png',
-				appChainIds: [1, 137],
-				preference: { telemetry: true },
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockIframeCommunicator).toHaveBeenCalledWith({
-				metadata: {
-					appName: 'Test App',
-					appLogoUrl: 'https://example.com/logo.png',
-					appChainIds: [1, 137],
-				},
-				preference: { telemetry: true },
-			})
 		})
 
 		it('should still validate preferences in iframe mode', () => {

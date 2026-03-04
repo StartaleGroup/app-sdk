@@ -6,7 +6,7 @@ export type {
 } from ':core/provider/interface.js'
 
 export type { ICommunicator } from './core/communicator/ICommunicator.js'
-export { IframeCommunicator } from './core/communicator/IframeCommunicator.js'
+export { FarcasterProvider } from './core/communicator/FarcasterProvider.js'
 
 export { createStartaleAccountSDK } from './interface/builder/core/createStartaleAccountSDK.js'
 
