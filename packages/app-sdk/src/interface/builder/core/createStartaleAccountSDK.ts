@@ -18,6 +18,8 @@ import {
 	validateSubAccount,
 } from ':util/validatePreferences.js'
 import { decodeAbiParameters, encodeFunctionData, toHex } from 'viem'
+import { FarcasterDetectingProvider } from '../../../farcaster/FarcasterDetectingProvider.js'
+import { isMaybeFarcasterMiniApp } from '../../../farcaster/detect.js'
 import { BaseAccountProvider } from './BaseAccountProvider.js'
 import { getInjectedProvider } from './getInjectedProvider.js'
 
@@ -88,7 +90,10 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 	const sdk = {
 		getProvider: () => {
 			if (!provider) {
-				provider = getInjectedProvider() ?? new BaseAccountProvider(options)
+				provider = getInjectedProvider()
+					?? (isMaybeFarcasterMiniApp()
+						? new FarcasterDetectingProvider(options)
+						: new BaseAccountProvider(options))
 			}
 
 			return provider

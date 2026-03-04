@@ -68,6 +68,7 @@
 		"@wagmi/core": "^3.0.2",
 		"abitype": "^1.1.1",
 		"clsx": "1.2.1",
+		"comlink": "^4.4.2",
 		"eventemitter3": "5.0.1",
 		"idb-keyval": "6.2.1",
 		"ox": "^0.9.6",

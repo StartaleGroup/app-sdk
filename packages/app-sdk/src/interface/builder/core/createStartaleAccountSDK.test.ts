@@ -9,6 +9,8 @@ import {
 	createStartaleAccountSDK,
 } from './createStartaleAccountSDK.js'
 import * as getInjectedProviderModule from './getInjectedProvider.js'
+import { FarcasterDetectingProvider } from '../../../farcaster/FarcasterDetectingProvider.js'
+import * as detectModule from '../../../farcaster/detect.js'
 
 // Mock all dependencies
 vi.mock(':store/store.js', () => ({
@@ -43,8 +45,21 @@ vi.mock('./BaseAccountProvider.js', () => ({
 }))
 
 vi.mock('./getInjectedProvider.js', () => ({
-	getInjectedProvider: vi.fn(),
+	getInjectedProvider: vi.fn().mockReturnValue(null),
 }))
+
+vi.mock('../../../farcaster/detect.js', () => ({
+	isMaybeFarcasterMiniApp: vi.fn().mockReturnValue(false),
+}))
+
+vi.mock('../../../farcaster/FarcasterDetectingProvider.js', () => ({
+	FarcasterDetectingProvider: vi.fn(),
+}))
+
+// Re-export mocked functions for easy access
+const mockIsMaybeFarcaster = vi.mocked(detectModule.isMaybeFarcasterMiniApp)
+// biome-ignore lint/suspicious/noExplicitAny: test mock
+const mockFarcasterDetecting = FarcasterDetectingProvider as any
 
 const mockStore = store as any
 const mockLoadTelemetryScript = telemetryModule.loadTelemetryScript as any
@@ -66,6 +81,8 @@ describe('createProvider', () => {
 		})
 		// Default: getInjectedProvider returns null to test BaseAccountProvider fallback
 		mockGetInjectedProvider.mockReturnValue(null)
+		// Default: not in Farcaster context
+		mockIsMaybeFarcaster.mockReturnValue(false)
 	})
 
 	describe('Basic functionality', () => {
@@ -381,6 +398,30 @@ describe('createProvider', () => {
 				preference: {},
 				paymasterOptions: undefined,
 			})
+			expect(result).toEqual({ mockProvider: true })
+		})
+
+		it('should use FarcasterDetectingProvider when in potential Farcaster context', () => {
+			mockGetInjectedProvider.mockReturnValue(null)
+			mockIsMaybeFarcaster.mockReturnValue(true)
+			const mockFarcasterProvider = { mockFarcasterProvider: true }
+			mockFarcasterDetecting.mockReturnValue(mockFarcasterProvider)
+
+			const result = createStartaleAccountSDK({}).getProvider()
+
+			expect(mockFarcasterDetecting).toHaveBeenCalled()
+			expect(mockBaseAccountProvider).not.toHaveBeenCalled()
+			expect(result).toBe(mockFarcasterProvider)
+		})
+
+		it('should use BaseAccountProvider when not in Farcaster context', () => {
+			mockGetInjectedProvider.mockReturnValue(null)
+			mockIsMaybeFarcaster.mockReturnValue(false)
+
+			const result = createStartaleAccountSDK({}).getProvider()
+
+			expect(mockBaseAccountProvider).toHaveBeenCalled()
+			expect(mockFarcasterDetecting).not.toHaveBeenCalled()
 			expect(result).toEqual({ mockProvider: true })
 		})
 	})

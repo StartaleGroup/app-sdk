@@ -13,7 +13,14 @@ type InjectedProvider = ProviderInterface & {
 }
 
 export function getInjectedProvider(): InjectedProvider | null {
-	const injectedProvider = window.top?.ethereum ?? window.ethereum
+	let injectedProvider: InjectedProvider | undefined
+
+	try {
+		injectedProvider = window.top?.ethereum ?? window.ethereum
+	} catch {
+		// window.top access throws when inside a cross-origin iframe (e.g. Farcaster miniapp)
+		injectedProvider = window.ethereum
+	}
 
 	if (injectedProvider?.[TBA_PROVIDER_IDENTIFIER]) {
 		return injectedProvider

@@ -52,6 +52,7 @@ examples/testapp/.next/
 
 .editorconfig
 .env
+.pnpm-store
 
 CLAUDE.md
 AGENTS.md
