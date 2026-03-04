@@ -65,7 +65,7 @@ describe('FarcasterProvider', () => {
 
 	it('should fall back to ethProviderRequest v1 when v2 is unsupported', async () => {
 		host.ethProviderRequestV2.mockRejectedValue(
-			new Error("Cannot read property 'apply' of undefined"),
+			new TypeError("Cannot read property 'apply' of undefined"),
 		)
 		host.ethProviderRequest.mockResolvedValue('0x1')
 

@@ -72,11 +72,9 @@ export class FarcasterProvider
 
 			return response.result as T
 		} catch (e) {
-			// ethProviderRequestV2 not supported, fall back to v1
-			if (
-				e instanceof Error &&
-				e.message.match(/cannot read property 'apply'/i)
-			) {
+			// ethProviderRequestV2 not supported on older hosts, fall back to v1.
+			// Comlink throws a TypeError when the remote method doesn't exist.
+			if (e instanceof TypeError) {
 				return (await this.host.ethProviderRequest(request)) as T
 			}
 			throw e
