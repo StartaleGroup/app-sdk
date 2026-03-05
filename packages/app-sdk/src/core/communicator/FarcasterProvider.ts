@@ -13,6 +13,7 @@ type EIP1193Provider = {
 }
 
 const EIP_1193_EVENTS = ['accountsChanged', 'chainChanged', 'connect', 'disconnect'] as const
+const INIT_TIMEOUT_MS = 5_000
 
 /**
  * Wraps the Farcaster miniapp-sdk EIP-1193 provider as a ProviderInterface.
@@ -30,17 +31,27 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 		if (this.initPromise) return this.initPromise
 
 		this.initPromise = (async () => {
-			farcasterSdk.actions.ready()
+			try {
+				farcasterSdk.actions.ready()
 
-			const provider = await farcasterSdk.wallet.getEthereumProvider()
-			this.farcasterProvider = provider as EIP1193Provider
+				const provider = await withTimeout(
+					farcasterSdk.wallet.getEthereumProvider(),
+					INIT_TIMEOUT_MS,
+					'FarcasterProvider init timed out — host may not be ready',
+				)
+				this.farcasterProvider = provider as EIP1193Provider
 
-			for (const event of EIP_1193_EVENTS) {
-				const forwarder = (...args: unknown[]) => {
-					this.emit(event, ...(args as [never]))
+				for (const event of EIP_1193_EVENTS) {
+					const forwarder = (...args: unknown[]) => {
+						this.emit(event, ...(args as [never]))
+					}
+					this.eventForwarders.set(event, forwarder)
+					this.farcasterProvider.on(event, forwarder)
 				}
-				this.eventForwarders.set(event, forwarder)
-				this.farcasterProvider.on(event, forwarder)
+			} catch (error) {
+				// Clear so the next request() retries init
+				this.initPromise = null
+				throw error
 			}
 		})()
 
@@ -99,4 +110,14 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 	async close(): Promise<void> {
 		farcasterSdk.actions.close()
 	}
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+	return new Promise<T>((resolve, reject) => {
+		const timer = setTimeout(() => reject(new Error(message)), ms)
+		promise.then(
+			(value) => { clearTimeout(timer); resolve(value) },
+			(error) => { clearTimeout(timer); reject(error) },
+		)
+	})
 }

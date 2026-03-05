@@ -190,6 +190,48 @@ describe('FarcasterProvider', () => {
 		})
 	})
 
+	describe('init timeout', () => {
+		beforeEach(() => {
+			vi.useFakeTimers()
+		})
+
+		afterEach(() => {
+			vi.useRealTimers()
+		})
+
+		it('should throw if getEthereumProvider hangs beyond timeout', async () => {
+			mockGetEthereumProvider.mockReturnValue(new Promise(() => {})) // never resolves
+
+			const promise = provider.request({ method: 'eth_chainId' }).catch((e: Error) => e)
+			await vi.advanceTimersByTimeAsync(5_000)
+
+			const error = await promise
+			expect(error).toBeInstanceOf(Error)
+			expect((error as Error).message).toContain('FarcasterProvider init timed out')
+		})
+
+		it('should allow retry after timeout', async () => {
+			// First attempt: hangs
+			mockGetEthereumProvider.mockReturnValueOnce(new Promise(() => {}))
+
+			const promise = provider.request({ method: 'eth_chainId' }).catch((e: Error) => e)
+			await vi.advanceTimersByTimeAsync(5_000)
+			const error = await promise
+			expect((error as Error).message).toContain('FarcasterProvider init timed out')
+
+			// Second attempt: succeeds
+			mockGetEthereumProvider.mockResolvedValueOnce({
+				request: mockRequest,
+				on: mockOn,
+				removeListener: mockRemoveListener,
+			})
+			mockRequest.mockResolvedValue('0x1')
+
+			const result = await provider.request({ method: 'eth_chainId' })
+			expect(result).toBe('0x1')
+		})
+	})
+
 	describe('close', () => {
 		it('should call sdk.actions.close()', async () => {
 			await provider.close()
