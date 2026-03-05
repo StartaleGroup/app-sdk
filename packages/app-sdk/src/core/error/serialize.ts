@@ -13,7 +13,7 @@ export function serializeError(error: unknown) {
 	})
 
 	const docUrl = new URL(
-		'https://docs.cloud.coinbase.com/wallet-sdk/docs/errors',
+		'https://docs.startale.com/',
 	)
 	docUrl.searchParams.set('version', PACKAGE_VERSION)
 	docUrl.searchParams.set('code', serialized.code.toString())
