@@ -53,5 +53,10 @@ examples/testapp/.next/
 .editorconfig
 .env
 
-CLAUDE.md
 AGENTS.md
+
+/.sisyphus
+opencode.json
+settings.local.json
+report/
+.claude/**/*local*.md
