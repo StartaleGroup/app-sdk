@@ -84,7 +84,23 @@ Skip auto-generated files, lock files, and vendored code. For each changed file:
 
 ---
 
-## 4. Generate Report
+## 4. Improvement Proposals
+
+After completing the review checklist, analyze the branch holistically:
+
+1. **Identify branch purpose** — Read the branch name, commit messages, and PR description to understand the goal
+2. **Propose improvements aligned with the goal** — Suggest what else could be done to make this change better
+
+### Guidelines
+
+- Each proposal MUST include: severity (HIGH/MEDIUM/LOW), current code snippet with file:line, and a concrete code example of the improvement
+- Only propose changes that are actionable within the current branch scope
+- Do NOT propose general refactoring unrelated to the branch purpose
+- Limit to 3-5 proposals maximum — focus on the highest impact
+
+---
+
+## 5. Generate Report
 
 **Output**: `./report/$TIMESTAMP-code-review.md` (create `report/` if needed).
 
@@ -98,6 +114,7 @@ Skip auto-generated files, lock files, and vendored code. For each changed file:
 
 ## Summary
 - Issues found: N (Critical: N, High: N, Medium: N, Low: N)
+- Proposals: N
 - Status: [APPROVED / CHANGES REQUESTED]
 
 ## Detailed Findings
@@ -107,12 +124,22 @@ Skip auto-generated files, lock files, and vendored code. For each changed file:
 - **Issue**: Description
 - **Suggestion**: Fix recommendation
 
-## Recommendations
-- List of general improvements
+## Improvement Proposals
+
+### [SEVERITY] Proposal title
+**Current** (`path/to/file.ts:L42`):
+\`\`\`typescript
+// current code snippet
+\`\`\`
+
+**Proposed**:
+\`\`\`typescript
+// improved code snippet
+\`\`\`
 ```
 
 ---
 
-## 5. Action Required
+## 6. Action Required
 
 CRITICAL or HIGH issues found → **CHANGES REQUESTED**. Never approve code with security vulnerabilities.

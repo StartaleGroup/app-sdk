@@ -6,7 +6,7 @@ All RPC method tests MUST pass with both authentication methods:
 - **Google OAuth** (`tests/google/rpc-methods.spec.ts`)
 - **EOA / MetaMask** (`tests/eoa/rpc-methods.spec.ts`)
 
-When adding a new RPC method test, add it to both test suites.
+When adding a new RPC method test, add it to `e2e/lib/rpc-test-suite.ts`. The `registerRpcMethodTests` function is called by both EOA and Google spec files, so a single addition covers both auth methods.
 
 ## Element Selection
 
@@ -52,11 +52,26 @@ Follow the Page Object Model pattern. All page objects are in `e2e/page-objects/
 - `dashboardPage.ts` — Dashboard section selectors
 - `rpcMethodCard.ts` — RPC method card selectors and actions
 
+## Shared RPC Test Suite
+
+RPC method tests are defined once in `e2e/lib/rpc-test-suite.ts` via `registerRpcMethodTests(test, getPage)`. Each auth-specific spec file (EOA, Google) handles login in `beforeAll`, then calls this function to register the shared tests.
+
+```typescript
+// In spec file — after auth setup:
+registerRpcMethodTests(test, () => page)
+```
+
+The function accepts `TestType<any, any>` so it works with both the standard Playwright `test` and the custom dappwright-extended `test` from the wallet fixture.
+
 ## Test File Organization
 
 ```
-tests/
-├── eoa/        # EOA (MetaMask) connect + RPC method tests
-├── google/     # Google OAuth RPC method tests
-└── smoke/      # No-auth smoke tests
+e2e/
+├── lib/
+│   ├── rpc-test-suite.ts  # Shared RPC method tests
+│   └── constants.ts       # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
+├── tests/
+│   ├── eoa/        # EOA (MetaMask) connect + RPC method tests
+│   ├── google/     # Google OAuth RPC method tests
+│   └── smoke/      # No-auth smoke tests
 ```
