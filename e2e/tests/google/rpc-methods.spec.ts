@@ -49,11 +49,11 @@ test.describe('Google OAuth — RPC Methods', () => {
 		await loginWithGoogle(sdkPopup)
 		await waitForPopupClose(sdkPopup)
 
-		// Verify connected state
-		await dashboard.verifyConnectedSections()
-
 		// Verify "Connected" toast appears
 		await expect(page.locator('#toast-connected')).toBeVisible()
+
+		// Verify connected state
+		await dashboard.verifyConnectedSections()
 	})
 
 	test.afterAll(async () => {

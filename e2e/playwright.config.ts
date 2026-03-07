@@ -49,6 +49,8 @@ export default defineConfig({
 			use: {
 				...devices['Desktop Chrome'],
 				launchOptions: {
+					// Prevent Chrome from setting navigator.webdriver=true,
+					// which Google uses to detect browser automation (bot detection bypass).
 					args: ['--disable-blink-features=AutomationControlled'],
 				},
 			},

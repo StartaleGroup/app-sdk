@@ -62,13 +62,16 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 	// Wait for Google OAuth page to load
 	await sdkPopup.waitForURL('**/accounts.google.com/**')
 
-	// Email input with human-like typing
+	// type() with delay simulates human-like keystroke timing (100ms per char)
+	// to avoid Google's bot detection. fill() sets the value instantly and is
+	// more likely to be flagged as automated input.
 	const emailInput = sdkPopup.locator('input[type="email"]')
 	await emailInput.waitFor({ state: 'visible' })
 	await emailInput.type(email, { delay: 100 })
 	await sdkPopup.getByRole('button', { name: /Next/i }).click()
 
-	// Password input — use name="Passwd" to avoid hidden decoy input
+	// Use name="Passwd" instead of type="password" — Google's login page
+	// contains hidden decoy password inputs that would match type="password".
 	const passwordInput = sdkPopup.locator('input[name="Passwd"]')
 	await passwordInput.waitFor({ state: 'visible' })
 	await passwordInput.type(password, { delay: 100 })

@@ -44,10 +44,10 @@ test.describe('EOA — RPC Methods', () => {
 		await loginWithMetaMask(sdkPopup, wallet)
 		await waitForPopupClose(sdkPopup)
 
-		await dashboard.verifyConnectedSections()
-
 		// Verify "Connected" toast appears
 		await expect(page.locator('#toast-connected')).toBeVisible()
+
+		await dashboard.verifyConnectedSections()
 	})
 
 	test.afterAll(async () => {
