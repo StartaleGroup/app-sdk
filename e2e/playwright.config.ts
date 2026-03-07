@@ -29,7 +29,7 @@ export default defineConfig({
 		actionTimeout: 60_000,
 	},
 
-	timeout: 15 * 60 * 1000,
+	timeout: 5 * 60 * 1000,
 	expect: { timeout: 60_000 },
 
 	projects: [
