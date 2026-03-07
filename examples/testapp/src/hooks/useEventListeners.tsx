@@ -10,6 +10,7 @@ export const useEventListeners = () => {
 			// biome-ignore lint/suspicious/noConsole: developer feedback
 			console.log('🟢 Connected:', info)
 			toast({
+				id: 'toast-connected',
 				title: 'Connected',
 				description: `chainId: ${info.chainId}`,
 				status: 'success',
@@ -24,6 +25,7 @@ export const useEventListeners = () => {
 		// biome-ignore lint/suspicious/noConsole: developer feedback
 		console.log('🔴 Disconnect detected')
 		toast({
+			id: 'toast-disconnected',
 			title: 'Disconnected',
 			status: 'error',
 			duration: 5000,
@@ -36,6 +38,7 @@ export const useEventListeners = () => {
 			// biome-ignore lint/suspicious/noConsole: developer feedback
 			console.log('👤 Accounts changed:', accounts)
 			toast({
+				id: 'toast-accounts-changed',
 				title: 'Accounts changed',
 				description: `account: ${accounts.at(0)}`,
 				status: 'info',
@@ -51,6 +54,7 @@ export const useEventListeners = () => {
 			// biome-ignore lint/suspicious/noConsole: developer feedback
 			console.log('⛓️ Chain changed:', chainId)
 			toast({
+				id: 'toast-chain-changed',
 				title: 'Chain changed',
 				description: `chainId: ${chainId}`,
 				status: 'info',

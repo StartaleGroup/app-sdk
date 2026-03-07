@@ -1,4 +1,6 @@
-import { test, expect } from '../../fixtures/wallet.fixture.js'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '../../fixtures/wallet.fixture.js'
 import { loginWithMetaMask } from '../../lib/auth/metamask-eoa.js'
 import { ROUTES } from '../../lib/constants.js'
 import {
@@ -8,9 +10,6 @@ import {
 } from '../../lib/helpers.js'
 import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
-
-import type { Page } from '@playwright/test'
-import type { Dappwright } from '@tenkeylabs/dappwright'
 
 /**
  * All RPC method tests that require MetaMask EOA authentication.
@@ -31,7 +30,7 @@ test.describe('EOA — RPC Methods', () => {
 	test.beforeAll(async ({ walletContext, wallet, baseURL }) => {
 		page = await walletContext.newPage()
 
-		// Navigate with baseURL resolution (walletPage fixture normally does this)
+		// dappwright context does not inherit Playwright's baseURL — resolve manually
 		await page.goto(`${baseURL}${ROUTES.dashboard}`)
 		const dashboard = dashboardPage(page)
 		await dashboard.verifyLoaded()
@@ -46,6 +45,9 @@ test.describe('EOA — RPC Methods', () => {
 		await waitForPopupClose(sdkPopup)
 
 		await dashboard.verifyConnectedSections()
+
+		// Verify "Connected" toast appears
+		await expect(page.locator('#toast-connected')).toBeVisible()
 	})
 
 	test.afterAll(async () => {
@@ -119,6 +121,9 @@ test.describe('EOA — RPC Methods', () => {
 		// Verify the chain switch via the chainChanged event listener.
 		const eventSection = page.getByTestId('section-event-listeners')
 		await expect(eventSection.getByText('0x79a')).toBeVisible()
+
+		// Verify "Chain changed" toast appears
+		await expect(page.locator('#toast-chain-changed')).toBeVisible()
 	})
 
 	// --- Read-only ---

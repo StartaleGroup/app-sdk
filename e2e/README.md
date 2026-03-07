@@ -35,7 +35,7 @@ Copy `.env.example` to `.env` and fill in:
 | `GOOGLE_TEST_EMAIL` | Yes (Google) | Google test account email |
 | `GOOGLE_TEST_PASSWORD` | Yes (Google) | Google test account password |
 | `GOOGLE_TOTP_SECRET` | No | Base32 TOTP secret for 2FA |
-| `WALLET_SEED` | No | MetaMask seed phrase (default: dev seed) |
+| `WALLET_SEED` | No | MetaMask seed phrase (if unset, dappwright uses its built-in test seed) |
 | `SKIP_GOOGLE_OAUTH` | No | Set `true` to skip Google tests |
 
 ## Test Inventory
@@ -96,8 +96,7 @@ e2e/
 │       └── dashboard-loads.spec.ts        # Dashboard loads without auth
 ├── page-objects/
 │   ├── dashboardPage.ts                   # Dashboard section selectors (data-testid)
-│   ├── rpcMethodCard.ts                   # RPC method card selectors & actions
-│   └── sdkPopupPage.ts                   # SDK popup (app.startale.com) selectors
+│   └── rpcMethodCard.ts                   # RPC method card selectors & actions
 ├── fixtures/
 │   ├── wallet.fixture.ts                  # dappwright MetaMask fixture (worker-scoped)
 │   └── testData.fixture.ts               # Test constants

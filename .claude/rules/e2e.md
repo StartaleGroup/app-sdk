@@ -51,7 +51,6 @@ Use `triggerAndApproveSDKPopup` for RPC calls that open an SDK popup. The helper
 Follow the Page Object Model pattern. All page objects are in `e2e/page-objects/`:
 - `dashboardPage.ts` — Dashboard section selectors
 - `rpcMethodCard.ts` — RPC method card selectors and actions
-- `sdkPopupPage.ts` — SDK popup selectors
 
 ## Test File Organization
 

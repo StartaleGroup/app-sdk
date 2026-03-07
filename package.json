@@ -17,7 +17,7 @@
 		"lint": "nr -recursive lint",
 		"format": "nr -recursive format",
 		"format:check": "nr -recursive format:check",
-		"test": "nr -recursive test",
+		"test": "nr -recursive --filter '!@startale/app-sdk-e2e' test",
 		"test:unit": "nr -recursive test:unit",
 		"typecheck": "nr -recursive typecheck",
 		"validate": "nr build:packages",

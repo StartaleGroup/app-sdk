@@ -20,6 +20,7 @@ export const loginWithMetaMask = async (
 		.getByRole('button', { name: 'Connect a wallet' })
 		.click()
 
+	// 'metamask MetaMask' = icon alt text ('metamask') + button label ('MetaMask')
 	const metamaskOption = sdkPopup.getByRole('button', {
 		name: 'metamask MetaMask',
 	})

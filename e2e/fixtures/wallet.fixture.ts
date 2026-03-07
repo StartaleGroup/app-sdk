@@ -17,19 +17,13 @@ import { SONEIUM_CHAIN } from '../lib/constants.js'
 // Enable Playwright to attach to Chrome side panel (required for MetaMask 13+)
 process.env.PW_CHROMIUM_ATTACH_TO_OTHER = '1'
 
-
-export const test = base.extend<{
-	wallet: Dappwright
-	walletPage: Page
-}
-, {
-	walletContext: BrowserContext
-}
+export const test = base.extend<
+	{ wallet: Dappwright; walletPage: Page },
+	{ walletContext: BrowserContext }
 >({
 	walletContext: [
 		async ({}, use) => {
-			const seedPhrase =
-				process.env.WALLET_SEED
+			const seedPhrase = process.env.WALLET_SEED
 			const [, , context] = await bootstrap('', {
 				wallet: 'metamask',
 				version: MetaMaskWallet.recommendedVersion,

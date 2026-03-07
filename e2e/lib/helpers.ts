@@ -19,7 +19,7 @@ export const waitForPopup = async (
  * Wait for a popup to close (e.g. after auth completes).
  */
 export const waitForPopupClose = async (popup: Page): Promise<void> => {
-	await popup.waitForEvent('close', { timeout: 90_000 })
+	await popup.waitForEvent('close')
 }
 
 /**
@@ -34,7 +34,6 @@ export const waitForPopupClose = async (popup: Page): Promise<void> => {
  * Relies on config-level actionTimeout (60s) for button visibility.
  */
 export const approveSDKPopup = async (
-	page: Page,
 	popup: Page,
 ): Promise<void> => {
 	const actionButton = popup
@@ -45,7 +44,7 @@ export const approveSDKPopup = async (
 
 	// Race: button becomes clickable vs popup closes (error/auto-sign)
 	const popupClosed = popup
-		.waitForEvent('close', { timeout: 90_000 })
+		.waitForEvent('close')
 		.then(() => 'closed' as const)
 
 	const buttonReady = actionButton
@@ -76,7 +75,7 @@ export const triggerAndApproveSDKPopup = async (
 	trigger: () => Promise<void>,
 ): Promise<void> => {
 	const popup = await waitForPopup(page, trigger)
-	await approveSDKPopup(page, popup)
+	await approveSDKPopup(popup)
 }
 
 /**
@@ -91,6 +90,7 @@ export const connectViaRequestAccounts = async (
 	page: Page,
 	submitFn: () => Promise<void>,
 ): Promise<void> => {
+	// Short timeout: detect quickly when no popup opens (session already restored)
 	const popupPromise = page
 		.waitForEvent('popup', { timeout: 15_000 })
 		.catch(() => null)
@@ -100,6 +100,6 @@ export const connectViaRequestAccounts = async (
 	const popup = await popupPromise
 	if (popup) {
 		await popup.waitForLoadState('domcontentloaded')
-		await approveSDKPopup(page, popup)
+		await approveSDKPopup(popup)
 	}
 }

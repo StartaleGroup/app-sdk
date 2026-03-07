@@ -51,6 +51,9 @@ test.describe('Google OAuth — RPC Methods', () => {
 
 		// Verify connected state
 		await dashboard.verifyConnectedSections()
+
+		// Verify "Connected" toast appears
+		await expect(page.locator('#toast-connected')).toBeVisible()
 	})
 
 	test.afterAll(async () => {
@@ -124,6 +127,9 @@ test.describe('Google OAuth — RPC Methods', () => {
 		// Verify the chain switch via the chainChanged event listener.
 		const eventSection = page.getByTestId('section-event-listeners')
 		await expect(eventSection.getByText('0x79a')).toBeVisible()
+
+		// Verify "Chain changed" toast appears
+		await expect(page.locator('#toast-chain-changed')).toBeVisible()
 	})
 
 	// --- Read-only ---
