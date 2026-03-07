@@ -24,6 +24,7 @@ export const test = base.extend<
 	walletContext: [
 		async ({}, use) => {
 			const seedPhrase = process.env.WALLET_SEED
+			if (!seedPhrase) throw new Error('WALLET_SEED env var required')
 			const [, , context] = await bootstrap('', {
 				wallet: 'metamask',
 				version: MetaMaskWallet.recommendedVersion,
@@ -41,7 +42,9 @@ export const test = base.extend<
 					symbol: SONEIUM_CHAIN.symbol,
 				})
 				.catch(() => {})
-			await wallet.switchNetwork(SONEIUM_CHAIN.networkName).catch(() => {})
+			await wallet.switchNetwork(SONEIUM_CHAIN.networkName).catch((err) => {
+				console.warn('[wallet.fixture] switchNetwork failed:', err?.message)
+			})
 
 			await use(context)
 			await context.close()
@@ -61,6 +64,8 @@ export const test = base.extend<
 	walletPage: async ({ walletContext, baseURL }, use) => {
 		const page = await walletContext.newPage()
 		const originalGoto = page.goto.bind(page)
+		// dappwright context does not inherit Playwright's baseURL — patch goto
+		// so relative URLs are resolved against baseURL, matching default behavior.
 		page.goto = (url: string, options?: Parameters<Page['goto']>[1]) => {
 			const resolvedUrl =
 				url.startsWith('/') && baseURL ? `${baseURL}${url}` : url

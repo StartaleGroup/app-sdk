@@ -22,6 +22,10 @@ page.locator('.card-container')
 page.locator('div > form > button')
 ```
 
+**Exceptions:**
+- **Third-party pages** (Google OAuth, MetaMask extension): Use `getByRole` or stable attribute selectors. Add a comment explaining why `data-testid` is not possible.
+- **Chakra UI toasts**: Use HTML `id` selector (`#toast-*`) from `toast({ id })`. Chakra does not support `data-testid` on toasts.
+
 ## Serial Mode for Authenticated Tests
 
 The SDK popup at `app.startale.com` communicates with the testapp via `postMessage`. This requires the popup session to be established within the same browser context where the initial login occurred. Playwright's `storageState` only preserves cookies and localStorage but cannot restore the in-memory SDK state.

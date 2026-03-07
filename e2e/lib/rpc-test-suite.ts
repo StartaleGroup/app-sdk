@@ -11,13 +11,11 @@ import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 import { CHAIN_IDS } from './constants.js'
 import { triggerAndApproveSDKPopup } from './helpers.js'
 
-
-
 export const registerRpcMethodTests = (
 	test: TestType<
-	PlaywrightTestArgs & PlaywrightTestOptions,
-	PlaywrightWorkerArgs & PlaywrightWorkerOptions
->,
+		PlaywrightTestArgs & PlaywrightTestOptions,
+		PlaywrightWorkerArgs & PlaywrightWorkerOptions
+	>,
 	getPage: () => Page,
 ) => {
 	// --- Signing ---
@@ -38,6 +36,8 @@ export const registerRpcMethodTests = (
 			signTypedData.clickShortcut('Example Message'),
 		)
 		await signTypedData.waitForResponse()
+		const response = await signTypedData.getResponse()
+		expect(response).toContain('0x')
 	})
 
 	// --- Transactions ---
@@ -73,6 +73,7 @@ export const registerRpcMethodTests = (
 		await switchChain.clickShortcut('Minato')
 		const eventSection = getPage().getByTestId('section-event-listeners')
 		await expect(eventSection.getByText(CHAIN_IDS.MINATO)).toBeVisible()
+		// Chakra UI toasts use HTML id (from toast({ id })) — not data-testid
 		await expect(getPage().locator('#toast-chain-changed')).toBeVisible()
 	})
 
@@ -84,5 +85,30 @@ export const registerRpcMethodTests = (
 		await getBalance.waitForResponse()
 		const response = await getBalance.getResponse()
 		expect(response).toContain('0x')
+	})
+
+	// --- Error cases ---
+	// Read-only methods return errors without opening SDK popups
+
+	test('eth_getBalance — error on invalid address', async () => {
+		const getBalance = rpcMethodCard(getPage(), 'eth_getBalance')
+		await getBalance.openParams()
+		await getBalance.fillParam('address', 'invalid_address')
+		await getBalance.fillParam('blockNumber', 'latest')
+		await getBalance.submit()
+		await getBalance.waitForResponse()
+		const error = await getBalance.getError()
+		expect(error).toBeTruthy()
+	})
+
+	test('eth_getTransactionCount — error on invalid address', async () => {
+		const getTxCount = rpcMethodCard(getPage(), 'eth_getTransactionCount')
+		await getTxCount.openParams()
+		await getTxCount.fillParam('address', 'invalid_address')
+		await getTxCount.fillParam('blockNumber', 'latest')
+		await getTxCount.submit()
+		await getTxCount.waitForResponse()
+		const error = await getTxCount.getError()
+		expect(error).toBeTruthy()
 	})
 }

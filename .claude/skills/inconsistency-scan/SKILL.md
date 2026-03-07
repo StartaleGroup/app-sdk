@@ -159,9 +159,9 @@ Output the final report in this format:
 
 - Run this scan periodically: before releases, after large merges, or when
   onboarding new contributors
-- The scan complements `/precommit` (which checks only changed files) by
+- The scan complements `/prepr` (which checks only changed files) by
   catching drift that accumulates over time across the full codebase
-- Auto-fixes are intentionally out of scope — use `/precommit` or
+- Auto-fixes are intentionally out of scope — use `/prepr` or
   `pnpm lint` / `pnpm format` for automated fixes; this skill is for discovery and reporting
 - **Rules evolve**: agents read `.claude/rules/` at scan time, so the scan
   always reflects the latest standards without requiring SKILL.md edits

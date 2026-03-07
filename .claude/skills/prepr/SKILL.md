@@ -1,12 +1,12 @@
 ---
-name: precommit
-description: Pre-commit quality check with adaptive agent selection, code simplification with user approval, and optimized validation. Scales review depth by diff size.
+name: prepr
+description: Pre-PR quality check with adaptive agent selection, code simplification with user approval, and optimized validation. Scales review depth by diff size.
 disable-model-invocation: true
 ---
 
-# Pre-commit Check
+# Pre-PR Check
 
-Run comprehensive pre-commit checks to ensure code quality before committing.
+Run comprehensive pre-PR checks to ensure code quality before creating a pull request.
 
 ## Workflow
 

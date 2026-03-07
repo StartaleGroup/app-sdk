@@ -26,7 +26,9 @@ test.describe('EOA — RPC Methods', () => {
 	test.beforeAll(async ({ walletContext, wallet, baseURL }) => {
 		page = await walletContext.newPage()
 
-		// dappwright context does not inherit Playwright's baseURL — resolve manually
+		// dappwright's walletContext does not inherit Playwright's baseURL
+		// (unlike browser.newContext() which gets it from project config).
+		// Resolve the full URL manually.
 		await page.goto(`${baseURL}${ROUTES.dashboard}`)
 		const dashboard = dashboardPage(page)
 		await dashboard.verifyLoaded()

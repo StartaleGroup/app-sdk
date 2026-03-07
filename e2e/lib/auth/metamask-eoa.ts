@@ -24,15 +24,8 @@ export const loginWithMetaMask = async (
 	await sdkPopup.getByRole('button', { name: 'metamask MetaMask' }).click()
 
 	// wallet.signin() may fail on first attempt due to MetaMask UI initialization delay.
-	// Wait 10s before retrying to give MetaMask time to fully initialize.
-	await wallet
-		.signin()
-		.catch(
-			() =>
-				new Promise<void>((resolve) => setTimeout(resolve, 10_000)).then(
-					() => wallet.signin(),
-				),
-		)
+	// Retry after a short delay to give MetaMask time to fully initialize.
+	await wallet.signin().catch(() => wallet.signin())
 
 	await sdkPopup.getByRole('button', { name: 'Approve' }).click()
 }

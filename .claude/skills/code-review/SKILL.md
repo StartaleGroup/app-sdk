@@ -56,51 +56,22 @@ If the diff exceeds ~2000 lines, review file-by-file using subagents instead of 
 
 ---
 
-## 3. Review Checklist
+## 3. Run code-reviewer Agent
 
-Skip auto-generated files, lock files, and vendored code. For each changed file:
+Delegate the review to the `code-reviewer` agent. Pass the list of changed files from step 2.
 
-**Security (CRITICAL):**
-- Hardcoded credentials, API keys, tokens
-- XSS vulnerabilities (`dangerouslySetInnerHTML`, `innerHTML`, `eval`)
-- Missing input validation on external data
-- Path traversal risks
-- Insecure dependencies
+The agent handles:
+- Reading `.claude/rules/` for project standards
+- Rules-driven analysis (security, code quality, best practices)
+- Applying fixes and running verification (`pnpm typecheck`, `pnpm lint`)
 
-**Code Quality (HIGH):**
-- Functions > 50 lines, files > 800 lines
-- Nesting depth > 4 levels
-- Missing error handling
-- `console.log` statements left in
-- Mutation patterns (use immutable instead)
-
-**Utility Duplication (HIGH):**
-- New helpers that duplicate existing ones in `packages/app-sdk/src/util/`
-- Check `.claude/rules/typescript.md` "Helper Functions" section for existing utilities
-
-**Best Practices (MEDIUM):**
-- Missing tests for new code
-- Accessibility issues (a11y)
+**Do NOT duplicate the agent's review logic in this skill.** The agent is the single source of truth for review criteria and fix workflow.
 
 ---
 
-## 4. Improvement Proposals
+## 4. Generate Report
 
-After completing the review checklist, analyze the branch holistically:
-
-1. **Identify branch purpose** — Read the branch name, commit messages, and PR description to understand the goal
-2. **Propose improvements aligned with the goal** — Suggest what else could be done to make this change better
-
-### Guidelines
-
-- Each proposal MUST include: severity (HIGH/MEDIUM/LOW), current code snippet with file:line, and a concrete code example of the improvement
-- Only propose changes that are actionable within the current branch scope
-- Do NOT propose general refactoring unrelated to the branch purpose
-- Limit to 3-5 proposals maximum — focus on the highest impact
-
----
-
-## 5. Generate Report
+After the agent completes, compile its output into a report.
 
 **Output**: `./report/$TIMESTAMP-code-review.md` (create `report/` if needed).
 
@@ -113,16 +84,15 @@ After completing the review checklist, analyze the branch holistically:
 - **Files reviewed**: N
 
 ## Summary
-- Issues found: N (Critical: N, High: N, Medium: N, Low: N)
-- Proposals: N
-- Status: [APPROVED / CHANGES REQUESTED]
+- Issues found: N (Critical: N, Warning: N, Suggestion: N)
+- Status: [APPROVED / APPROVED WITH COMMENTS / CHANGES REQUESTED]
 
 ## Detailed Findings
 
 ### [SEVERITY] File: path/to/file.ts
 - **Line**: N
 - **Issue**: Description
-- **Suggestion**: Fix recommendation
+- **Fix Applied**: diff snippet (if fixed by agent)
 
 ## Improvement Proposals
 
@@ -140,6 +110,6 @@ After completing the review checklist, analyze the branch holistically:
 
 ---
 
-## 6. Action Required
+## 5. Action Required
 
-CRITICAL or HIGH issues found → **CHANGES REQUESTED**. Never approve code with security vulnerabilities.
+CRITICAL issues found → **CHANGES REQUESTED**. Never approve code with security vulnerabilities.

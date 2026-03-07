@@ -66,5 +66,4 @@ settings.local.json
 report/
 .claude/**/*local*.md
 /references
-.playwright-mcp/console-2026-03-06T15-31-29-368Z.log
-.playwright-mcp/console-2026-03-06T16-02-54-254Z.log
+.playwright-mcp/

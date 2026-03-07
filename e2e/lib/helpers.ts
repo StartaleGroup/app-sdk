@@ -77,29 +77,3 @@ export const triggerAndApproveSDKPopup = async (
 	const popup = await waitForPopup(page, trigger)
 	await approveSDKPopup(popup)
 }
-
-/**
- * Connect to the SDK by calling eth_requestAccounts.
- *
- * In storageState sessions (Google OAuth), the SDK may connect without
- * opening a popup. This helper handles both scenarios:
- * - If a popup opens: approve it and wait for close
- * - If no popup: the SDK connected directly via stored session
- */
-export const connectViaRequestAccounts = async (
-	page: Page,
-	submitFn: () => Promise<void>,
-): Promise<void> => {
-	// Short timeout: detect quickly when no popup opens (session already restored)
-	const popupPromise = page
-		.waitForEvent('popup', { timeout: 15_000 })
-		.catch(() => null)
-
-	await submitFn()
-
-	const popup = await popupPromise
-	if (popup) {
-		await popup.waitForLoadState('domcontentloaded')
-		await approveSDKPopup(popup)
-	}
-}

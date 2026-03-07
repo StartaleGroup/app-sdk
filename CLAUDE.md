@@ -75,7 +75,7 @@ Forked from Base Account SDK. `base-master` tracks upstream (daily sync via GitH
 | build-error-resolver | Agent | Build/TypeScript error fixing |
 | code-review | Skill | Security and quality review (auto) |
 | side-effect | Skill | Side effect analysis (auto) |
-| precommit | Skill | Pre-commit quality check (4 agents) |
+| prepr | Skill | Pre-PR quality check (5 agents) |
 | inconsistency-scan | Skill | Full codebase consistency scan |
 | reflect / learn | Skill | Review mistakes / extract patterns |
 | achievements / pr-summary | Skill | Branch summary / PR summary |

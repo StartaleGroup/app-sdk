@@ -34,6 +34,11 @@ export const rpcMethodCard = (
 			await card.getByTestId(`rpc-submit-${method}`).click()
 		},
 
+		/** Open the Params accordion (collapsed by default when shortcuts exist) */
+		openParams: async () => {
+			await card.getByRole('button', { name: 'Params' }).click()
+		},
+
 		/** Click a shortcut button by its key */
 		clickShortcut: async (key: string) => {
 			await card.getByTestId(`rpc-shortcut-${method}-${key}`).click()

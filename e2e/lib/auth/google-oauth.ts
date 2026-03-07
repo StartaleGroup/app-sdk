@@ -21,12 +21,12 @@ const handle2FA = async (page: Page): Promise<void> => {
 
 	// Wait for 2FA challenge page
 	await page
-		.waitForURL('**/signin/v2/challenge/**', { timeout: 10_000 })
+		.waitForURL('**/signin/v2/challenge/**')
 		.catch(() => {})
 
 	const totpInput = page.locator('input[type="tel"]')
 	const isVisible = await totpInput
-		.isVisible({ timeout: 5_000 })
+		.isVisible()
 		.catch(() => false)
 
 	if (isVisible) {
@@ -67,14 +67,14 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 	// more likely to be flagged as automated input.
 	const emailInput = sdkPopup.locator('input[type="email"]')
 	await emailInput.waitFor({ state: 'visible' })
-	await emailInput.type(email, { delay: 100 })
+	await emailInput.pressSequentially(email, { delay: 100 })
 	await sdkPopup.getByRole('button', { name: /Next/i }).click()
 
 	// Use name="Passwd" instead of type="password" — Google's login page
 	// contains hidden decoy password inputs that would match type="password".
 	const passwordInput = sdkPopup.locator('input[name="Passwd"]')
 	await passwordInput.waitFor({ state: 'visible' })
-	await passwordInput.type(password, { delay: 100 })
+	await passwordInput.pressSequentially(password, { delay: 100 })
 	await sdkPopup.getByRole('button', { name: /Next/i }).click()
 
 	// Handle 2FA if configured
