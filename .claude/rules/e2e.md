@@ -1,12 +1,15 @@
 # E2E Testing Rules
 
-## Test Coverage Requirement
+## Test Coverage Strategy
 
-All RPC method tests MUST pass with both authentication methods:
-- **Google OAuth** (`tests/google/rpc-methods.spec.ts`)
-- **EOA / MetaMask** (`tests/eoa/rpc-methods.spec.ts`)
+RPC method tests run with **Google OAuth as the primary authentication method**. MetaMask EOA tests verify connectivity only.
 
-When adding a new RPC method test, add it to `e2e/lib/rpc-test-suite.ts`. The `registerRpcMethodTests` function is called by both EOA and Google spec files, so a single addition covers both auth methods.
+| Suite | Auth | Scope | File |
+|-------|------|-------|------|
+| Google OAuth | Google | All RPC method tests | `tests/google/rpc-methods.spec.ts` |
+| MetaMask EOA | MetaMask | Connection + personal_sign | `tests/eoa/rpc-methods.spec.ts` |
+
+When adding a new RPC method test, add it to `tests/google/rpc-methods.spec.ts`.
 
 ## Element Selection
 
@@ -56,26 +59,14 @@ Follow the Page Object Model pattern. All page objects are in `e2e/page-objects/
 - `dashboardPage.ts` — Dashboard section selectors
 - `rpcMethodCard.ts` — RPC method card selectors and actions
 
-## Shared RPC Test Suite
-
-RPC method tests are defined once in `e2e/lib/rpc-test-suite.ts` via `registerRpcMethodTests(test, getPage)`. Each auth-specific spec file (EOA, Google) handles login in `beforeAll`, then calls this function to register the shared tests.
-
-```typescript
-// In spec file — after auth setup:
-registerRpcMethodTests(test, () => page)
-```
-
-The function accepts `TestType<any, any>` so it works with both the standard Playwright `test` and the custom dappwright-extended `test` from the wallet fixture.
-
 ## Test File Organization
 
 ```
 e2e/
 ├── lib/
-│   ├── rpc-test-suite.ts  # Shared RPC method tests
 │   └── constants.ts       # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
 ├── tests/
-│   ├── eoa/        # EOA (MetaMask) connect + RPC method tests
-│   ├── google/     # Google OAuth RPC method tests
-│   └── smoke/      # No-auth smoke tests
+│   ├── eoa/           # EOA connect + basic signing test
+│   ├── google/        # Google OAuth — full RPC method tests
+│   └── smoke/         # No-auth smoke tests
 ```

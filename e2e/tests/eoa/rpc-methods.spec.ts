@@ -2,21 +2,20 @@ import type { Page } from '@playwright/test'
 import { expect, test } from '../../fixtures/wallet.fixture.js'
 import { loginWithMetaMask } from '../../lib/auth/metamask-eoa.js'
 import { ROUTES } from '../../lib/constants.js'
-import { waitForPopup, waitForPopupClose } from '../../lib/helpers.js'
+import {
+	triggerAndApproveSDKPopup,
+	waitForPopup,
+	waitForPopupClose,
+} from '../../lib/helpers.js'
 import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
-import { registerRpcMethodTests } from '../../lib/rpc-test-suite.js'
 
 /**
- * All RPC method tests that require MetaMask EOA authentication.
+ * EOA authentication pathway verification.
  *
- * These tests run in serial mode sharing the same browser context
- * so that the SDK popup session (app.startale.com) is preserved
- * across tests. MetaMask login is performed once in beforeAll,
- * then each test reuses the same authenticated page.
- *
- * We create a page from walletContext directly (worker-scoped) instead of
- * using walletPage fixture (test-scoped) to avoid page cleanup between tests.
+ * Full RPC method coverage runs via Google OAuth (tests/google/).
+ * This suite only verifies that MetaMask EOA login works and
+ * can execute a basic signing operation.
  */
 test.describe('EOA — RPC Methods', () => {
 	test.describe.configure({ mode: 'serial' })
@@ -52,5 +51,13 @@ test.describe('EOA — RPC Methods', () => {
 		await page?.close()
 	})
 
-	registerRpcMethodTests(test, () => page)
+	test('personal_sign — sign a message via shortcut', async () => {
+		const personalSign = rpcMethodCard(page, 'personal_sign')
+		await triggerAndApproveSDKPopup(page, () =>
+			personalSign.clickShortcut('Example Message'),
+		)
+		await personalSign.waitForResponse()
+		const response = await personalSign.getResponse()
+		expect(response).toContain('0x')
+	})
 })

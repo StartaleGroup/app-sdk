@@ -57,16 +57,11 @@ Copy `.env.example` to `.env` and fill in:
 
 ### EOA RPC Methods (`tests/eoa/rpc-methods.spec.ts`)
 
-All tests run in serial mode within a single browser context. MetaMask login is performed in the first test, then each test reuses the same authenticated page.
+MetaMask login is performed in the first test, then personal_sign verifies basic signing works. Full RPC coverage is handled by the Google OAuth suite.
 
 | # | Test | Auth |
 |--:|------|:----:|
 | 4 | personal_sign — sign a message via shortcut | EOA |
-| 5 | eth_signTypedData_v4 — sign typed data via shortcut | EOA |
-| 6 | eth_sendTransaction — send example transaction | EOA |
-| 7 | wallet_sendCalls — send calls via shortcut | EOA |
-| 8 | wallet_switchEthereumChain — switch chain via shortcut | EOA |
-| 9 | eth_getBalance — get balance via shortcut | EOA |
 
 ### Google OAuth RPC Methods (`tests/google/rpc-methods.spec.ts`)
 
@@ -74,14 +69,16 @@ All tests run in serial mode within a single browser context. Google login is pe
 
 | # | Test | Auth |
 |--:|------|:----:|
-| 10 | personal_sign — sign a message via shortcut | Google |
-| 11 | eth_signTypedData_v4 — sign typed data via shortcut | Google |
-| 12 | eth_sendTransaction — send example transaction | Google |
-| 13 | wallet_sendCalls — send calls via shortcut | Google |
-| 14 | wallet_switchEthereumChain — switch chain via shortcut | Google |
-| 15 | eth_getBalance — get balance via shortcut | Google |
+| 5 | personal_sign — sign a message via shortcut | Google |
+| 6 | eth_signTypedData_v4 — sign typed data via shortcut | Google |
+| 7 | eth_sendTransaction — send example transaction | Google |
+| 8 | wallet_sendCalls — send calls via shortcut | Google |
+| 9 | wallet_switchEthereumChain — switch chain via shortcut | Google |
+| 10 | eth_getBalance — get balance via shortcut | Google |
+| 11 | eth_getBalance — error on invalid address | Google |
+| 12 | eth_getTransactionCount — error on invalid address | Google |
 
-**Total: 3 spec files, 15 tests**
+**Total: 3 spec files, 12 tests**
 
 ## Directory Structure
 
@@ -89,7 +86,7 @@ All tests run in serial mode within a single browser context. Google login is pe
 e2e/
 ├── tests/
 │   ├── eoa/
-│   │   └── rpc-methods.spec.ts            # MetaMask EOA connect + all RPC method tests
+│   │   └── rpc-methods.spec.ts            # MetaMask EOA connect + personal_sign
 │   ├── google/
 │   │   └── rpc-methods.spec.ts            # Google OAuth + all RPC method tests
 │   └── smoke/
