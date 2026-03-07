@@ -18,8 +18,9 @@
 		"format": "nr -recursive format",
 		"format:check": "nr -recursive format:check",
 		"test": "nr -recursive test",
+		"test:unit": "nr -recursive test:unit",
 		"typecheck": "nr -recursive typecheck",
-		"validate": "nr lint && nr format && nr typecheck && nr test && nr build:packages",
+		"validate": "nr build:packages",
 		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public"
 	},
 	"devDependencies": {

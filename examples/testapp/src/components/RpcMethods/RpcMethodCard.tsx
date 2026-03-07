@@ -181,13 +181,13 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 	)
 
 	return (
-		<Card shadow="lg" as="form" onSubmit={handleSubmit(submit)}>
+		<Card shadow="lg" as="form" onSubmit={handleSubmit(submit)} data-testid={`rpc-card-${method}`}>
 			<CardBody>
 				<Flex align="center" justify="space-between">
 					<Heading as="h2" size="lg">
 						<Code>{method}</Code>
 					</Heading>
-					<Button type="submit" mt={4}>
+					<Button type="submit" mt={4} data-testid={`rpc-submit-${method}`}>
 						Submit
 					</Button>
 				</Flex>
@@ -228,6 +228,7 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 														{param.key}
 													</InputLeftAddon>
 													<Textarea
+														data-testid={`rpc-param-${method}-${param.key}`}
 														{...register(param.key, {
 															required: param.required
 																? `${param.key} required`
@@ -278,6 +279,7 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 										{shortcuts.map((shortcut) => (
 											<VStack key={shortcut.key} spacing={1}>
 												<Button
+													data-testid={`rpc-shortcut-${method}-${shortcut.key}`}
 													onClick={() => submit(shortcut.data)}
 												>
 													{shortcut.key}
@@ -308,7 +310,7 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 					</Accordion>
 				)}
 				{response && (
-					<VStack mt={4} align="flex-start" spacing={2}>
+					<VStack mt={4} align="flex-start" spacing={2} data-testid={`rpc-response-${method}`}>
 						<Code
 							as="pre"
 							p={4}
@@ -390,7 +392,7 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 					</VStack>
 				)}
 				{error && (
-					<VStack mt={4}>
+					<VStack mt={4} data-testid={`rpc-error-${method}`}>
 						<Code
 							as="pre"
 							colorScheme="red"
