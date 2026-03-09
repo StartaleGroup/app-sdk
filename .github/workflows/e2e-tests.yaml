@@ -21,20 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build SDK packages
-        run: pnpm build:packages
-
-      - name: Install Playwright browsers
-        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+      - uses: ./.github/actions/e2e-setup
 
       - name: Run smoke tests
         run: |
@@ -49,7 +36,7 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 14
+          retention-days: 7
 
   google:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
@@ -64,23 +51,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/e2e-setup
         with:
-          node-version: 24
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build SDK packages
-        run: pnpm build:packages
-
-      - name: Install Playwright browsers
-        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
-
-      - name: Install branded Chrome
-        run: pnpm --filter @startale/app-sdk-e2e exec playwright install chrome
+          install-chrome: 'true'
 
       - name: Run Google OAuth tests
         run: |
@@ -95,7 +68,7 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 14
+          retention-days: 7
 
   eoa:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
@@ -108,20 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build SDK packages
-        run: pnpm build:packages
-
-      - name: Install Playwright browsers
-        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+      - uses: ./.github/actions/e2e-setup
 
       - name: Run EOA tests
         run: |
@@ -136,4 +96,4 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 14
+          retention-days: 7

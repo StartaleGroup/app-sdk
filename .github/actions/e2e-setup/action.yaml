@@ -1,0 +1,30 @@
+name: E2E Setup
+description: Shared setup for E2E test jobs — installs dependencies, builds SDK, and installs Playwright browsers.
+
+inputs:
+  install-chrome:
+    description: Install branded Chrome browser (required for Google OAuth tests)
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Build SDK packages
+      shell: bash
+      run: pnpm build:packages
+
+    - name: Install Playwright browsers
+      shell: bash
+      run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+
+    - name: Install branded Chrome
+      if: inputs.install-chrome == 'true'
+      shell: bash
+      run: pnpm --filter @startale/app-sdk-e2e exec playwright install chrome
