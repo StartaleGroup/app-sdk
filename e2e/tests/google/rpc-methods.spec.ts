@@ -32,8 +32,8 @@ test.describe('Google OAuth — RPC Methods', () => {
 	let context: BrowserContext
 	let page: Page
 
-	test.beforeAll(async ({ browser }) => {
-		context = await browser.newContext()
+	test.beforeAll(async ({ browser, baseURL }) => {
+		context = await browser.newContext({ baseURL })
 		page = await context.newPage()
 
 		await page.goto(ROUTES.dashboard)

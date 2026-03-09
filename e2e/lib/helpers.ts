@@ -56,7 +56,9 @@ export const approveSDKPopup = async (
 	const result = await Promise.race([popupClosed, buttonReady])
 
 	if (result === 'clicked') {
-		await waitForPopupClose(popup)
+		if (!popup.isClosed()) {
+			await popupClosed
+		}
 	}
 	// If 'closed' or 'button-failed', the popup already closed (SDK handled it)
 }
