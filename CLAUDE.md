@@ -22,6 +22,7 @@ Startale App SDK (`@startale/app-sdk`) — Web3 SDK forked from Coinbase's Accou
 - **Use Subagents**: Task tool for research, exploration, code reviews.
 - **Side Effect Analysis**: Identify all consumers before changing shared state (Zustand stores, IndexedDB keys, Communicator channels).
 - **Code Review**: Use `code-reviewer` agent after writing code.
+- **Verification Pass**: For medium-to-large tasks, after completing implementation, spawn a separate verification agent (use `model: "sonnet"`) to check for gaps, missed requirements, or inconsistencies.
 - **Finalize**: Run `pnpm lint` and `pnpm format`. Resolve errors.
 
 ## Structure & Commands
