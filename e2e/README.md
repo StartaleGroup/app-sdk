@@ -31,7 +31,6 @@ Copy `.env.example` to `.env` and fill in:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `TESTAPP_URL` | No | Testapp URL (default: `http://localhost:3001`) |
 | `GOOGLE_TEST_EMAIL` | Yes (Google) | Google test account email |
 | `GOOGLE_TEST_PASSWORD` | Yes (Google) | Google test account password |
 | `GOOGLE_TOTP_SECRET` | No | Base32 TOTP secret for 2FA |

@@ -19,6 +19,7 @@
 		"format:check": "nr -recursive format:check",
 		"test": "nr -recursive --filter '!@startale/app-sdk-e2e' test",
 		"test:unit": "nr -recursive test:unit",
+		"test:e2e": "pnpm --filter @startale/app-sdk-e2e test:ci",
 		"typecheck": "nr -recursive typecheck",
 		"validate": "nr build:packages",
 		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public"

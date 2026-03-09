@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv'
 
 loadEnv()
 
-const baseURL = process.env.TESTAPP_URL ?? 'http://localhost:3001'
+const baseURL = 'http://localhost:3001'
 
 export default defineConfig({
 	testDir: '.',
