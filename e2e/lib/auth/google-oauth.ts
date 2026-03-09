@@ -19,9 +19,12 @@ const handle2FA = async (page: Page): Promise<void> => {
 	const totpSecret = process.env.GOOGLE_TOTP_SECRET
 	if (!totpSecret) throw new Error('GOOGLE_TOTP_SECRET env var required')
 
-	// Wait for 2FA challenge page
+	// If already redirected past Google, 2FA was skipped
+	if (!page.url().includes('google.com')) return
+
+	// Short timeout: 2FA challenge appears within seconds if triggered, without timeout, it takes a long time to resolve the popup to click the "Approve" button
 	await page
-		.waitForURL('**/signin/v2/challenge/**')
+		.waitForURL('**/signin/v2/challenge/**', { timeout: 5_000 })
 		.catch(() => {})
 
 	const totpInput = page.locator('input[type="tel"]')
