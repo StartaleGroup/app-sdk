@@ -74,8 +74,8 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 	await emailInput.pressSequentially(email, { delay: 100 })
 	await sdkPopup.getByRole('button', { name: /Next/i }).click()
 
-	// Use name="Passwd" instead of type="password" — Google's login page
-	// contains hidden decoy password inputs that would match type="password".
+	// Use name="Passwd" — Google's login page contains hidden decoy
+	// password inputs that cause type="password" selectors to fail. Perhaps there are decoys
 	const passwordInput = sdkPopup.locator('input[name="Passwd"]')
 	await passwordInput.waitFor({ state: 'visible' })
 	await passwordInput.pressSequentially(password, { delay: 100 })
