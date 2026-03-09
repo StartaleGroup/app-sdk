@@ -24,6 +24,8 @@ runs:
       shell: bash
       run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
 
+    # Google blocks OAuth login from Playwright's built-in Chromium (bot detection).
+    # Branded Chrome uses the same binary as regular users, bypassing this restriction.
     - name: Install branded Chrome
       if: inputs.install-chrome == 'true'
       shell: bash
