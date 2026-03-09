@@ -19,6 +19,8 @@
 		"test:ci": "playwright test",
 		"test:ci:smoke": "playwright test --project=smoke",
 		"test:ci:google": "playwright test --project=google-chromium",
-		"test:ci:eoa": "playwright test --project=eoa-chromium"
+		"test:ci:eoa": "playwright test --project=eoa-chromium",
+		"install:playwright": "playwright install --with-deps",
+		"install:chrome": "playwright install chrome"
 	}
 }
