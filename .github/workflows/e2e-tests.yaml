@@ -1,0 +1,136 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK packages
+        run: pnpm build:packages
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+
+      - name: Run smoke tests
+        run: |
+          cd e2e
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:smoke
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-smoke-results
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          retention-days: 14
+
+  google:
+    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+    timeout-minutes: 30
+    env:
+      GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
+      GOOGLE_TEST_PASSWORD: ${{ secrets.GOOGLE_TEST_PASSWORD }}
+      GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK packages
+        run: pnpm build:packages
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+
+      - name: Install branded Chrome
+        run: pnpm --filter @startale/app-sdk-e2e exec playwright install chrome
+
+      - name: Run Google OAuth tests
+        run: |
+          cd e2e
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:google
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-google-results
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          retention-days: 14
+
+  eoa:
+    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+    timeout-minutes: 30
+    env:
+      WALLET_SEED: ${{ secrets.WALLET_SEED }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK packages
+        run: pnpm build:packages
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @startale/app-sdk-e2e exec playwright install --with-deps
+
+      - name: Run EOA tests
+        run: |
+          cd e2e
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:eoa
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-eoa-results
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          retention-days: 14
