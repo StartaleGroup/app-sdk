@@ -67,3 +67,4 @@ report/
 .claude/**/*local*.md
 /references
 .playwright-mcp/
+.mcp.json
