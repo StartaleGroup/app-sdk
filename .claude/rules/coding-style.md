@@ -86,7 +86,7 @@ Before marking work complete:
 - [ ] Files are focused (<800 lines)
 - [ ] No deep nesting (>4 levels)
 - [ ] Proper error handling
-- [ ] No console.log statements
+- [ ] No `console.log` statements (SDK code must not pollute consumer's console. `console.error`/`console.warn` are allowed for error reporting)
 - [ ] No hardcoded values
 - [ ] No hardcoded user-facing strings in UI components
 - [ ] No mutation (immutable patterns used)

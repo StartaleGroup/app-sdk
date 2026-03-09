@@ -1,6 +1,6 @@
 ---
 name: achievements
-description: Show concise summary of all changes on current branch vs parent branch. Outputs grouped bullet-point list in Japanese.
+description: Show concise summary of all changes on current branch vs parent branch. Outputs grouped bullet-point list.
 disable-model-invocation: true
 ---
 
@@ -48,4 +48,3 @@ Format:
 - Include the module/area affected (e.g., "Provider: ...", "Signer: ...")
 - Order by importance/impact, most significant first
 - Keep each line under 80 characters
-- Use Japanese for descriptions

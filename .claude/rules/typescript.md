@@ -18,6 +18,20 @@ const formatPrice = (price: string, decimals: number): string => {
 function formatPrice(price: string, decimals: number): string { ... }
 ```
 
+## Import Paths
+
+Use colon-prefixed path aliases (`:core/*`, `:store/*`, `:sign/*`, `:ui/*`, `:util/*`, `:interface/*`) instead of relative imports within `packages/app-sdk/src/`:
+
+```typescript
+// ✅ Good — Path alias
+import { Communicator } from ':core/communicator'
+
+// ❌ Bad — Relative import
+import { Communicator } from '../../core/communicator'
+```
+
+> Aliases are resolved by `tsc-alias` at build time. See `tsconfig.json` for full mapping.
+
 ### Exceptions to Arrow Function Rule
 
 1. **Assertion functions** (`asserts condition`) — TS2775 requires explicit type annotations on `const`.
