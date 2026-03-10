@@ -1,8 +1,8 @@
 import {
-	test,
 	expect,
-	type Page,
+	test,
 	type BrowserContext,
+	type Page,
 } from '@playwright/test'
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
@@ -106,6 +106,8 @@ test.describe('Google OAuth — RPC Methods', () => {
 
 	// --- Chain ---
 
+	// Switches to Minato and does NOT revert — subsequent tests are chain-agnostic
+	// (read-only RPC calls and error cases work on any chain).
 	test('wallet_switchEthereumChain — switch chain via shortcut', async () => {
 		const switchChain = rpcMethodCard(page, 'wallet_switchEthereumChain')
 		await switchChain.clickShortcut('Minato')

@@ -60,7 +60,13 @@ export const approveSDKPopup = async (
 			await popupClosed
 		}
 	}
-	// If 'closed' or 'button-failed', the popup already closed (SDK handled it)
+	// 'closed': popup auto-closed (SDK handled it, e.g. auto-sign)
+	// 'button-failed' with closed popup: same as above
+	if (result === 'button-failed' && !popup.isClosed()) {
+		throw new Error(
+			'SDK popup action button (Sign/Approve/Confirm/Send) not found while popup is still open',
+		)
+	}
 }
 
 /**

@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 import { config as loadEnv } from 'dotenv'
 
-loadEnv()
+import { BASE_URL } from './lib/constants.js'
 
-const baseURL = 'http://localhost:3001'
+loadEnv()
 
 export default defineConfig({
 	testDir: '.',
@@ -19,7 +19,7 @@ export default defineConfig({
 		: 'list',
 
 	use: {
-		baseURL,
+		baseURL: BASE_URL,
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
@@ -59,7 +59,7 @@ export default defineConfig({
 
 	webServer: {
 		command: 'cd ../examples/testapp && pnpm dev',
-		url: baseURL,
+		url: BASE_URL,
 		reuseExistingServer: true,
 		timeout: 300_000,
 	},

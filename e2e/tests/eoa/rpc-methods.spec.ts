@@ -22,13 +22,10 @@ test.describe('EOA — RPC Methods', () => {
 
 	let page: Page
 
-	test.beforeAll(async ({ walletContext, wallet, baseURL }) => {
-		page = await walletContext.newPage()
+	test.beforeAll(async ({ page: fixturedPage, wallet }) => {
+		page = fixturedPage
 
-		// dappwright's walletContext does not inherit Playwright's baseURL
-		// (unlike browser.newContext() which gets it from project config).
-		// Resolve the full URL manually.
-		await page.goto(`${baseURL}${ROUTES.dashboard}`)
+		await page.goto(ROUTES.dashboard)
 		const dashboard = dashboardPage(page)
 		await dashboard.verifyLoaded()
 
@@ -45,10 +42,6 @@ test.describe('EOA — RPC Methods', () => {
 		await expect(page.locator('#toast-connected')).toBeVisible()
 
 		await dashboard.verifyConnectedSections()
-	})
-
-	test.afterAll(async () => {
-		await page?.close()
 	})
 
 	test('personal_sign — sign a message via shortcut', async () => {

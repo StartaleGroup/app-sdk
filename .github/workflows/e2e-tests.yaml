@@ -16,7 +16,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
     env:
       GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
@@ -74,7 +74,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
     env:
       WALLET_SEED: ${{ secrets.WALLET_SEED }}
