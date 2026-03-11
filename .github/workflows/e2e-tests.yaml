@@ -42,10 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-workspace
+      - uses: ./.github/actions/e2e-runtime
 
       - name: Run smoke tests
         run: |
@@ -75,10 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-workspace
+      - uses: ./.github/actions/e2e-runtime
 
       - name: Install branded Chrome
         run: pnpm --filter @startale/app-sdk-e2e install:chrome
@@ -109,10 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-workspace
+      - uses: ./.github/actions/e2e-runtime
 
       - name: Run EOA tests
         run: |
