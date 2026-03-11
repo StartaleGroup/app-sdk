@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke:
+  setup:
     if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
@@ -22,6 +22,30 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/e2e-setup
+
+      - name: Upload workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-workspace
+          path: |
+            node_modules/
+            packages/*/dist/
+            e2e/node_modules/
+          retention-days: 1
+
+  smoke:
+    needs: setup
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.0-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace
 
       - name: Run smoke tests
         run: |
@@ -39,7 +63,7 @@ jobs:
           retention-days: 7
 
   google:
-    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    needs: setup
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
@@ -51,9 +75,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/e2e-setup
+      - name: Download workspace
+        uses: actions/download-artifact@v4
         with:
-          install-chrome: 'true'
+          name: e2e-workspace
+
+      - name: Install branded Chrome
+        run: pnpm --filter @startale/app-sdk-e2e install:chrome
 
       - name: Run Google OAuth tests
         run: |
@@ -71,7 +99,7 @@ jobs:
           retention-days: 7
 
   eoa:
-    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    needs: setup
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
@@ -81,7 +109,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/e2e-setup
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-workspace
 
       - name: Run EOA tests
         run: |
