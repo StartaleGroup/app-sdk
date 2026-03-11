@@ -22,15 +22,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/e2e-setup
+        with:
+          build: 'true'
 
-      - name: Upload workspace
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-workspace
-          path: |
-            node_modules/
-            packages/*/dist/
-            e2e/node_modules/
+          name: sdk-dist
+          path: packages/*/dist/
           retention-days: 1
 
   smoke:
@@ -42,7 +41,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/e2e-runtime
+      - uses: ./.github/actions/e2e-setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/
 
       - name: Run smoke tests
         run: |
@@ -72,10 +77,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/e2e-runtime
+      - uses: ./.github/actions/e2e-setup
+        with:
+          install-chrome: 'true'
 
-      - name: Install branded Chrome
-        run: pnpm --filter @startale/app-sdk-e2e install:chrome
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/
 
       - name: Run Google OAuth tests
         run: |
@@ -103,7 +113,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/e2e-runtime
+      - uses: ./.github/actions/e2e-setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/
 
       - name: Run EOA tests
         run: |
