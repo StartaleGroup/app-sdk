@@ -5,16 +5,18 @@ import { RpcMethodCard } from '../RpcMethods/RpcMethodCard'
 import { ShortcutType } from '../RpcMethods/shortcut/ShortcutType'
 
 export function MethodsSection({
+	testId,
 	title,
 	methods,
 	shortcutsMap,
 }: {
+	testId?: string
 	title: string
 	methods: RpcRequestInput[]
 	shortcutsMap?: Record<string, ShortcutType[]>
 }) {
 	return (
-		<Box mt={4}>
+		<Box mt={4} data-testid={testId}>
 			<Heading size="md">{title}</Heading>
 			<Grid
 				mt={2}

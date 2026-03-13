@@ -1,0 +1,48 @@
+name: E2E Setup
+description: Shared setup for E2E test jobs — installs dependencies, builds SDK, and installs Playwright browsers.
+
+inputs:
+  install-chrome:
+    description: Install branded Chrome browser (required for Google OAuth tests)
+    required: false
+    default: 'false'
+  build:
+    description: Build SDK packages (only needed in setup job)
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+
+    - uses: pnpm/action-setup@v4
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/pnpm/store/v10
+        key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Build SDK packages
+      if: inputs.build == 'true'
+      shell: bash
+      run: pnpm build:packages
+
+    - name: Install Playwright browsers
+      shell: bash
+      run: pnpm --filter @startale/app-sdk-e2e install:playwright
+
+    # Google blocks OAuth login from Playwright's built-in Chromium (bot detection).
+    # Branded Chrome uses the same binary as regular users, bypassing this restriction.
+    - name: Install branded Chrome
+      if: inputs.install-chrome == 'true'
+      shell: bash
+      run: pnpm --filter @startale/app-sdk-e2e install:chrome

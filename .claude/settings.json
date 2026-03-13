@@ -1,0 +1,56 @@
+{
+	"permissions": {
+		"deny": [
+			"Read(~/.ssh/**)",
+			"Read(~/.aws/**)",
+			"Read(~/.gnupg/**)",
+			"Read(~/.kube/**)",
+			"Read(~/.docker/config.json)",
+			"Read(~/.terraform.d/**)",
+			"Read(~/.helm/**)",
+			"Read(~/Library/Keychains/**)",
+			"Read(./.env)",
+			"Read(./.env.*)",
+			"Read(./secrets/**)",
+			"Bash(nc *)",
+			"Bash(ssh *)",
+			"Bash(scp *)",
+			"Bash(rsync *)",
+			"Bash(git add)",
+      "Bash(git add *)",
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(git commit)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr close *)",
+      "Bash(gh pr edit *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue close *)",
+      "Bash(gh issue edit *)",
+      "Bash(gh issue comment *)",
+      "Bash(gh repo delete *)",
+      "Bash(gh release create *)"
+		]
+	},
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "pnpm format",
+						"timeout": 30
+					}
+				]
+			}
+		]
+	},
+	"enabledPlugins": {
+		"frontend-design@claude-plugins-official": true
+	}
+}

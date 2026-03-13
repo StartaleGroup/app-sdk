@@ -185,8 +185,8 @@ export default function Dashboard() {
 	}
 
 	return (
-		<Container maxW={WIDTH_2XL} mb={8}>
-			<Box>
+		<Container maxW={WIDTH_2XL} mb={8} data-testid="dashboard">
+			<Box data-testid="section-event-listeners">
 				<Heading size="md">Event Listeners</Heading>
 				<Grid mt={2} templateColumns={{ base: '100%' }} gap={2}>
 					<EventListenersCard />
@@ -195,13 +195,13 @@ export default function Dashboard() {
 			<Heading size="md" mt={4}>
 				SDK Configuration (Optional)
 			</Heading>
-			<Box mt={4}>
+			<Box mt={4} data-testid="section-sdk-config">
 				<SDKConfig />
 			</Box>
 			<Heading size="md" mt={8}>
 				Superapp Demo
 			</Heading>
-			<Box mt={2}>
+			<Box mt={2} data-testid="section-superapp-demo">
 				<VStack align="flex-start" spacing={2}>
 					<Button
 						colorScheme="brand"
@@ -224,11 +224,13 @@ export default function Dashboard() {
 				</VStack>
 			</Box>
 			<MethodsSection
+				testId="section-wallet-connection"
 				title="Wallet Connection"
 				methods={connectionMethods}
 				shortcutsMap={connectionMethodShortcutsMap}
 			/>
 			<MethodsSection
+				testId="section-ephemeral-methods"
 				title="Ephemeral Methods"
 				methods={ephemeralMethods}
 				shortcutsMap={ephemeralMethodShortcutsMap}
@@ -236,26 +238,31 @@ export default function Dashboard() {
 			{shouldShowMethodsRequiringConnection && (
 				<>
 					<MethodsSection
+						testId="section-switch-add-chain"
 						title="Switch/Add Chain"
 						methods={multiChainMethods}
 						shortcutsMap={multiChainShortcutsMap}
 					/>
 					<MethodsSection
+						testId="section-sign-message"
 						title="Sign Message"
 						methods={signMessageMethods}
 						shortcutsMap={signMessageShortcutsMap(chainId)}
 					/>
 					<MethodsSection
+						testId="section-send"
 						title="Send"
 						methods={sendMethods}
 						shortcutsMap={sendShortcutsMap}
 					/>
 					<MethodsSection
+						testId="section-wallet-tx"
 						title="Wallet Tx"
 						methods={walletTxMethods}
 						shortcutsMap={walletTxShortcutsMap}
 					/>
 					<MethodsSection
+						testId="section-readonly-json-rpc"
 						title="Read-only JSON-RPC Requests"
 						methods={readonlyJsonRpcMethods}
 						shortcutsMap={readonlyJsonRpcShortcutsMap}
