@@ -1,8 +1,9 @@
+import * as farcasterProviderModule from ':core/communicator/FarcasterProvider.js'
 import * as telemetryModule from ':core/telemetry/initCCA.js'
 import { store } from ':store/store.js'
 import * as checkCrossOriginModule from ':util/checkCrossOriginOpenerPolicy.js'
 import * as validatePreferencesModule from ':util/validatePreferences.js'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BaseAccountProvider } from './BaseAccountProvider.js'
 import {
 	CreateProviderOptions,
@@ -46,6 +47,10 @@ vi.mock('./getInjectedProvider.js', () => ({
 	getInjectedProvider: vi.fn(),
 }))
 
+vi.mock(':core/communicator/FarcasterProvider.js', () => ({
+	FarcasterProvider: vi.fn(),
+}))
+
 const mockStore = store as any
 const mockLoadTelemetryScript = telemetryModule.loadTelemetryScript as any
 const mockCheckCrossOriginOpenerPolicy =
@@ -57,6 +62,8 @@ const mockValidateSubAccount =
 const mockBaseAccountProvider = BaseAccountProvider as any
 const mockGetInjectedProvider =
 	getInjectedProviderModule.getInjectedProvider as any
+const mockFarcasterProvider =
+	farcasterProviderModule.FarcasterProvider as any
 
 describe('createProvider', () => {
 	beforeEach(() => {
@@ -501,6 +508,90 @@ describe('createProvider', () => {
 					preference: complexPreference,
 				}),
 			)
+		})
+	})
+
+	describe('Iframe mode', () => {
+		let originalParent: typeof window.parent
+
+		function setupIframeMode() {
+			Object.defineProperty(window, 'parent', {
+				value: { postMessage: vi.fn() },
+				writable: true,
+				configurable: true,
+			})
+		}
+
+		function teardownIframeMode() {
+			Object.defineProperty(window, 'parent', {
+				value: originalParent,
+				writable: true,
+				configurable: true,
+			})
+		}
+
+		beforeEach(() => {
+			vi.clearAllMocks()
+			originalParent = window.parent
+			mockBaseAccountProvider.mockReturnValue({ mockProvider: true })
+			mockGetInjectedProvider.mockReturnValue(null)
+			mockFarcasterProvider.mockReturnValue({ mockFarcasterProvider: true })
+		})
+
+		afterEach(() => {
+			teardownIframeMode()
+		})
+
+		it('should use FarcasterProvider when embedded in iframe', () => {
+			setupIframeMode()
+
+			const result = createStartaleAccountSDK({}).getProvider()
+
+			expect(mockFarcasterProvider).toHaveBeenCalled()
+			expect(mockBaseAccountProvider).not.toHaveBeenCalled()
+			expect(result).toEqual({ mockFarcasterProvider: true })
+		})
+
+		it('should not call getInjectedProvider in iframe mode', () => {
+			setupIframeMode()
+
+			createStartaleAccountSDK({}).getProvider()
+
+			expect(mockGetInjectedProvider).not.toHaveBeenCalled()
+		})
+
+		it('should skip COOP check in iframe mode', () => {
+			setupIframeMode()
+
+			createStartaleAccountSDK({})
+
+			expect(mockCheckCrossOriginOpenerPolicy).not.toHaveBeenCalled()
+		})
+
+		it('should use normal mode when not in iframe', () => {
+			// window.parent === window by default in jsdom (not in iframe)
+			createStartaleAccountSDK({}).getProvider()
+
+			expect(mockFarcasterProvider).not.toHaveBeenCalled()
+			expect(mockGetInjectedProvider).toHaveBeenCalled()
+			expect(mockCheckCrossOriginOpenerPolicy).toHaveBeenCalled()
+		})
+
+		it('should still validate preferences in iframe mode', () => {
+			setupIframeMode()
+
+			const preference = { telemetry: true }
+			createStartaleAccountSDK({ preference })
+
+			expect(mockValidatePreferences).toHaveBeenCalledWith(preference)
+		})
+
+		it('should still load telemetry in iframe mode', () => {
+			setupIframeMode()
+
+			createStartaleAccountSDK({ preference: { telemetry: true } })
+
+			expect(mockLoadTelemetryScript).toHaveBeenCalled()
 		})
 	})
 })

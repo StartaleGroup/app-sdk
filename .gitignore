@@ -57,6 +57,7 @@ e2e/playwright-report/
 
 .editorconfig
 .env
+.pnpm-store
 
 AGENTS.md
 

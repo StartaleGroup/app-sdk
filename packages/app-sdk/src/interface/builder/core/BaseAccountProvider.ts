@@ -1,4 +1,5 @@
 import { Communicator } from ':core/communicator/Communicator.js'
+import type { ICommunicator } from ':core/communicator/ICommunicator.js'
 import { CB_WALLET_RPC_URL } from ':core/constants.js'
 import { standardErrorCodes } from ':core/error/constants.js'
 import { standardErrors } from ':core/error/errors.js'
@@ -29,19 +30,24 @@ export class BaseAccountProvider
 	extends ProviderEventEmitter
 	implements ProviderInterface
 {
-	private readonly communicator: Communicator
+	private readonly communicator: ICommunicator
 	private readonly signer: Signer
 
-	constructor({
-		metadata,
-		preference: { walletUrl, ...preference },
-	}: Readonly<ConstructorOptions>) {
-		super()
-		this.communicator = new Communicator({
-			url: walletUrl,
+	constructor(
+		{
 			metadata,
-			preference,
-		})
+			preference: { walletUrl, ...preference },
+		}: Readonly<ConstructorOptions>,
+		communicator?: ICommunicator,
+	) {
+		super()
+		this.communicator =
+			communicator ??
+			new Communicator({
+				url: walletUrl,
+				metadata,
+				preference,
+			})
 		this.signer = new Signer({
 			metadata,
 			communicator: this.communicator,

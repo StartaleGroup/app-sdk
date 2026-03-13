@@ -1,3 +1,5 @@
+import { FarcasterProvider } from ':core/communicator/FarcasterProvider.js'
+import { shouldUseIframeMode } from ':core/communicator/iframeUtils.js'
 import {
 	AppMetadata,
 	ConstructorOptions,
@@ -71,7 +73,12 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 	//  Validation and telemetry
 	//  ====================================================================
 
-	void checkCrossOriginOpenerPolicy()
+	const useIframe = shouldUseIframeMode()
+
+	// Skip COOP check in iframe mode (it's only relevant for popups)
+	if (!useIframe) {
+		void checkCrossOriginOpenerPolicy()
+	}
 
 	validatePreferences(options.preference)
 
@@ -88,7 +95,11 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 	const sdk = {
 		getProvider: () => {
 			if (!provider) {
-				provider = getInjectedProvider() ?? new BaseAccountProvider(options)
+				if (useIframe) {
+					provider = new FarcasterProvider()
+				} else {
+					provider = getInjectedProvider() ?? new BaseAccountProvider(options)
+				}
 			}
 
 			return provider
