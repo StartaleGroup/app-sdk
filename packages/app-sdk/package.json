@@ -51,6 +51,7 @@
 		"clean": "rm -rf dist && rm -rf node_modules",
 		"pretest": "node compile-assets.cjs",
 		"test": "vitest",
+		"test:unit": "vitest --run",
 		"test:coverage": "vitest --coverage",
 		"prebuild": "rm -rf ./dist",
 		"build": "node compile-assets.cjs && tsc -p ./tsconfig.build.json && tsc-alias && pnpm run build:browser",

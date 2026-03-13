@@ -48,11 +48,24 @@ out/
 examples/testapp/out/
 examples/testapp/.next/
 
+# e2e
+e2e/.auth/
+e2e/test-results/
+e2e/playwright-report/
+
 /**/tsconfig.tsbuildinfo
 
 .editorconfig
 .env
 .pnpm-store
 
-CLAUDE.md
 AGENTS.md
+
+/.sisyphus
+opencode.json
+settings.local.json
+report/
+.claude/**/*local*.md
+/references
+.playwright-mcp/
+.mcp.json
