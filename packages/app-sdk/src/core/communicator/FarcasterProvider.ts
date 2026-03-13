@@ -1,10 +1,11 @@
-import { sdk as farcasterSdk } from '@farcaster/miniapp-sdk'
 import { standardErrors } from ':core/error/errors.js'
 import {
 	ProviderEventEmitter,
 	ProviderInterface,
 	RequestArguments,
 } from ':core/provider/interface.js'
+import { sdk as farcasterSdk } from '@farcaster/miniapp-sdk'
+import { Address } from 'viem'
 
 type EIP1193Provider = {
 	request(args: RequestArguments): Promise<unknown>
@@ -43,7 +44,7 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 
 				for (const event of EIP_1193_EVENTS) {
 					const forwarder = (...args: unknown[]) => {
-						this.emit(event, ...(args as [never]))
+						this.emit(event, ...args)
 					}
 					this.eventForwarders.set(event, forwarder)
 					this.farcasterProvider.on(event, forwarder)
@@ -75,18 +76,21 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 	private async handleWalletConnect(args: RequestArguments): Promise<unknown> {
 		const accounts = (await this.farcasterProvider!.request({
 			method: 'eth_requestAccounts',
-		})) as string[]
+		})) as Address[]
 
 		const chainId = (await this.farcasterProvider!.request({
 			method: 'eth_chainId',
-		})) as string
+		})) as number
 
 		const params = args.params as [{ chainIds?: string[] }] | undefined
 		const requestedChainIds = params?.[0]?.chainIds
 
 		return {
 			accounts: accounts.map((address) => ({ address })),
-			chainIds: requestedChainIds?.length ? requestedChainIds : [chainId],
+			chainIds: [
+				chainId,
+				...(requestedChainIds ?? []).filter((id) => id !== String(chainId)),
+			],
 		}
 	}
 

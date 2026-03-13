@@ -98,12 +98,7 @@ export function createStartaleAccountSDK(params: CreateProviderOptions) {
 				if (useIframe) {
 					provider = new FarcasterProvider()
 				} else {
-					const injected = getInjectedProvider()
-					if (injected) {
-						provider = injected
-					} else {
-						provider = new BaseAccountProvider(options)
-					}
+					provider = getInjectedProvider() ?? new BaseAccountProvider(options)
 				}
 			}
 
