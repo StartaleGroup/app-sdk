@@ -2,7 +2,6 @@
 name: security-reviewer
 description: Security vulnerability detection and remediation specialist. Use PROACTIVELY after writing code that handles user input, authentication, API endpoints, or sensitive data.
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-model: opus
 ---
 
 # Security Reviewer

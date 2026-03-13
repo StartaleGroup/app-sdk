@@ -34,14 +34,14 @@ Run comprehensive pre-PR checks to ensure code quality before creating a pull re
 Launch agents for the determined tier in a SINGLE message using multiple
 Agent tool calls:
 
-**Agent 1 — Code Review** (`code-reviewer` agent, model: `opus`):
+**Agent 1 — Code Review** (`code-reviewer` agent):
 - Full code review per the agent's checklist (security, code quality,
   performance, best practices, dead code, maintainability)
 - Apply fixes directly to changed files
 - **DO NOT** run biome or type-check — validation happens once in Step 4
 - **Always runs** in all tiers
 
-**Agent 2 — Semantic Logic Review** (`general-purpose` agent, model: `opus`):
+**Agent 2 — Semantic Logic Review** (`general-purpose` agent):
 - Understand the feature intent from the diff
 - Check for edge cases: boundary conditions, empty states, error scenarios
 - Check for logic gaps: missing validation, incomplete state handling,
@@ -61,7 +61,7 @@ Agent tool calls:
 - **Runs in**: FULL tier only, AND only when new functions are detected in
   Step 1
 
-**Agent 4 — Side Effect Analysis** (`general-purpose` agent, model: `opus`):
+**Agent 4 — Side Effect Analysis** (`general-purpose` agent):
 - **Scope**: Only files that change exports, shared state (Zustand stores,
   IndexedDB keys, Context providers, localStorage/sessionStorage), or shared UI components (`src/ui/*`)
 - **Consumer search**: Use `Grep` tool with the changed file's basename
@@ -88,7 +88,7 @@ Agent tool calls:
 - **Runs in**: STANDARD and FULL tiers, AND only when export/shared state
   changes are detected in Step 1
 
-**Agent 5 — Security Review** (`security-reviewer` agent, model: `opus`):
+**Agent 5 — Security Review** (`security-reviewer` agent):
 - Deep security audit per the agent's SDK-specific checklist (key management,
   message passing, provider security, blockchain interaction, input validation)
 - Read `.claude/rules/security.md` + `.claude/rules/web3.md` for rules
@@ -112,7 +112,7 @@ verification into ONE sequential pass to minimize overhead.
    - Apply fixes for CRITICAL and HIGH issues
    - Apply MEDIUM fixes when straightforward
 6. **Clean up**: Remove any remaining unused code in changed files
-7. **Run simplification** (`code-simplifier` agent, model: `opus`):
+7. **Run simplification** (`code-simplifier` agent):
    - Review changed files for clarity, consistency, and maintainability
    - Simplify overly complex logic, reduce nesting, improve naming
    - Consolidate duplicate patterns within the changed files

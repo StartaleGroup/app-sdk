@@ -10,21 +10,71 @@ Show a concise summary of all changes made on the current branch compared to its
 
 ## Instructions
 
-1. Detect the current branch name with `git branch --show-current`
-2. Detect the parent (base) branch. Try in order:
-   - `git config branch.<current>.merge` to check tracking config
-   - `git log --oneline --decorate --first-parent` to find the branch point
-   - Use `git merge-base` with common base branches (master, main, develop) and pick the closest ancestor
-3. **Use `origin/<parent>` over local `<parent>`**: The local branch may be stale. Always prefer `origin/master` over `master`, etc. Check with `git rev-parse --verify origin/<parent>`.
-4. Diff against the parent branch **tip** (NOT merge-base) to exclude changes merged in from the parent:
-   - `git diff origin/<parent> --stat` — includes uncommitted changes, excludes parent's own changes
-   - `git diff origin/<parent>` — full diff for detailed analysis
-5. Get branch-only commits (excluding merge commits): `git log origin/<parent>..HEAD --no-merges --oneline`
-5. Check for uncommitted changes: `git status --short`
+### Step 1: Detect current branch
+```bash
+git branch --show-current
+```
 
-## Important: Why `git diff <parent>` not `git diff $(git merge-base ...)`
+### Step 2: Find the fork point (where THIS branch's own work begins)
 
-If the parent branch was merged into this branch (e.g., `git merge master`), using merge-base will include all changes from the parent. Diffing directly against the parent's current tip shows ONLY the changes unique to this branch.
+The goal is to find the commit where this branch diverged — not master, but the actual parent branch. Try these methods in order and use the first that succeeds:
+
+#### Method A: Check tracking config
+```bash
+git config branch.<current>.merge
+```
+If set, extract the branch name (strip `refs/heads/`). This is the parent.
+
+#### Method B: Find the fork point via commit decoration
+Look at the commit graph to find where another branch points:
+```bash
+git log --oneline --decorate --first-parent HEAD
+```
+Scan from oldest to newest. The first commit that has another branch ref (local or `origin/`) other than the current branch is likely the fork point. The branch name on that commit (or its parent) is the parent branch.
+
+#### Method C: Compare merge-base distances to common bases
+```bash
+# For each candidate: master, main, develop
+git merge-base HEAD origin/<candidate>
+git rev-list --count <merge-base>..HEAD
+```
+Pick the candidate with the **fewest** commits between merge-base and HEAD — that's the closest ancestor and most likely parent.
+
+### Step 3: Determine the diff base commit
+
+Once the parent branch is identified, compute the **fork point** — the exact commit where this branch diverged:
+
+```bash
+# Preferred: git's fork-point detection (handles rebased parents)
+FORK=$(git merge-base --fork-point origin/<parent> HEAD)
+
+# Fallback: standard merge-base
+FORK=$(git merge-base origin/<parent> HEAD)
+```
+
+### Step 4: Diff from the fork point
+
+Use the fork point commit (NOT the parent branch tip) to see only this branch's changes:
+
+```bash
+git diff $FORK --stat          # Summary of changed files
+git diff $FORK                 # Full diff for detailed analysis
+```
+
+### Step 5: Get branch-only commits
+```bash
+git log $FORK..HEAD --no-merges --oneline
+```
+
+### Step 6: Check uncommitted changes
+```bash
+git status --short
+```
+
+## Why fork point, not parent branch tip?
+
+- **`git diff origin/<parent>`** (old approach): If the parent branch has new commits after this branch forked, those appear as "removed" in the diff. If the parent was merged into master, changes from other branches bleed in. This over-reports.
+- **`git diff $FORK`** (correct approach): Shows exactly the commits added on THIS branch since it diverged. No more, no less. Works regardless of what happened to the parent branch after forking.
 
 ## Output Format
 
@@ -45,6 +95,6 @@ Format:
 
 - Group related changes into a single bullet point (e.g., multiple commits for one feature = one bullet)
 - Use clear, specific descriptions (not vague like "updated files")
-- Include the module/area affected (e.g., "Provider: ...", "Signer: ...")
+- Include the component/area affected (e.g., "Swap: ...", "Wallet: ...")
 - Order by importance/impact, most significant first
 - Keep each line under 80 characters
