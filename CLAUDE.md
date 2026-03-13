@@ -37,7 +37,10 @@ app-sdk/                    # pnpm workspace root (Node >=24, pnpm >=10)
 # Root:      pnpm install / dev / test / lint / format / build:packages
 # SDK:       pnpm test / build / typecheck / lint / format
 # Testapp:   pnpm dev / test
+# E2E:       pnpm test:e2e (runs all E2E suites headless)
 ```
+
+> **Note:** `pnpm test` at root excludes E2E — use `pnpm test:e2e` separately.
 
 Build: `compile-assets → tsc → tsc-alias → rollup`
 
@@ -53,6 +56,7 @@ Build: `compile-assets → tsc → tsc-alias → rollup`
 - **`interface/`** — `createStartaleAccountSDK()` factory, `BaseAccountProvider` (EIP-1193), payment, spend permissions
 - **`ui/`** — Preact-based dialog UI and assets
 - **`util/`** — Cipher, encoding, validation, COOP checks
+- **`vendor-js/`** — Vendored JavaScript dependencies
 
 **Key patterns:** EIP-1193 provider via `getProvider()`, wagmi connector via `startaleConnector()`, Preact JSX (not React), Rollup browser bundle (`dist/app-sdk.min.js`)
 
@@ -74,6 +78,7 @@ Forked from Base Account SDK. `base-master` tracks upstream (daily sync via GitH
 | code-reviewer | Agent | Code quality review (auto-invoked after changes) |
 | security-reviewer | Agent | Security vulnerability detection |
 | build-error-resolver | Agent | Build/TypeScript error fixing |
+| skill-builder | Agent | Skill creation and maintenance |
 | code-review | Skill | Security and quality review (auto) |
 | side-effect | Skill | Side effect analysis (auto) |
 | prepr | Skill | Pre-PR quality check (5 agents) |
