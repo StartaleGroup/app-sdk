@@ -237,7 +237,7 @@ export const DialogInstance: FunctionComponent<DialogInstanceProps> = ({
 		>
 			<div class="-base-acc-sdk-dialog-instance-header">
 				<div class="-base-acc-sdk-dialog-instance-header-icon-and-title">
-					<StartaleLogo/>
+					<StartaleLogo />
 					{shouldShowHeaderTitle && (
 						<div class="-base-acc-sdk-dialog-instance-header-icon-and-title-title">
 							{headerTitle}
