@@ -13,7 +13,7 @@
 		"build:packages": "nr -filter @startale/app-sdk build",
 		"clean": "nr -recursive clean && rm -rf node_modules && pnpm install",
 		"deploy": "nr build:packages && nr -filter sdk-playground export",
-		"dev": "nr -recursive --parallel dev",
+		"dev": "nr -filter @startale/app-sdk build && nr -recursive --parallel dev",
 		"lint": "nr -recursive lint",
 		"format": "nr -recursive format",
 		"format:check": "nr -recursive format:check",
