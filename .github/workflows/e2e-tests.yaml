@@ -3,17 +3,29 @@ name: E2E Tests
 on:
   pull_request:
     types: [labeled, synchronize, reopened]
+  workflow_call:
+    secrets:
+      GOOGLE_TEST_EMAIL:
+        required: true
+      GOOGLE_TEST_PASSWORD:
+        required: true
+      GOOGLE_TOTP_SECRET:
+        required: true
+      WALLET_SEED:
+        required: true
 
 permissions:
   contents: read
 
 concurrency:
-  group: e2e-${{ github.event.pull_request.number }}
+  group: e2e-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   setup:
-    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    if: >-
+      github.event_name == 'workflow_call' ||
+      contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
