@@ -34,9 +34,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug event context
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "inputs.superapp-branch: '${{ inputs.superapp-branch }}'"
+
   setup:
     if: >-
-      github.event_name == 'workflow_call' ||
+      inputs.superapp-branch != '' ||
       contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
