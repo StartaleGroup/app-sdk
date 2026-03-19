@@ -1,6 +1,6 @@
 {
 	"name": "@startale/app-sdk",
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"description": "Superapp SDK",
 	"keywords": [
 		"startale",
@@ -54,10 +54,10 @@
 		"test:unit": "vitest --run",
 		"test:coverage": "vitest --coverage",
 		"prebuild": "rm -rf ./dist",
-		"build": "node compile-assets.cjs && tsc -p ./tsconfig.build.json && tsc-alias && pnpm run build:browser",
+		"build": "node compile-assets.cjs && tsc -p ./tsconfig.build.json && tsc-alias -p ./tsconfig.build.json && pnpm run build:browser",
 		"build:browser": "rollup -c rollup.config.js",
 		"prepublishOnly": "pnpm run build",
-		"dev": "pnpm run build && tsc --watch & tsc-alias --watch",
+		"dev": "tsc -p ./tsconfig.build.json --watch & tsc-alias -p ./tsconfig.build.json --watch",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome lint .",
 		"format": "biome format . --write",
