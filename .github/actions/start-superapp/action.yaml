@@ -18,12 +18,29 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate inputs
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
+        NPM_TOKEN: ${{ inputs.npm-token }}
+      run: |
+        missing=()
+        [ -z "$GH_TOKEN" ] && missing+=("github-token")
+        [ -z "$APP_ENV_CONTENT" ] && missing+=("app-env-content")
+        [ -z "$NPM_TOKEN" ] && missing+=("npm-token")
+        if [ ${#missing[@]} -gt 0 ]; then
+          echo "::error::Missing required inputs: ${missing[*]}"
+          exit 1
+        fi
+
     - name: Clone SuperApp
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
+        SUPERAPP_BRANCH: ${{ inputs.branch }}
       run: |
-        git clone --depth 1 --branch "${{ inputs.branch }}" \
+        git clone --depth 1 --branch "${SUPERAPP_BRANCH}" \
           "https://x-access-token:${GH_TOKEN}@github.com/StartaleGroup/superapp.git" \
           /tmp/superapp
 
@@ -55,6 +72,7 @@ runs:
       run: |
         echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         pnpm install --frozen-lockfile
+        rm -f .npmrc
 
     - name: Start SuperApp dev server
       shell: bash

@@ -45,9 +45,7 @@ export const waitForPopupClose = async (popup: Page): Promise<void> => {
  * This helper clicks whichever action button appears and waits for the popup to close.
  * Relies on config-level actionTimeout (60s) for button visibility.
  */
-export const approveSDKPopup = async (
-	popup: Page,
-): Promise<void> => {
+export const approveSDKPopup = async (popup: Page): Promise<void> => {
 	const actionButton = popup
 		.getByRole('button', { name: 'Sign' })
 		.or(popup.getByRole('button', { name: 'Approve' }))

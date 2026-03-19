@@ -19,7 +19,7 @@ import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
  * All RPC method tests that require Google OAuth authentication.
  *
  * These tests run in serial mode sharing the same browser context
- * so that the SDK popup session (app.startale.com) is preserved
+ * so that the SDK popup session (SCW_URL) is preserved
  * across tests. storageState alone cannot restore the popup session.
  */
 test.describe('Google OAuth — RPC Methods', () => {
