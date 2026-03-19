@@ -1,0 +1,81 @@
+name: Start SuperApp
+description: Clone, build, and serve SuperApp on localhost:3000 for E2E testing.
+
+inputs:
+  branch:
+    description: SuperApp branch to checkout
+    required: true
+  github-token:
+    description: GitHub token with read access to the SuperApp repo
+    required: true
+  app-env-content:
+    description: Content of the SuperApp .env file
+    required: true
+  npm-token:
+    description: NPM token for private packages
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Clone SuperApp
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        git clone --depth 1 --branch "${{ inputs.branch }}" \
+          "https://x-access-token:${GH_TOKEN}@github.com/StartaleGroup/superapp.git" \
+          /tmp/superapp
+
+    - name: Setup Node.js for SuperApp
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+
+    - name: Setup pnpm for SuperApp
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Create SuperApp .env
+      shell: bash
+      env:
+        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
+        NPM_TOKEN: ${{ inputs.npm-token }}
+      run: |
+        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/superapp/app/.env
+        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/superapp/app/.env
+        echo ".env created ($(wc -l < /tmp/superapp/superapp/app/.env) lines)"
+
+    - name: Install SuperApp dependencies
+      shell: bash
+      working-directory: /tmp/superapp/superapp
+      env:
+        NPM_TOKEN: ${{ inputs.npm-token }}
+      run: |
+        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        pnpm install --frozen-lockfile
+
+    - name: Start SuperApp dev server
+      shell: bash
+      working-directory: /tmp/superapp/superapp
+      run: |
+        nohup pnpm --filter @startale/superapp dev > /tmp/superapp-server.log 2>&1 &
+        echo $! > /tmp/superapp-server.pid
+        echo "SuperApp server PID: $(cat /tmp/superapp-server.pid)"
+
+        # Wait for server to be ready (up to 120s)
+        for i in $(seq 1 60); do
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+          if echo "$HTTP_CODE" | grep -qE "200|302"; then
+            echo "SuperApp is ready (attempt $i, HTTP $HTTP_CODE)"
+            exit 0
+          fi
+          echo "Waiting for SuperApp... (attempt $i/60, HTTP $HTTP_CODE)"
+          sleep 2
+        done
+
+        echo "::error::SuperApp failed to start within 120s"
+        echo "--- Server logs ---"
+        cat /tmp/superapp-server.log
+        exit 1

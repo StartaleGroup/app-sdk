@@ -7,6 +7,7 @@ import {
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
 import {
+	injectSCWUrl,
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
@@ -35,6 +36,8 @@ test.describe('Google OAuth — RPC Methods', () => {
 	test.beforeAll(async ({ browser, baseURL }) => {
 		context = await browser.newContext({ baseURL })
 		page = await context.newPage()
+
+		await injectSCWUrl(page)
 
 		await page.goto(ROUTES.dashboard)
 		const dashboard = dashboardPage(page)

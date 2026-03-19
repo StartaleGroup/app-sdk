@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test'
 import * as OTPAuth from 'otpauth'
 
+import { SCW_URL } from '../constants.js'
+
 const generateGoogleTOTP = (secret: string): string => {
 	const totp = new OTPAuth.TOTP({
 		issuer: 'Google',
@@ -86,8 +88,11 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 		await handle2FA(sdkPopup)
 	}
 
-	// Wait for redirect back to app.startale.com (connect-wallet approval page)
-	await sdkPopup.waitForURL('**/app.startale.com/**')
+	// Wait for redirect back to SCW (connect-wallet approval page).
+	// Use origin (scheme + host + port) so the pattern works for both
+	// production (https://app.startale.com) and localhost (http://localhost:3000).
+	const scwOrigin = new URL(SCW_URL).origin
+	await sdkPopup.waitForURL(`${scwOrigin}/**`)
 
 	// Click the "Approve" button on the connect-wallet permission screen
 	const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })
