@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       # When called from superapp (workflow_call), checkout app-sdk master.
       # When called from app-sdk PR, checkout the PR branch (default).
@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: superapp-ready
-          path: /tmp/superapp/
+          path: /tmp/superapp.tar.gz
           retention-days: 1
 
   smoke:
@@ -103,7 +103,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: superapp-ready
-          path: /tmp/superapp/
+          path: /tmp/
+
+      - name: Extract SuperApp
+        if: inputs.superapp-branch != ''
+        shell: bash
+        run: tar xzf /tmp/superapp.tar.gz -C /tmp
 
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
@@ -160,7 +165,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: superapp-ready
-          path: /tmp/superapp/
+          path: /tmp/
+
+      - name: Extract SuperApp
+        if: inputs.superapp-branch != ''
+        shell: bash
+        run: tar xzf /tmp/superapp.tar.gz -C /tmp
 
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
@@ -213,7 +223,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: superapp-ready
-          path: /tmp/superapp/
+          path: /tmp/
+
+      - name: Extract SuperApp
+        if: inputs.superapp-branch != ''
+        shell: bash
+        run: tar xzf /tmp/superapp.tar.gz -C /tmp
 
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
