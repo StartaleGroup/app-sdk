@@ -1,9 +1,19 @@
 name: Start SuperApp
-description: Start SuperApp dev server from a pre-installed artifact on localhost:3000 for E2E testing.
+description: Download SuperApp artifact, extract it, and start dev server on localhost:3000 for E2E testing.
 
 runs:
   using: composite
   steps:
+    - name: Download SuperApp artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: superapp-ready
+        path: /tmp/
+
+    - name: Extract SuperApp
+      shell: bash
+      run: tar xzf /tmp/superapp.tar.gz -C /tmp
+
     - name: Start SuperApp dev server
       shell: bash
       working-directory: /tmp/superapp

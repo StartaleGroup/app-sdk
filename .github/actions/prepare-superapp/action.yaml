@@ -73,3 +73,10 @@ runs:
         echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         pnpm install --frozen-lockfile
         rm -f .npmrc
+
+    - name: Create SuperApp tarball
+      shell: bash
+      run: |
+        # Tar preserves symlinks (critical for pnpm node_modules structure)
+        tar czf /tmp/superapp.tar.gz -C /tmp superapp
+        echo "Tarball size: $(du -h /tmp/superapp.tar.gz | cut -f1)"
