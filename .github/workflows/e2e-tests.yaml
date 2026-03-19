@@ -34,14 +34,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug event context
-        run: |
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "inputs.superapp-branch: '${{ inputs.superapp-branch }}'"
-
   setup:
     if: >-
       inputs.superapp-branch != '' ||
@@ -51,7 +43,15 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 15
     steps:
+      # When called from superapp (workflow_call), checkout app-sdk master.
+      # When called from app-sdk PR, checkout the PR branch (default).
       - uses: actions/checkout@v4
+        if: inputs.superapp-branch != ''
+        with:
+          repository: StartaleGroup/app-sdk
+
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch == ''
 
       - uses: ./.github/actions/e2e-setup
         with:
@@ -72,6 +72,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        if: inputs.superapp-branch != ''
+        with:
+          repository: StartaleGroup/app-sdk
+
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch == ''
 
       - uses: ./.github/actions/e2e-setup
 
@@ -119,6 +125,12 @@ jobs:
       GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
     steps:
       - uses: actions/checkout@v4
+        if: inputs.superapp-branch != ''
+        with:
+          repository: StartaleGroup/app-sdk
+
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch == ''
 
       - uses: ./.github/actions/e2e-setup
         with:
@@ -166,6 +178,12 @@ jobs:
       WALLET_SEED: ${{ secrets.WALLET_SEED }}
     steps:
       - uses: actions/checkout@v4
+        if: inputs.superapp-branch != ''
+        with:
+          repository: StartaleGroup/app-sdk
+
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch == ''
 
       - uses: ./.github/actions/e2e-setup
 
