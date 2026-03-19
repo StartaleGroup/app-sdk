@@ -3,17 +3,41 @@ name: E2E Tests
 on:
   pull_request:
     types: [labeled, synchronize, reopened]
+  workflow_call:
+    inputs:
+      superapp-branch:
+        description: 'SuperApp branch to test against (empty = use app.startale.com)'
+        required: false
+        default: ''
+        type: string
+    secrets:
+      GOOGLE_TEST_EMAIL:
+        required: true
+      GOOGLE_TEST_PASSWORD:
+        required: true
+      GOOGLE_TOTP_SECRET:
+        required: true
+      WALLET_SEED:
+        required: true
+      SUPERAPP_GITHUB_TOKEN:
+        required: false
+      APP_ENV_FILE:
+        required: false
+      NPM_TOKEN:
+        required: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: e2e-${{ github.event.pull_request.number }}
+  group: e2e-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   setup:
-    if: contains(github.event.pull_request.labels.*.name, 'e2e-test')
+    if: >-
+      github.event_name == 'workflow_call' ||
+      contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
@@ -43,6 +67,15 @@ jobs:
 
       - uses: ./.github/actions/e2e-setup
 
+      - name: Start SuperApp
+        if: inputs.superapp-branch != ''
+        uses: ./.github/actions/start-superapp
+        with:
+          branch: ${{ inputs.superapp-branch }}
+          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -50,6 +83,8 @@ jobs:
           path: packages/
 
       - name: Run smoke tests
+        env:
+          SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:smoke
@@ -81,6 +116,15 @@ jobs:
         with:
           install-chrome: 'true'
 
+      - name: Start SuperApp
+        if: inputs.superapp-branch != ''
+        uses: ./.github/actions/start-superapp
+        with:
+          branch: ${{ inputs.superapp-branch }}
+          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -88,6 +132,8 @@ jobs:
           path: packages/
 
       - name: Run Google OAuth tests
+        env:
+          SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:google
@@ -115,6 +161,15 @@ jobs:
 
       - uses: ./.github/actions/e2e-setup
 
+      - name: Start SuperApp
+        if: inputs.superapp-branch != ''
+        uses: ./.github/actions/start-superapp
+        with:
+          branch: ${{ inputs.superapp-branch }}
+          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -122,6 +177,8 @@ jobs:
           path: packages/
 
       - name: Run EOA tests
+        env:
+          SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:eoa

@@ -22,8 +22,10 @@ Startale App SDK (`@startale/app-sdk`) — Web3 SDK forked from Coinbase's Accou
 - **Use Subagents**: Task tool for research, exploration, code reviews.
 - **Side Effect Analysis**: Identify all consumers before changing shared state (Zustand stores, IndexedDB keys, Communicator channels).
 - **Code Review**: Use `code-reviewer` agent after writing code.
-- **Verification Pass**: For medium-to-large tasks, after completing implementation, spawn a separate verification agent (use `model: "sonnet"`) to check for gaps, missed requirements, or inconsistencies.
+- **Unbiased Review**: After medium-to-large implementations, spawn fresh Sonnet review agents (kill + spawn) to verify completeness without confirmation bias. The implementing agent must not self-review — always delegate to freshly spawned agents.
 - **Finalize**: Run `pnpm lint` and `pnpm format`. Resolve errors.
+- **No AI Commits**: NEVER run `git add`, `git commit`, or `git push`. AI should suggest commit messages and list changed files, but the user commits manually.
+- **Read Before Write**: To prevent hallucination, always read every file you reference with the Read tool before writing or editing code. Never write from memory.
 
 ## Structure & Commands
 

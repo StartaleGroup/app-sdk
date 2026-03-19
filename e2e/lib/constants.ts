@@ -1,5 +1,11 @@
 export const BASE_URL = 'http://localhost:3001'
 
+/**
+ * SCW (Smart Contract Wallet) URL used by the testapp.
+ * Defaults to production; override via SCW_URL env var for local testing.
+ */
+export const SCW_URL = process.env.SCW_URL || 'https://app.startale.com/'
+
 export const ROUTES = {
 	dashboard: '/dashboard',
 } as const

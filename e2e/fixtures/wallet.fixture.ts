@@ -15,6 +15,7 @@ import {
 } from '@tenkeylabs/dappwright'
 
 import { BASE_URL, SONEIUM_CHAIN } from '../lib/constants.js'
+import { injectSCWUrl } from '../lib/helpers.js'
 
 // Enable Playwright to attach to Chrome side panel (required for MetaMask 13+)
 process.env.PW_CHROMIUM_ATTACH_TO_OTHER = '1'
@@ -66,6 +67,9 @@ export const test = base.extend<
 				const resolvedUrl = url.startsWith('/') ? `${BASE_URL}${url}` : url
 				return originalGoto(resolvedUrl, options)
 			}
+
+			await injectSCWUrl(page)
+
 			await use(page)
 			await page.close()
 		},

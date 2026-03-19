@@ -1,5 +1,17 @@
 import type { Page } from '@playwright/test'
 
+import { SCW_URL } from './constants.js'
+
+/**
+ * Inject SCW_URL into testapp localStorage so ConfigContextProvider
+ * uses the correct wallet URL on mount. No-op when SCW_URL is not set.
+ */
+export const injectSCWUrl = async (page: Page): Promise<void> => {
+	if (!process.env.SCW_URL) return
+	await page.goto('/')
+	await page.evaluate((url) => localStorage.setItem('scw_url', url), SCW_URL)
+}
+
 /**
  * Wait for a popup to appear after triggering an action.
  * Returns the popup Page.
@@ -25,7 +37,7 @@ export const waitForPopupClose = async (popup: Page): Promise<void> => {
 /**
  * Approve an SDK popup action (Sign, Confirm, Approve).
  *
- * The SDK popup at app.startale.com shows different confirmation screens:
+ * The SDK popup (SCW_URL, defaults to app.startale.com) shows different confirmation screens:
  * - /connect-wallet → "Approve" button
  * - /message-sign  → "Sign" button
  * - /transaction   → "Confirm" button
@@ -33,9 +45,7 @@ export const waitForPopupClose = async (popup: Page): Promise<void> => {
  * This helper clicks whichever action button appears and waits for the popup to close.
  * Relies on config-level actionTimeout (60s) for button visibility.
  */
-export const approveSDKPopup = async (
-	popup: Page,
-): Promise<void> => {
+export const approveSDKPopup = async (popup: Page): Promise<void> => {
 	const actionButton = popup
 		.getByRole('button', { name: 'Sign' })
 		.or(popup.getByRole('button', { name: 'Approve' }))
