@@ -64,6 +64,23 @@ jobs:
           path: packages/*/dist/
           retention-days: 1
 
+      - name: Prepare SuperApp
+        if: inputs.superapp-branch != ''
+        uses: ./.github/actions/prepare-superapp
+        with:
+          branch: ${{ inputs.superapp-branch }}
+          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+
+      - name: Upload SuperApp
+        if: inputs.superapp-branch != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: superapp-ready
+          path: /tmp/superapp/
+          retention-days: 1
+
   smoke:
     needs: setup
     runs-on: ubuntu-latest
@@ -81,14 +98,16 @@ jobs:
 
       - uses: ./.github/actions/e2e-setup
 
+      - name: Download SuperApp
+        if: inputs.superapp-branch != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: superapp-ready
+          path: /tmp/superapp/
+
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
-        with:
-          branch: ${{ inputs.superapp-branch }}
-          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
-          app-env-content: ${{ secrets.APP_ENV_FILE }}
-          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -136,14 +155,16 @@ jobs:
         with:
           install-chrome: 'true'
 
+      - name: Download SuperApp
+        if: inputs.superapp-branch != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: superapp-ready
+          path: /tmp/superapp/
+
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
-        with:
-          branch: ${{ inputs.superapp-branch }}
-          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
-          app-env-content: ${{ secrets.APP_ENV_FILE }}
-          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -187,14 +208,16 @@ jobs:
 
       - uses: ./.github/actions/e2e-setup
 
+      - name: Download SuperApp
+        if: inputs.superapp-branch != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: superapp-ready
+          path: /tmp/superapp/
+
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
-        with:
-          branch: ${{ inputs.superapp-branch }}
-          github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
-          app-env-content: ${{ secrets.APP_ENV_FILE }}
-          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4

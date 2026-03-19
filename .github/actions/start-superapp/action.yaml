@@ -1,79 +1,9 @@
 name: Start SuperApp
-description: Clone, build, and serve SuperApp on localhost:3000 for E2E testing.
-
-inputs:
-  branch:
-    description: SuperApp branch to checkout
-    required: true
-  github-token:
-    description: GitHub token with read access to the SuperApp repo
-    required: true
-  app-env-content:
-    description: Content of the SuperApp .env file
-    required: true
-  npm-token:
-    description: NPM token for private packages
-    required: true
+description: Start SuperApp dev server from a pre-installed artifact on localhost:3000 for E2E testing.
 
 runs:
   using: composite
   steps:
-    - name: Validate inputs
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.github-token }}
-        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
-        NPM_TOKEN: ${{ inputs.npm-token }}
-      run: |
-        missing=()
-        [ -z "$GH_TOKEN" ] && missing+=("github-token")
-        [ -z "$APP_ENV_CONTENT" ] && missing+=("app-env-content")
-        [ -z "$NPM_TOKEN" ] && missing+=("npm-token")
-        if [ ${#missing[@]} -gt 0 ]; then
-          echo "::error::Missing required inputs: ${missing[*]}"
-          exit 1
-        fi
-
-    - name: Clone SuperApp
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.github-token }}
-        SUPERAPP_BRANCH: ${{ inputs.branch }}
-      run: |
-        git clone --depth 1 --branch "${SUPERAPP_BRANCH}" \
-          "https://x-access-token:${GH_TOKEN}@github.com/StartaleGroup/superapp.git" \
-          /tmp/superapp
-
-    - name: Setup Node.js for SuperApp
-      uses: actions/setup-node@v4
-      with:
-        node-version: 24
-
-    - name: Setup pnpm for SuperApp
-      uses: pnpm/action-setup@v4
-      with:
-        run_install: false
-
-    - name: Create SuperApp .env
-      shell: bash
-      env:
-        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
-        NPM_TOKEN: ${{ inputs.npm-token }}
-      run: |
-        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
-        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
-        echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
-
-    - name: Install SuperApp dependencies
-      shell: bash
-      working-directory: /tmp/superapp
-      env:
-        NPM_TOKEN: ${{ inputs.npm-token }}
-      run: |
-        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-        pnpm install --frozen-lockfile
-        rm -f .npmrc
-
     - name: Start SuperApp dev server
       shell: bash
       working-directory: /tmp/superapp
