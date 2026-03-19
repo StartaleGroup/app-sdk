@@ -78,5 +78,5 @@ runs:
       shell: bash
       run: |
         # Tar preserves symlinks (critical for pnpm node_modules structure)
-        tar czf /tmp/superapp.tar.gz -C /tmp superapp
+        tar czf /tmp/superapp.tar.gz -C /tmp --exclude='superapp/.git' superapp
         echo "Tarball size: $(du -h /tmp/superapp.tar.gz | cut -f1)"
