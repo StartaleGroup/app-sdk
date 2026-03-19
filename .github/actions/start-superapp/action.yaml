@@ -60,13 +60,13 @@ runs:
         APP_ENV_CONTENT: ${{ inputs.app-env-content }}
         NPM_TOKEN: ${{ inputs.npm-token }}
       run: |
-        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/superapp/app/.env
-        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/superapp/app/.env
-        echo ".env created ($(wc -l < /tmp/superapp/superapp/app/.env) lines)"
+        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
+        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
+        echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
 
     - name: Install SuperApp dependencies
       shell: bash
-      working-directory: /tmp/superapp/superapp
+      working-directory: /tmp/superapp
       env:
         NPM_TOKEN: ${{ inputs.npm-token }}
       run: |
@@ -76,7 +76,7 @@ runs:
 
     - name: Start SuperApp dev server
       shell: bash
-      working-directory: /tmp/superapp/superapp
+      working-directory: /tmp/superapp
       run: |
         nohup pnpm --filter @startale/superapp dev > /tmp/superapp-server.log 2>&1 &
         echo $! > /tmp/superapp-server.pid
