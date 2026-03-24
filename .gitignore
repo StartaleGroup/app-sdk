@@ -69,3 +69,4 @@ report/
 /references
 .playwright-mcp/
 .mcp.json
+docs/

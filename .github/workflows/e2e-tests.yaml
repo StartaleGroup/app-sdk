@@ -19,6 +19,8 @@ on:
         required: true
       WALLET_SEED:
         required: true
+      EOA_LINKED_WALLET_SEED:
+        required: true
       SUPERAPP_GITHUB_TOKEN:
         required: false
       APP_ENV_FILE:
@@ -123,7 +125,7 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 7
+          retention-days: 1
 
   google:
     needs: setup
@@ -173,7 +175,7 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 7
+          retention-days: 1
 
   eoa:
     needs: setup
@@ -219,4 +221,55 @@ jobs:
           path: |
             e2e/test-results/
             e2e/playwright-report/
-          retention-days: 7
+          retention-days: 1
+
+  eoa-required:
+    needs: setup
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.0-noble
+    timeout-minutes: 30
+    env:
+      EOA_LINKED_WALLET_SEED: ${{ secrets.EOA_LINKED_WALLET_SEED }}
+      GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
+      GOOGLE_TEST_PASSWORD: ${{ secrets.GOOGLE_TEST_PASSWORD }}
+      GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch != ''
+        with:
+          repository: StartaleGroup/app-sdk
+
+      - uses: actions/checkout@v4
+        if: inputs.superapp-branch == ''
+
+      - uses: ./.github/actions/e2e-setup
+        with:
+          install-chrome: 'true'
+
+      - name: Start SuperApp
+        if: inputs.superapp-branch != ''
+        uses: ./.github/actions/start-superapp
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/
+
+      - name: Run EOA Required tests
+        env:
+          SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
+        run: |
+          cd e2e
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:eoa-required
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-eoa-required-results
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          retention-days: 1

@@ -55,6 +55,18 @@ export default defineConfig({
 				},
 			},
 		},
+		{
+			name: 'eoa-required-chromium',
+			testMatch: /eoa-required\/.*\.spec\.ts/,
+			use: {
+				...devices['Desktop Chrome'],
+				launchOptions: {
+					// Prevent Chrome from setting navigator.webdriver=true,
+					// which Google uses to detect browser automation (bot detection bypass).
+					args: ['--disable-blink-features=AutomationControlled'],
+				},
+			},
+		},
 	],
 
 	webServer: {

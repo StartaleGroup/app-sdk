@@ -15,11 +15,13 @@
 		"test": "playwright test --headed",
 		"test:eoa": "playwright test --project=eoa-chromium --headed",
 		"test:google": "playwright test --project=google-chromium --headed",
+		"test:eoa-required": "playwright test --project=eoa-required-chromium --headed",
 		"test:smoke": "playwright test --project=smoke --headed",
 		"test:ci": "playwright test",
 		"test:ci:smoke": "playwright test --project=smoke",
 		"test:ci:google": "playwright test --project=google-chromium",
 		"test:ci:eoa": "playwright test --project=eoa-chromium",
+		"test:ci:eoa-required": "playwright test --project=eoa-required-chromium",
 		"install:playwright": "playwright install --with-deps",
 		"install:chrome": "playwright install chrome"
 	}

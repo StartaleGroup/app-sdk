@@ -50,8 +50,16 @@ const handle2FA = async (page: Page): Promise<void> => {
  * 1. Click Google sign-in button in SDK popup
  * 2. Handle Google OAuth form (email, password, 2FA)
  * 3. Wait for redirect back to SCW (app.startale.com or localhost)
+ * 4. Click "Approve" (unless skipApprove is true)
+ *
+ * Use skipApprove for EOA Required flow where Google OAuth redirects
+ * to /link-eoa instead of /connect-wallet — the Approve button
+ * does not exist on that page.
  */
-export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
+export const loginWithGoogle = async (
+	sdkPopup: Page,
+	options?: { skipApprove?: boolean },
+): Promise<void> => {
 	const email = process.env.GOOGLE_TEST_EMAIL
 	const password = process.env.GOOGLE_TEST_PASSWORD
 
@@ -89,14 +97,16 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 		await handle2FA(sdkPopup)
 	}
 
-	// Wait for redirect back to SCW (connect-wallet approval page).
+	// Wait for redirect back to SCW (connect-wallet or link-eoa page).
 	// Use origin (scheme + host + port) so the pattern works for both
 	// production (https://app.startale.com) and localhost (http://localhost:3000).
 	const scwOrigin = new URL(SCW_URL).origin
 	await sdkPopup.waitForURL(`${scwOrigin}/**`)
 
-	// Click the "Approve" button on the connect-wallet permission screen
-	const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })
-	await approveButton.waitFor({ state: 'visible' })
-	await approveButton.click()
+	if (!options?.skipApprove) {
+		// Click the "Approve" button on the connect-wallet permission screen
+		const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })
+		await approveButton.waitFor({ state: 'visible' })
+		await approveButton.click()
+	}
 }
