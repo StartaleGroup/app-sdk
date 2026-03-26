@@ -41,11 +41,16 @@ test.describe('Google OAuth — RPC Methods', () => {
 		// Keep only Google cookies to bypass "Verify it's you" challenge.
 		// Exclude all other cookies (SCW, Dynamic Auth, privy) so the
 		// normal login flow runs from a clean state.
+		const isGoogleDomain = (domain: string) =>
+			domain === 'google.com' ||
+			domain.endsWith('.google.com') ||
+			domain === 'accounts.google.com' ||
+			domain.endsWith('.google.com.sg')
+
 		const storageState = googleSession
 			? {
 					cookies: googleSession.cookies.filter(
-						(c: { domain: string }) =>
-							c.domain.includes('google.com'),
+						(c: { domain: string }) => isGoogleDomain(c.domain),
 					),
 					origins: [],
 				}
