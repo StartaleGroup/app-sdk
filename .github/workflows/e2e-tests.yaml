@@ -17,6 +17,8 @@ on:
         required: true
       GOOGLE_TOTP_SECRET:
         required: true
+      GOOGLE_SESSION_STATE:
+        required: false
       WALLET_SEED:
         required: true
       SUPERAPP_GITHUB_TOKEN:
