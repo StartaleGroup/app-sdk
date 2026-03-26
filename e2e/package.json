@@ -21,6 +21,7 @@
 		"test:ci:google": "playwright test --project=google-chromium",
 		"test:ci:eoa": "playwright test --project=eoa-chromium",
 		"install:playwright": "playwright install --with-deps",
-		"install:chrome": "playwright install chrome"
+		"install:chrome": "playwright install chrome",
+		"save:google-session": "npx tsx scripts/save-google-session.ts"
 	}
 }

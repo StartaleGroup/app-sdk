@@ -34,7 +34,23 @@ test.describe('Google OAuth — RPC Methods', () => {
 	let page: Page
 
 	test.beforeAll(async ({ browser, baseURL }) => {
-		context = await browser.newContext({ baseURL })
+		const googleSession = process.env.GOOGLE_SESSION_STATE
+			? JSON.parse(process.env.GOOGLE_SESSION_STATE)
+			: undefined
+
+		// Keep only Google cookies to bypass "Verify it's you" challenge.
+		// Exclude all other cookies (SCW, Dynamic Auth, privy) so the
+		// normal login flow runs from a clean state.
+		const storageState = googleSession
+			? {
+					cookies: googleSession.cookies.filter(
+						(c: { domain: string }) =>
+							c.domain.includes('google.com'),
+					),
+					origins: [],
+				}
+			: undefined
+		context = await browser.newContext({ baseURL, storageState })
 		page = await context.newPage()
 
 		await injectSCWUrl(page)
@@ -47,6 +63,7 @@ test.describe('Google OAuth — RPC Methods', () => {
 		const sdkPopup = await waitForPopup(page, () =>
 			ethRequestAccounts.submit(),
 		)
+
 		await loginWithGoogle(sdkPopup)
 		await waitForPopupClose(sdkPopup)
 
