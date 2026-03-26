@@ -44,31 +44,14 @@ const handle2FA = async (page: Page): Promise<void> => {
 }
 
 /**
- * Login with Google OAuth via the SDK popup.
- *
- * Flow:
- * 1. Click Google sign-in button in SDK popup
- * 2. Handle Google OAuth form (email, password, 2FA)
- * 3. Wait for redirect back to SCW (app.startale.com or localhost)
+ * Complete the Google OAuth email → password → 2FA form.
+ * Called only when Google shows the login form (no pre-existing session cookies).
  */
-export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
-	const email = process.env.GOOGLE_TEST_EMAIL
-	const password = process.env.GOOGLE_TEST_PASSWORD
-
-	if (!email || !password) {
-		throw new Error(
-			'GOOGLE_TEST_EMAIL and GOOGLE_TEST_PASSWORD env vars required',
-		)
-	}
-
-	// Click "Log in with Google"
-	await sdkPopup
-		.getByRole('button', { name: 'Log in with Google' })
-		.click()
-
-	// Wait for Google OAuth page to load
-	await sdkPopup.waitForURL('**/accounts.google.com/**')
-
+const completeGoogleOAuthForm = async (
+	sdkPopup: Page,
+	email: string,
+	password: string,
+): Promise<void> => {
 	// type() with delay simulates human-like keystroke timing (100ms per char)
 	// to avoid Google's bot detection. fill() sets the value instantly and is
 	// more likely to be flagged as automated input.
@@ -88,12 +71,56 @@ export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
 	if (process.env.GOOGLE_TOTP_SECRET) {
 		await handle2FA(sdkPopup)
 	}
+}
 
-	// Wait for redirect back to SCW (connect-wallet approval page).
-	// Use origin (scheme + host + port) so the pattern works for both
-	// production (https://app.startale.com) and localhost (http://localhost:3000).
+/**
+ * Login with Google OAuth via the SDK popup.
+ *
+ * Flow:
+ * 1. Click Google sign-in button in SDK popup
+ * 2. Handle Google OAuth form (email, password, 2FA) — OR skip if
+ *    Google auto-authenticates via pre-loaded session cookies
+ * 3. Wait for redirect back to SCW (app.startale.com or localhost)
+ * 4. Click "Approve" on the connect-wallet permission screen
+ */
+export const loginWithGoogle = async (sdkPopup: Page): Promise<void> => {
+	const email = process.env.GOOGLE_TEST_EMAIL
+	const password = process.env.GOOGLE_TEST_PASSWORD
+
+	if (!email || !password) {
+		throw new Error(
+			'GOOGLE_TEST_EMAIL and GOOGLE_TEST_PASSWORD env vars required',
+		)
+	}
+
 	const scwOrigin = new URL(SCW_URL).origin
-	await sdkPopup.waitForURL(`${scwOrigin}/**`)
+
+	// Click the Google sign-in button. The button text varies by page:
+	// - Login page: "Log in with Google"
+	// - Sign up page: "Google"
+	const googleButton = sdkPopup
+		.getByRole('button', { name: 'Log in with Google' })
+		.or(sdkPopup.getByRole('button', { name: 'Google' }))
+	await googleButton.click()
+
+	// After clicking Google, the popup navigates to accounts.google.com.
+	// If session cookies are present (GOOGLE_SESSION_STATE), Google may
+	// auto-authenticate and redirect back to SCW so fast that we never
+	// see accounts.google.com as the current URL. Race both possibilities.
+	const emailInput = sdkPopup.locator('input[type="email"]')
+	const needsManualLogin = await Promise.race([
+		emailInput
+			.waitFor({ state: 'visible', timeout: 30_000 })
+			.then(() => true),
+		sdkPopup
+			.waitForURL(`${scwOrigin}/**`, { timeout: 30_000 })
+			.then(() => false),
+	])
+
+	if (needsManualLogin) {
+		await completeGoogleOAuthForm(sdkPopup, email, password)
+		await sdkPopup.waitForURL(`${scwOrigin}/**`)
+	}
 
 	// Click the "Approve" button on the connect-wallet permission screen
 	const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })

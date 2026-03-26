@@ -17,6 +17,8 @@ on:
         required: true
       GOOGLE_TOTP_SECRET:
         required: true
+      GOOGLE_SESSION_STATE:
+        required: false
       WALLET_SEED:
         required: true
       SUPERAPP_GITHUB_TOKEN:
@@ -135,6 +137,7 @@ jobs:
       GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
       GOOGLE_TEST_PASSWORD: ${{ secrets.GOOGLE_TEST_PASSWORD }}
       GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
+      GOOGLE_SESSION_STATE: ${{ secrets.GOOGLE_SESSION_STATE }}
     steps:
       - uses: actions/checkout@v4
         if: inputs.superapp-branch != ''
