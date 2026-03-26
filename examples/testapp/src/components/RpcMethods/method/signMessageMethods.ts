@@ -1,7 +1,21 @@
-import { Address, Chain, Hex, concat, createPublicClient, domainSeparator, hashTypedData, http, keccak256 } from 'viem';
+import {
+  Address,
+  Chain,
+  Hex,
+  concat,
+  createPublicClient,
+  domainSeparator,
+  encodeAbiParameters,
+  erc6492SignatureValidatorByteCode,
+  hashTypedData,
+  http,
+  isErc6492Signature,
+  keccak256,
+  parseAbiParameters
+} from 'viem';
 
-import { parseMessage } from '../shortcut/ShortcutType'
-import { RpcRequestInput } from './RpcRequestInput'
+import { parseMessage } from '../shortcut/ShortcutType';
+import { RpcRequestInput } from './RpcRequestInput';
 
 const ethSign: RpcRequestInput = {
 	method: 'eth_sign',
@@ -115,6 +129,35 @@ export const verifySignMsg = async ({
       const messageHash = hashTypedData(typedData);
       const finalHash = keccak256(concat(['0x1901', appDomainSeparator, messageHash]));
 
+      // For ERC-6492 signatures (undeployed accounts), use the Universal
+      // Signature Validator which deploys the account in a single eth_call
+      // simulation, then calls isValidSignature on the deployed contract.
+      const sig = sign as Hex;
+      if (isErc6492Signature(sig)) {
+        try {
+          // abi.encode(address signer, bytes32 hash, bytes wrappedSignature)
+          const callData = encodeAbiParameters(
+            parseAbiParameters(['address', 'bytes32', 'bytes']),
+            [from as Address, finalHash, sig],
+          );
+          // Simulate the universal validator via eth_call (read-only,
+          // nothing deployed on-chain). The validator bytecode runs
+          // account deployment + isValidSignature in a single call.
+          const { data } = await publicClient.call({
+            data: concat([erc6492SignatureValidatorByteCode as Hex, callData]),
+          });
+
+          // The validator returns abi.encode(bool) — 32 bytes, last byte is 0/1
+          const valid = data?.slice(-1) === '1';
+          if (valid) {
+            return `SigUtil Successfully verified signer as ${from} (ERC-6492)`;
+          }
+          return 'SigUtil Failed to verify signer (ERC-6492)';
+        } catch (error) {
+          return `Error verifying ERC-6492 signature: ${error}`;
+        }
+      }
+
       try {
         const response = await publicClient.readContract({
           address: from as Address,
@@ -131,6 +174,7 @@ export const verifySignMsg = async ({
           ],
           functionName: 'isValidSignature',
           args: [finalHash, sign as Hex],
+          authorizationList: undefined,
         });
 
         const valid = response === eip1271MagicValue;
