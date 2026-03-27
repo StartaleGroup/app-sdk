@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { mnemonicToAccount } from 'viem/accounts'
@@ -27,6 +27,14 @@ const EXPECTED_EOA_ADDRESS = mnemonicToAccount(
 	process.env.EOA_LINKED_WALLET_SEED ?? '',
 ).address
 
+const TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS = [
+	'scw_url',
+	'selected_sdk_version',
+] as const
+
+type SessionCookie = NonNullable<ReturnType<typeof parseAllSessionCookies>>[number]
+
+
 /**
  * Wait for SDK popup to reach /connect-wallet and click Approve.
  */
@@ -35,6 +43,34 @@ const approveConnection = async (sdkPopup: Page): Promise<void> => {
 	const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })
 	await approveButton.waitFor({ state: 'visible' })
 	await approveButton.click()
+}
+
+const hasExpectedEOAAddress = (accounts: string[]): boolean =>
+	accounts.some(
+		(account) => account.toLowerCase() === EXPECTED_EOA_ADDRESS.toLowerCase(),
+	)
+
+const formatAccounts = (accounts: string[]): string =>
+	JSON.stringify(accounts, null, 2)
+
+const expectConnectedToast = async (page: Page): Promise<void> => {
+	await expect(page.locator('#toast-connected').first()).toBeVisible()
+}
+
+const waitForPopupIfOpened = async (
+	page: Page,
+	trigger: () => Promise<void>,
+): Promise<Page | null> => {
+	const popupPromise = page
+		.waitForEvent('popup', { timeout: 5_000 })
+		.then(async (popup) => {
+			await popup.waitForLoadState('domcontentloaded')
+			return popup
+		})
+		.catch(() => null)
+
+	await trigger()
+	return popupPromise
 }
 
 /**
@@ -87,32 +123,255 @@ const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
 }
 
 /**
- * Clean up stale state from a previous failed test run.
- *
- * Navigates directly to Super App /wallets to check for a leftover
- * EOA wallet. If the session from a previous run is still active,
- * the wallet list renders and we can disconnect any stale EOA wallet.
- * If no session exists (fresh browser), "Smart Wallet" won't appear
- * and cleanup is skipped — there's nothing to clean up.
- *
- * Does NOT use loginWithGoogle to avoid caching the Google OAuth
- * session, which would cause the actual test's loginWithGoogle to
- * skip the Google login form and timeout.
+ * Delete all non-Google cookies from the current browser context.
+ * Keeps Google cookies from GOOGLE_SESSION_STATE so runtime login
+ * can still bypass "Verify it's you" challenges.
  */
-const cleanupStaleEOAWallet = async (page: Page): Promise<void> => {
-	// Navigate directly to Super App /wallets
+const deleteCookies = async (
+	context: BrowserContext,
+	page: Page,
+	cookies: {
+	name: string
+	domain: string
+	path?: string
+}[],
+): Promise<void> => {
+	const cdp = await context.newCDPSession(page)
+	for (const cookie of cookies) {
+		await cdp.send('Network.deleteCookies', {
+			name: cookie.name,
+			domain: cookie.domain,
+			path: cookie.path,
+		})
+	}
+
+	await cdp.detach()
+}
+
+const deleteInjectedNonGoogleCookies = async (
+	context: BrowserContext,
+	page: Page,
+	cookies: SessionCookie[] | undefined,
+): Promise<void> => {
+	const nonGoogleCookies =
+		cookies?.filter((cookie) => !isGoogleDomain(cookie.domain)) ?? []
+	if (nonGoogleCookies.length === 0) return
+
+	await deleteCookies(context, page, nonGoogleCookies)
+}
+
+const deleteRuntimeNonGoogleCookies = async (
+	context: BrowserContext,
+	page: Page,
+): Promise<void> => {
+	const cdp = await context.newCDPSession(page)
+	const { cookies } = await cdp.send('Network.getAllCookies')
+	await cdp.detach()
+
+	const nonGoogleCookies = cookies.filter(
+		(cookie) => !isGoogleDomain(cookie.domain),
+	)
+	if (nonGoogleCookies.length === 0) return
+
+	await deleteCookies(context, page, nonGoogleCookies)
+}
+
+/**
+ * Clear only testapp-side SDK state while preserving dashboard config
+ * needed for E2E runs (SDK version + scw_url).
+ *
+ * Calls provider.disconnect() first so the SDK clears its persisted
+ * account state and IndexedDB-backed keys before we drop localStorage.
+ */
+const clearTestappSDKLocalState = async (page: Page): Promise<void> => {
+	await page.evaluate(async (preservedKeys) => {
+		const keepKeys = new Set<string>(preservedKeys as string[])
+		const ethereum = (
+			window as typeof window & {
+				ethereum?: {
+					disconnect?: () => Promise<void>
+				}
+			}
+		).ethereum
+
+		if (ethereum?.disconnect) {
+			try {
+				await ethereum.disconnect()
+			} catch {
+				// Ignore disconnect failures and continue clearing local state.
+			}
+		}
+
+		for (const key of Object.keys(localStorage)) {
+			if (keepKeys.has(key)) continue
+
+			if (
+				key === 'startale-app-sdk.store' ||
+				key.startsWith('cbwsdk.') ||
+				key.startsWith('-CBWSDK:') ||
+				key.startsWith('base-acc-sdk')
+			) {
+				localStorage.removeItem(key)
+			}
+		}
+	}, [...TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS])
+}
+
+const ensureEOARequiredEnabled = async (page: Page): Promise<void> => {
+	const toggle = page.getByTestId('switch-eoa-required')
+	await toggle.waitFor({ state: 'visible' })
+
+	if (!(await toggle.isChecked())) {
+		await toggle.click()
+		await expect(toggle).toBeChecked()
+	}
+}
+
+const openDashboardWithEOARequiredEnabled = async (page: Page): Promise<void> => {
+	await page.goto(ROUTES.dashboard)
+	const dashboard = dashboardPage(page)
+	await dashboard.verifyLoaded()
+	await ensureEOARequiredEnabled(page)
+}
+
+const runEOARequiredOnboarding = async (page: Page): Promise<void> => {
+	await openDashboardWithEOARequiredEnabled(page)
+
+	const ethRequestAccounts = rpcMethodCard(page, 'eth_requestAccounts')
+
+	// Open SDK popup. If no popup appears quickly, treat it as an
+	// already-connected state and let ensureExpectedEOAConnected()
+	// validate whether the connected account is the expected EOA.
+	let sdkPopup = await waitForPopupIfOpened(page, () =>
+		ethRequestAccounts.submit(),
+	)
+	if (!sdkPopup) {
+		const connectedAccounts = await requestConnectedAccounts(page).catch(
+			() => [],
+		)
+		if (connectedAccounts.length > 0) return
+
+		throw new Error(
+			'eth_requestAccounts did not open the SDK popup and no connected accounts were available',
+		)
+	}
+
+	// Google OAuth (stops after redirect — no Approve click)
+	await loginWithGoogle(sdkPopup, { skipApprove: true })
+
+	// After Google OAuth: either /link-eoa (fresh) or /connect-wallet (dirty state).
+	// Dirty state occurs when a previous attempt already linked the wallet
+	// on the backend but the test failed before completing.
+	// Wait for the SPA to settle on a final page — the popup lands on "/"
+	// first, then client-side routing redirects to the actual destination.
+	const reachedLinkEOA = await Promise.race([
+		sdkPopup
+			.waitForURL((url) => url.pathname.includes('/link-eoa'))
+			.then(() => true),
+		sdkPopup
+			.waitForURL((url) => url.pathname.includes('/connect-wallet'))
+			.then(() => false),
+	])
+
+	if (reachedLinkEOA) {
+		await linkEOAWallet(sdkPopup)
+
+		// linkEOAWallet closes the popup when /link-eoa doesn't navigate
+		// after MetaMask approval (wallet is linked on backend but the page
+		// didn't update). Re-open SDK popup — the cached Google session +
+		// linked wallet will skip straight to /connect-wallet.
+		if (sdkPopup.isClosed()) {
+			sdkPopup = await waitForPopup(page, () =>
+				ethRequestAccounts.submit(),
+			)
+			await approveConnection(sdkPopup)
+		}
+	} else {
+		await approveConnection(sdkPopup)
+	}
+
+	await expectConnectedToast(page)
+}
+
+const requestConnectedAccounts = async (page: Page): Promise<string[]> => {
+	await expect
+		.poll(() =>
+			page.evaluate(() =>
+				Boolean(
+					(
+						window as typeof window & {
+							ethereum?: {
+								request?: (args: { method: string }) => Promise<unknown>
+							}
+						}
+					).ethereum?.request,
+				),
+			),
+		)
+		.toBe(true)
+
+	return page.evaluate(async () => {
+		const ethereum = (
+			window as typeof window & {
+				ethereum?: {
+					request?: (args: { method: string }) => Promise<unknown>
+				}
+			}
+		).ethereum
+
+		if (!ethereum?.request) {
+			throw new Error('window.ethereum.request is unavailable')
+		}
+
+		const response = await ethereum.request({ method: 'eth_requestAccounts' })
+		if (!Array.isArray(response)) {
+			throw new Error(
+				`Expected eth_requestAccounts to return an array, received: ${JSON.stringify(response)}`,
+			)
+		}
+
+		return response.map((account) => String(account))
+	})
+}
+
+const disconnectStaleLinkedWalletAndReset = async (
+	page: Page,
+	context: BrowserContext,
+	actualAccounts: string[],
+): Promise<void> => {
 	await page.goto(`${SCW_URL}wallets`)
+	await expect(page.getByText('Linked wallets')).toBeVisible()
 
-	// Check if we have an active session (Smart Wallet appears when logged in)
-	const hasSession = await page
-		.getByText('Smart Wallet')
-		.isVisible({ timeout: 5_000 })
-		.catch(() => false)
+	const disconnected = await disconnectAllLinkedWallets(page)
+	if (disconnected === 0) {
+		throw new Error(
+			`eth_requestAccounts returned an unexpected wallet (${formatAccounts(actualAccounts)}), but no linked wallets were available to disconnect`,
+		)
+	}
 
-	if (!hasSession) return
+	await openDashboardWithEOARequiredEnabled(page)
+	await clearTestappSDKLocalState(page)
+	await deleteRuntimeNonGoogleCookies(context, page)
+}
 
-	// Session exists — disconnect any stale linked wallets from previous runs
-	await disconnectAllLinkedWallets(page)
+const ensureExpectedEOAConnected = async (
+	page: Page,
+	context: BrowserContext,
+): Promise<void> => {
+	await runEOARequiredOnboarding(page)
+
+	let connectedAccounts = await requestConnectedAccounts(page)
+	if (hasExpectedEOAAddress(connectedAccounts)) return
+
+	await disconnectStaleLinkedWalletAndReset(page, context, connectedAccounts)
+	await runEOARequiredOnboarding(page)
+
+	connectedAccounts = await requestConnectedAccounts(page)
+	if (hasExpectedEOAAddress(connectedAccounts)) return
+
+	throw new Error(
+		`EOA Required onboarding connected an unexpected wallet. Expected ${EXPECTED_EOA_ADDRESS.toLowerCase()}, received ${formatAccounts(connectedAccounts).toLowerCase()}`,
+	)
 }
 
 /**
@@ -137,17 +396,14 @@ test.describe('EOA Required — Onboarding', () => {
 	})
 
 	let page: Page
+	let context: BrowserContext
 
-	test.beforeAll(async ({ page: fixturedPage, context }) => {
+	test.beforeAll(async ({ page: fixturedPage, context: walletContext }) => {
 		page = fixturedPage
+		context = walletContext
 
 		// Inject session cookies via CDP. context.addCookies() does not work
 		// reliably with dappwright's persistent browser context.
-		//
-		// Phase 1: Inject ALL cookies (including Super App) so cleanup can
-		// detect and remove stale linked wallets from previous test runs.
-		// Without Super App cookies, the /wallets page shows no session
-		// and cleanup is silently skipped.
 		const allCookies = parseAllSessionCookies()
 		const cookiePayload = allCookies?.map((c) => ({
 			name: c.name,
@@ -161,88 +417,30 @@ test.describe('EOA Required — Onboarding', () => {
 		}))
 
 		if (cookiePayload && cookiePayload.length > 0) {
-			const cdp = await context.newCDPSession(page)
+			const cdp = await walletContext.newCDPSession(page)
 			await cdp.send('Network.setCookies', { cookies: cookiePayload })
 			await cdp.detach()
 		}
 
-		// Clean up any stale linked wallet from a previous failed run
-		await cleanupStaleEOAWallet(page)
+		// Start clean for SCW/Dynamic Auth even if GOOGLE_SESSION_STATE
+		// accidentally includes non-Google cookies.
+		await deleteInjectedNonGoogleCookies(walletContext, page, allCookies)
 
-		// Phase 2: Remove Super App cookies so the SDK popup shows the
-		// login page (not a cached session). Keep only Google cookies
-		// for auto-authentication bypass.
-		if (allCookies && allCookies.length > 0) {
-			const cdp = await context.newCDPSession(page)
-			const nonGoogleCookies = allCookies.filter(
-				(c) => !isGoogleDomain(c.domain),
-			)
-			for (const c of nonGoogleCookies) {
-				await cdp.send('Network.deleteCookies', {
-					name: c.name,
-					domain: c.domain,
-				})
-			}
-			await cdp.detach()
-		}
-
+		// Dappwright uses a persistent browser context, so proactively clear
+		// any leftover SDK state before the first onboarding attempt.
 		await page.goto(ROUTES.dashboard)
 		const dashboard = dashboardPage(page)
 		await dashboard.verifyLoaded()
-
-		// Enable eoaRequired toggle
-		await page.getByTestId('switch-eoa-required').click()
+		await clearTestappSDKLocalState(page)
 	})
 
 	test('should complete EOA required onboarding with Google + MetaMask', async () => {
-		const ethRequestAccounts = rpcMethodCard(page, 'eth_requestAccounts')
-
-		// Open SDK popup
-		let sdkPopup = await waitForPopup(page, () =>
-			ethRequestAccounts.submit(),
-		)
-
-		// Google OAuth (stops after redirect — no Approve click)
-		await loginWithGoogle(sdkPopup, { skipApprove: true })
-
-		// After Google OAuth: either /link-eoa (fresh) or /connect-wallet (dirty state).
-		// Dirty state occurs when a previous attempt already linked the wallet
-		// on the backend but the test failed before completing.
-		// Wait for the SPA to settle on a final page — the popup lands on "/"
-		// first, then client-side routing redirects to the actual destination.
-		const reachedLinkEOA = await Promise.race([
-			sdkPopup
-				.waitForURL((url) => url.pathname.includes('/link-eoa'))
-				.then(() => true),
-			sdkPopup
-				.waitForURL((url) => url.pathname.includes('/connect-wallet'))
-				.then(() => false),
-		])
-
-		if (reachedLinkEOA) {
-			await linkEOAWallet(sdkPopup)
-
-			// linkEOAWallet closes the popup when /link-eoa doesn't navigate
-			// after MetaMask approval (wallet is linked on backend but the page
-			// didn't update). Re-open SDK popup — the cached Google session +
-			// linked wallet will skip straight to /connect-wallet.
-			if (sdkPopup.isClosed()) {
-				sdkPopup = await waitForPopup(page, () =>
-					ethRequestAccounts.submit(),
-				)
-				await approveConnection(sdkPopup)
-			}
-		} else {
-			await approveConnection(sdkPopup)
-		}
-
-		await expect(page.locator('#toast-connected')).toBeVisible()
+		await ensureExpectedEOAConnected(page, context)
 	})
 
 	test('should return EOA wallet address from eth_requestAccounts', async () => {
-		const ethRequestAccounts = rpcMethodCard(page, 'eth_requestAccounts')
-		const response = await ethRequestAccounts.getResponse()
-		expect(response?.toLowerCase()).toContain(
+		const accounts = await requestConnectedAccounts(page)
+		expect(accounts.map((account) => account.toLowerCase())).toContain(
 			EXPECTED_EOA_ADDRESS.toLowerCase(),
 		)
 	})
