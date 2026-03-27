@@ -23,18 +23,25 @@ type SessionCookie = {
 }
 
 /**
- * Parse GOOGLE_SESSION_STATE env var and return only Google cookies.
+ * Parse GOOGLE_SESSION_STATE env var and return all cookies.
  * Returns undefined when the env var is not set.
  */
-export const parseGoogleSessionCookies = (): SessionCookie[] | undefined => {
+export const parseAllSessionCookies = (): SessionCookie[] | undefined => {
 	if (!process.env.GOOGLE_SESSION_STATE) return undefined
 
 	const session = JSON.parse(process.env.GOOGLE_SESSION_STATE) as
 		| { cookies?: SessionCookie[] }
 		| undefined
 
-	return session?.cookies?.filter((c) => isGoogleDomain(c.domain))
+	return session?.cookies
 }
+
+/**
+ * Parse GOOGLE_SESSION_STATE env var and return only Google cookies.
+ * Returns undefined when the env var is not set.
+ */
+export const parseGoogleSessionCookies = (): SessionCookie[] | undefined =>
+	parseAllSessionCookies()?.filter((c) => isGoogleDomain(c.domain))
 
 /**
  * Inject SCW_URL into testapp localStorage so ConfigContextProvider

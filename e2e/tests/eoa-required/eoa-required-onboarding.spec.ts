@@ -7,7 +7,11 @@ import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
 import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
-import { parseGoogleSessionCookies, waitForPopup } from '../../lib/helpers.js'
+import {
+	isGoogleDomain,
+	parseAllSessionCookies,
+	waitForPopup,
+} from '../../lib/helpers.js'
 import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
 
@@ -137,31 +141,50 @@ test.describe('EOA Required — Onboarding', () => {
 	test.beforeAll(async ({ page: fixturedPage, context }) => {
 		page = fixturedPage
 
-		// Inject Google session cookies via CDP to bypass Google's "Verify
-		// it's you" challenge. context.addCookies() does not work reliably
-		// with dappwright's persistent browser context (launchPersistentContext),
-		// so we use Chrome DevTools Protocol to set cookies directly.
-		const googleCookies = parseGoogleSessionCookies()
+		// Inject session cookies via CDP. context.addCookies() does not work
+		// reliably with dappwright's persistent browser context.
+		//
+		// Phase 1: Inject ALL cookies (including Super App) so cleanup can
+		// detect and remove stale linked wallets from previous test runs.
+		// Without Super App cookies, the /wallets page shows no session
+		// and cleanup is silently skipped.
+		const allCookies = parseAllSessionCookies()
+		const cookiePayload = allCookies?.map((c) => ({
+			name: c.name,
+			value: c.value,
+			domain: c.domain,
+			path: c.path || '/',
+			secure: c.secure ?? true,
+			httpOnly: c.httpOnly ?? false,
+			sameSite: c.sameSite || 'None',
+			expires: c.expires ?? -1,
+		}))
 
-		if (googleCookies && googleCookies.length > 0) {
+		if (cookiePayload && cookiePayload.length > 0) {
 			const cdp = await context.newCDPSession(page)
-			await cdp.send('Network.setCookies', {
-				cookies: googleCookies.map((c) => ({
-					name: c.name,
-					value: c.value,
-					domain: c.domain,
-					path: c.path || '/',
-					secure: c.secure ?? true,
-					httpOnly: c.httpOnly ?? false,
-					sameSite: c.sameSite || 'None',
-					expires: c.expires ?? -1,
-				})),
-			})
+			await cdp.send('Network.setCookies', { cookies: cookiePayload })
 			await cdp.detach()
 		}
 
 		// Clean up any stale linked wallet from a previous failed run
 		await cleanupStaleEOAWallet(page)
+
+		// Phase 2: Remove Super App cookies so the SDK popup shows the
+		// login page (not a cached session). Keep only Google cookies
+		// for auto-authentication bypass.
+		if (allCookies && allCookies.length > 0) {
+			const cdp = await context.newCDPSession(page)
+			const nonGoogleCookies = allCookies.filter(
+				(c) => !isGoogleDomain(c.domain),
+			)
+			for (const c of nonGoogleCookies) {
+				await cdp.send('Network.deleteCookies', {
+					name: c.name,
+					domain: c.domain,
+				})
+			}
+			await cdp.detach()
+		}
 
 		await page.goto(ROUTES.dashboard)
 		const dashboard = dashboardPage(page)
