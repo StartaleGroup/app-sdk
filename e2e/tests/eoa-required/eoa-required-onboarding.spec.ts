@@ -1,24 +1,26 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
-
-const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 import { mnemonicToAccount } from 'viem/accounts'
 
+import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
 import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
-import { waitForPopup } from '../../lib/helpers.js'
+import { parseGoogleSessionCookies, waitForPopup } from '../../lib/helpers.js'
 import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+
+const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 
 /**
  * Derive the expected EOA wallet address from EOA_LINKED_WALLET_SEED.
  * Uses the same HD path as MetaMask (m/44'/60'/0'/0/0).
+ * Guarded: the fixture validates the env var before tests run,
+ * but we add a fallback to surface a clear error at module load.
  */
 const EXPECTED_EOA_ADDRESS = mnemonicToAccount(
-	process.env.EOA_LINKED_WALLET_SEED!,
+	process.env.EOA_LINKED_WALLET_SEED ?? '',
 ).address
 
 /**
@@ -139,39 +141,23 @@ test.describe('EOA Required — Onboarding', () => {
 		// it's you" challenge. context.addCookies() does not work reliably
 		// with dappwright's persistent browser context (launchPersistentContext),
 		// so we use Chrome DevTools Protocol to set cookies directly.
-		const googleSession = process.env.GOOGLE_SESSION_STATE
-			? JSON.parse(process.env.GOOGLE_SESSION_STATE)
-			: undefined
+		const googleCookies = parseGoogleSessionCookies()
 
-		if (googleSession?.cookies) {
-			const isGoogleDomain = (domain: string) =>
-				domain === 'google.com' ||
-				domain.endsWith('.google.com') ||
-				domain === 'accounts.google.com' ||
-				domain.endsWith('.google.com.sg')
-
-			const googleCookies = googleSession.cookies.filter(
-				(c: { domain: string }) => isGoogleDomain(c.domain),
-			)
-
-			if (googleCookies.length > 0) {
-				const cdp = await context.newCDPSession(page)
-				await cdp.send('Network.setCookies', {
-					cookies: googleCookies.map(
-						(c: Record<string, unknown>) => ({
-							name: c.name,
-							value: c.value,
-							domain: c.domain,
-							path: c.path || '/',
-							secure: c.secure ?? true,
-							httpOnly: c.httpOnly ?? false,
-							sameSite: c.sameSite || 'None',
-							expires: c.expires ?? -1,
-						}),
-					),
-				})
-				await cdp.detach()
-			}
+		if (googleCookies && googleCookies.length > 0) {
+			const cdp = await context.newCDPSession(page)
+			await cdp.send('Network.setCookies', {
+				cookies: googleCookies.map((c) => ({
+					name: c.name,
+					value: c.value,
+					domain: c.domain,
+					path: c.path || '/',
+					secure: c.secure ?? true,
+					httpOnly: c.httpOnly ?? false,
+					sameSite: c.sameSite || 'None',
+					expires: c.expires ?? -1,
+				})),
+			})
+			await cdp.detach()
 		}
 
 		// Clean up any stale linked wallet from a previous failed run

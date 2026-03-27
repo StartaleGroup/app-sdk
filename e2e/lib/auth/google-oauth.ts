@@ -44,6 +44,26 @@ const handle2FA = async (page: Page): Promise<void> => {
 }
 
 /**
+ * Enter password and handle 2FA on Google's login page.
+ * Shared by both the email form and account chooser flows.
+ */
+const enterPasswordAndHandle2FA = async (
+	page: Page,
+	password: string,
+): Promise<void> => {
+	// Use name="Passwd" — Google's login page contains hidden decoy
+	// password inputs that cause type="password" selectors to fail.
+	const passwordInput = page.locator('input[name="Passwd"]')
+	await passwordInput.waitFor({ state: 'visible' })
+	await passwordInput.pressSequentially(password, { delay: 100 })
+	await page.getByRole('button', { name: /Next/i }).click()
+
+	if (process.env.GOOGLE_TOTP_SECRET) {
+		await handle2FA(page)
+	}
+}
+
+/**
  * Complete the Google OAuth email → password → 2FA form.
  * Called only when Google shows the login form (no pre-existing session cookies).
  */
@@ -60,17 +80,7 @@ const completeGoogleOAuthForm = async (
 	await emailInput.pressSequentially(email, { delay: 100 })
 	await sdkPopup.getByRole('button', { name: /Next/i }).click()
 
-	// Use name="Passwd" — Google's login page contains hidden decoy
-	// password inputs that cause type="password" selectors to fail.
-	const passwordInput = sdkPopup.locator('input[name="Passwd"]')
-	await passwordInput.waitFor({ state: 'visible' })
-	await passwordInput.pressSequentially(password, { delay: 100 })
-	await sdkPopup.getByRole('button', { name: /Next/i }).click()
-
-	// Handle 2FA if configured
-	if (process.env.GOOGLE_TOTP_SECRET) {
-		await handle2FA(sdkPopup)
-	}
+	await enterPasswordAndHandle2FA(sdkPopup, password)
 }
 
 /**
@@ -140,15 +150,7 @@ export const loginWithGoogle = async (
 		if (isAccountChooser) {
 			// Click the test account to proceed to password entry
 			await sdkPopup.getByText(email).click()
-
-			const passwordInput = sdkPopup.locator('input[name="Passwd"]')
-			await passwordInput.waitFor({ state: 'visible' })
-			await passwordInput.pressSequentially(password, { delay: 100 })
-			await sdkPopup.getByRole('button', { name: /Next/i }).click()
-
-			if (process.env.GOOGLE_TOTP_SECRET) {
-				await handle2FA(sdkPopup)
-			}
+			await enterPasswordAndHandle2FA(sdkPopup, password)
 		} else {
 			await completeGoogleOAuthForm(sdkPopup, email, password)
 		}

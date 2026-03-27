@@ -17,16 +17,15 @@
  *   pnpm save:google-session
  */
 import { chromium } from '@playwright/test'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import { BASE_URL, ROUTES } from '../lib/constants.js'
 import { injectSCWUrl, waitForPopup } from '../lib/helpers.js'
 import { dashboardPage } from '../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const OUTPUT_PATH = resolve(__dirname, '..', 'google-session.json')
+// Script is invoked via `pnpm save:google-session` from the e2e/ directory.
+const OUTPUT_PATH = resolve('google-session.json')
 
 const saveGoogleSession = async () => {
 	console.log('Launching browser...')
@@ -53,7 +52,7 @@ const saveGoogleSession = async () => {
 	console.log('')
 	console.log('=== Manual Login Required ===')
 	console.log('1. Log in with Google in the popup window')
-	console.log('2. Complete any verification (2FA, "Verify it\'s you", etc.)')
+	console.log('2. Complete any verification steps (email, password)')
 	console.log('3. Click "Approve" on the connect-wallet screen')
 	console.log('The script will save the session automatically when the popup closes.')
 	console.log('')

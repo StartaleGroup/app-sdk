@@ -142,7 +142,8 @@ const openWalletModal = async (
 		} else {
 			await sdkPopup.keyboard.press('Escape')
 		}
-		await sdkPopup.waitForTimeout(1_000)
+		// Wait for error banner to disappear (signals modal has closed)
+		await errorBanner.waitFor({ state: 'hidden' }).catch(() => {})
 	}
 
 	throw new Error(
