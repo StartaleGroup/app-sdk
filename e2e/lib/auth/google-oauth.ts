@@ -143,9 +143,7 @@ export const loginWithGoogle = async (
 		// 1. Account chooser (/accountchooser) — session cookies exist but
 		//    expired ("Signed out"). Click the account row to skip email entry.
 		// 2. Email form (/identifier) — no session cookies, full login needed.
-		const isAccountChooser = sdkPopup
-			.url()
-			.includes('/accountchooser')
+		const isAccountChooser = sdkPopup.url().includes('/accountchooser')
 
 		if (isAccountChooser) {
 			// Click the test account to proceed to password entry

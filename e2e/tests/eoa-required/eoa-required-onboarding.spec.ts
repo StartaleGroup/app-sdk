@@ -20,12 +20,18 @@ const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 /**
  * Derive the expected EOA wallet address from EOA_LINKED_WALLET_SEED.
  * Uses the same HD path as MetaMask (m/44'/60'/0'/0/0).
- * Guarded: the fixture validates the env var before tests run,
- * but we add a fallback to surface a clear error at module load.
+ *
+ * Throws at module load if the env var is missing — this is intentional.
+ * The fixture also validates the env var, but failing early here gives
+ * a clearer error message than a cryptic mnemonic parsing failure.
  */
-const EXPECTED_EOA_ADDRESS = mnemonicToAccount(
-	process.env.EOA_LINKED_WALLET_SEED ?? '',
-).address
+const getExpectedEOAAddress = (): string => {
+	const seed = process.env.EOA_LINKED_WALLET_SEED
+	if (!seed) throw new Error('EOA_LINKED_WALLET_SEED env var is required')
+	return mnemonicToAccount(seed).address
+}
+
+const EXPECTED_EOA_ADDRESS = getExpectedEOAAddress()
 
 const TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS = [
 	'scw_url',
@@ -33,7 +39,6 @@ const TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS = [
 ] as const
 
 type SessionCookie = NonNullable<ReturnType<typeof parseAllSessionCookies>>[number]
-
 
 /**
  * Wait for SDK popup to reach /connect-wallet and click Approve.
@@ -103,18 +108,27 @@ const disconnectOneLinkedWallet = async (
  * until all linked wallets are removed.
  * Returns the number of wallets disconnected.
  */
-const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
-	// Wait for wallet list to fully render (Smart Wallet is always present)
-	await expect(page.getByText('Smart Wallet')).toBeVisible({ timeout: 5_000 })
+const MAX_LINKED_WALLETS = 10
 
+const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
 	// Match linked wallets by either name
 	const linkedWallet = page
 		.getByText('EOA wallet', { exact: true })
 		.or(page.getByText('MetaMask', { exact: true }))
 
+	await linkedWallet
+		.first()
+		.waitFor({ state: 'visible', timeout: 5_000 })
+		.catch(() => {})
+
 	let disconnected = 0
 
 	while (await linkedWallet.first().isVisible().catch(() => false)) {
+		if (disconnected >= MAX_LINKED_WALLETS) {
+			throw new Error(
+				`Exceeded ${MAX_LINKED_WALLETS} wallet disconnections — possible infinite loop`,
+			)
+		}
 		await disconnectOneLinkedWallet(page, linkedWallet.first())
 		disconnected++
 	}
@@ -131,21 +145,23 @@ const deleteCookies = async (
 	context: BrowserContext,
 	page: Page,
 	cookies: {
-	name: string
-	domain: string
-	path?: string
-}[],
+		name: string
+		domain: string
+		path?: string
+	}[],
 ): Promise<void> => {
 	const cdp = await context.newCDPSession(page)
-	for (const cookie of cookies) {
-		await cdp.send('Network.deleteCookies', {
-			name: cookie.name,
-			domain: cookie.domain,
-			path: cookie.path,
-		})
+	try {
+		for (const cookie of cookies) {
+			await cdp.send('Network.deleteCookies', {
+				name: cookie.name,
+				domain: cookie.domain,
+				path: cookie.path,
+			})
+		}
+	} finally {
+		await cdp.detach()
 	}
-
-	await cdp.detach()
 }
 
 const deleteInjectedNonGoogleCookies = async (
@@ -165,15 +181,22 @@ const deleteRuntimeNonGoogleCookies = async (
 	page: Page,
 ): Promise<void> => {
 	const cdp = await context.newCDPSession(page)
-	const { cookies } = await cdp.send('Network.getAllCookies')
-	await cdp.detach()
+	try {
+		const result = await cdp.send('Network.getAllCookies')
+		const nonGoogleCookies = result.cookies.filter(
+			(cookie) => !isGoogleDomain(cookie.domain),
+		)
 
-	const nonGoogleCookies = cookies.filter(
-		(cookie) => !isGoogleDomain(cookie.domain),
-	)
-	if (nonGoogleCookies.length === 0) return
-
-	await deleteCookies(context, page, nonGoogleCookies)
+		for (const cookie of nonGoogleCookies) {
+			await cdp.send('Network.deleteCookies', {
+				name: cookie.name,
+				domain: cookie.domain,
+				path: cookie.path,
+			})
+		}
+	} finally {
+		await cdp.detach()
+	}
 }
 
 /**
@@ -234,7 +257,20 @@ const openDashboardWithEOARequiredEnabled = async (page: Page): Promise<void> =>
 	await ensureEOARequiredEnabled(page)
 }
 
-const runEOARequiredOnboarding = async (page: Page): Promise<void> => {
+const resetEOARequiredBrowserState = async (
+	page: Page,
+	context: BrowserContext,
+): Promise<void> => {
+	await openDashboardWithEOARequiredEnabled(page)
+	await clearTestappSDKLocalState(page)
+	await deleteRuntimeNonGoogleCookies(context, page)
+	await openDashboardWithEOARequiredEnabled(page)
+}
+
+const runEOARequiredOnboarding = async (
+	page: Page,
+	context: BrowserContext,
+): Promise<void> => {
 	await openDashboardWithEOARequiredEnabled(page)
 
 	const ethRequestAccounts = rpcMethodCard(page, 'eth_requestAccounts')
@@ -249,10 +285,17 @@ const runEOARequiredOnboarding = async (page: Page): Promise<void> => {
 		const connectedAccounts = await requestConnectedAccounts(page).catch(
 			() => [],
 		)
-		if (connectedAccounts.length > 0) return
+		if (hasExpectedEOAAddress(connectedAccounts)) return
 
+		await resetEOARequiredBrowserState(page, context)
+		sdkPopup = await waitForPopup(page, () =>
+			ethRequestAccounts.submit(),
+		)
+	}
+
+	if (!sdkPopup) {
 		throw new Error(
-			'eth_requestAccounts did not open the SDK popup and no connected accounts were available',
+			'eth_requestAccounts did not open the SDK popup after resetting local SDK state',
 		)
 	}
 
@@ -293,31 +336,23 @@ const runEOARequiredOnboarding = async (page: Page): Promise<void> => {
 	await expectConnectedToast(page)
 }
 
+type WindowWithEthereum = typeof window & {
+	ethereum?: {
+		request?: (args: { method: string }) => Promise<unknown>
+	}
+}
+
 const requestConnectedAccounts = async (page: Page): Promise<string[]> => {
 	await expect
 		.poll(() =>
 			page.evaluate(() =>
-				Boolean(
-					(
-						window as typeof window & {
-							ethereum?: {
-								request?: (args: { method: string }) => Promise<unknown>
-							}
-						}
-					).ethereum?.request,
-				),
+				Boolean((window as WindowWithEthereum).ethereum?.request),
 			),
 		)
 		.toBe(true)
 
 	return page.evaluate(async () => {
-		const ethereum = (
-			window as typeof window & {
-				ethereum?: {
-					request?: (args: { method: string }) => Promise<unknown>
-				}
-			}
-		).ethereum
+		const ethereum = (window as WindowWithEthereum).ethereum
 
 		if (!ethereum?.request) {
 			throw new Error('window.ethereum.request is unavailable')
@@ -340,31 +375,35 @@ const disconnectStaleLinkedWalletAndReset = async (
 	actualAccounts: string[],
 ): Promise<void> => {
 	await page.goto(`${SCW_URL}wallets`)
-	await expect(page.getByText('Linked wallets')).toBeVisible()
+	const hasLinkedWalletsPage = await page
+		.getByText('Linked wallets')
+		.isVisible({ timeout: 5_000 })
+		.catch(() => false)
 
-	const disconnected = await disconnectAllLinkedWallets(page)
-	if (disconnected === 0) {
+	const disconnected = hasLinkedWalletsPage
+		? await disconnectAllLinkedWallets(page)
+		: 0
+
+	await resetEOARequiredBrowserState(page, context)
+
+	if (disconnected === 0 && hasLinkedWalletsPage) {
 		throw new Error(
 			`eth_requestAccounts returned an unexpected wallet (${formatAccounts(actualAccounts)}), but no linked wallets were available to disconnect`,
 		)
 	}
-
-	await openDashboardWithEOARequiredEnabled(page)
-	await clearTestappSDKLocalState(page)
-	await deleteRuntimeNonGoogleCookies(context, page)
 }
 
 const ensureExpectedEOAConnected = async (
 	page: Page,
 	context: BrowserContext,
 ): Promise<void> => {
-	await runEOARequiredOnboarding(page)
+	await runEOARequiredOnboarding(page, context)
 
 	let connectedAccounts = await requestConnectedAccounts(page)
 	if (hasExpectedEOAAddress(connectedAccounts)) return
 
 	await disconnectStaleLinkedWalletAndReset(page, context, connectedAccounts)
-	await runEOARequiredOnboarding(page)
+	await runEOARequiredOnboarding(page, context)
 
 	connectedAccounts = await requestConnectedAccounts(page)
 	if (hasExpectedEOAAddress(connectedAccounts)) return
@@ -409,10 +448,10 @@ test.describe('EOA Required — Onboarding', () => {
 			name: c.name,
 			value: c.value,
 			domain: c.domain,
-			path: c.path || '/',
+			path: c.path ?? '/',
 			secure: c.secure ?? true,
 			httpOnly: c.httpOnly ?? false,
-			sameSite: c.sameSite || 'None',
+			sameSite: c.sameSite ?? 'None',
 			expires: c.expires ?? -1,
 		}))
 
