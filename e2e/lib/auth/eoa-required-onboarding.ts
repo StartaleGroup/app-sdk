@@ -194,6 +194,9 @@ export const linkEOAWallet = async (sdkPopup: Page): Promise<void> => {
 		.catch(() => false)
 
 	if (!navigated) {
+		console.warn(
+			'[linkEOAWallet] /connect-wallet navigation timed out — closing popup for re-open',
+		)
 		if (!sdkPopup.isClosed()) await sdkPopup.close()
 		return
 	}

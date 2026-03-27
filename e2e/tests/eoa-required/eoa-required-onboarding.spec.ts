@@ -8,6 +8,7 @@ import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
 import {
+	type SessionCookie,
 	isGoogleDomain,
 	parseAllSessionCookies,
 	waitForPopup,
@@ -37,8 +38,6 @@ const TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS = [
 	'scw_url',
 	'selected_sdk_version',
 ] as const
-
-type SessionCookie = NonNullable<ReturnType<typeof parseAllSessionCookies>>[number]
 
 /**
  * Wait for SDK popup to reach /connect-wallet and click Approve.
@@ -261,9 +260,11 @@ const resetEOARequiredBrowserState = async (
 	page: Page,
 	context: BrowserContext,
 ): Promise<void> => {
+	// First load: needed so page.evaluate() can access localStorage/SDK state
 	await openDashboardWithEOARequiredEnabled(page)
 	await clearTestappSDKLocalState(page)
 	await deleteRuntimeNonGoogleCookies(context, page)
+	// Second load: picks up the freshly cleared state
 	await openDashboardWithEOARequiredEnabled(page)
 }
 
@@ -344,10 +345,12 @@ type WindowWithEthereum = typeof window & {
 
 const requestConnectedAccounts = async (page: Page): Promise<string[]> => {
 	await expect
-		.poll(() =>
-			page.evaluate(() =>
-				Boolean((window as WindowWithEthereum).ethereum?.request),
-			),
+		.poll(
+			() =>
+				page.evaluate(() =>
+					Boolean((window as WindowWithEthereum).ethereum?.request),
+				),
+			{ message: 'window.ethereum.request should be available' },
 		)
 		.toBe(true)
 
@@ -377,7 +380,8 @@ const disconnectStaleLinkedWalletAndReset = async (
 	await page.goto(`${SCW_URL}wallets`)
 	const hasLinkedWalletsPage = await page
 		.getByText('Linked wallets')
-		.isVisible({ timeout: 5_000 })
+		.waitFor({ state: 'visible', timeout: 5_000 })
+		.then(() => true)
 		.catch(() => false)
 
 	const disconnected = hasLinkedWalletsPage
@@ -426,7 +430,7 @@ test.describe('EOA Required — Onboarding', () => {
 	test.describe.configure({ mode: 'serial' })
 
 	test.beforeAll(() => {
-		// EOA_LINKED_WALLET_SEED is validated by the fixture (eoa-required.fixture.ts)
+		// EOA_LINKED_WALLET_SEED is validated by the fixture (wallet.fixture.ts)
 		if (!process.env.GOOGLE_TEST_EMAIL) {
 			throw new Error(
 				'GOOGLE_TEST_EMAIL env var is required for EOA Required tests',
@@ -457,8 +461,11 @@ test.describe('EOA Required — Onboarding', () => {
 
 		if (cookiePayload && cookiePayload.length > 0) {
 			const cdp = await walletContext.newCDPSession(page)
-			await cdp.send('Network.setCookies', { cookies: cookiePayload })
-			await cdp.detach()
+			try {
+				await cdp.send('Network.setCookies', { cookies: cookiePayload })
+			} finally {
+				await cdp.detach()
+			}
 		}
 
 		// Start clean for SCW/Dynamic Auth even if GOOGLE_SESSION_STATE

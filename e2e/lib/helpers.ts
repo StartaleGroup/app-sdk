@@ -5,13 +5,14 @@ import { SCW_URL } from './constants.js'
 /**
  * Check if a cookie domain belongs to Google.
  * Used to filter Google session cookies from GOOGLE_SESSION_STATE.
+ * Covers known Google TLDs observed in session cookies (.google.com, .google.com.sg).
  */
 export const isGoogleDomain = (domain: string): boolean =>
 	domain === 'google.com' ||
 	domain.endsWith('.google.com') ||
 	domain.endsWith('.google.com.sg')
 
-type SessionCookie = {
+export type SessionCookie = {
 	name: string
 	value: string
 	domain: string

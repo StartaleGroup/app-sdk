@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test'
 import * as OTPAuth from 'otpauth'
 
 import { SCW_URL } from '../constants.js'
+import { isGoogleDomain } from '../helpers.js'
 
 const generateGoogleTOTP = (secret: string): string => {
 	const totp = new OTPAuth.TOTP({
@@ -23,7 +24,7 @@ const handle2FA = async (page: Page): Promise<void> => {
 
 	// If already redirected past Google, 2FA was skipped
 	const { hostname } = new URL(page.url())
-	if (hostname !== 'google.com' && !hostname.endsWith('.google.com')) return
+	if (!isGoogleDomain(hostname)) return
 
 	// Short timeout: 2FA challenge appears within seconds if triggered.
 	// Without a timeout, the popup waits too long before reaching the "Approve" button.
@@ -83,6 +84,49 @@ const completeGoogleOAuthForm = async (
 	await enterPasswordAndHandle2FA(sdkPopup, password)
 }
 
+const isPostAuthSCWPath = (url: URL, scwOrigin: string): boolean =>
+	url.origin === scwOrigin &&
+	(url.pathname.includes('/connect-wallet') ||
+		url.pathname.includes('/link-eoa'))
+
+const resolveOAuthEntryState = async (
+	sdkPopup: Page,
+	scwOrigin: string,
+): Promise<'login' | 'google' | 'post-auth'> => {
+	const currentUrl = new URL(sdkPopup.url())
+	if (isPostAuthSCWPath(currentUrl, scwOrigin)) return 'post-auth'
+	if (isGoogleDomain(currentUrl.hostname)) return 'google'
+
+	const googleButton = sdkPopup
+		.getByRole('button', { name: 'Log in with Google' })
+		.or(sdkPopup.getByRole('button', { name: 'Google' }))
+
+	const entryState = await Promise.race([
+		googleButton
+			.waitFor({ state: 'visible', timeout: 15_000 })
+			.then(() => 'login' as const),
+		sdkPopup
+			.waitForURL((url) => isGoogleDomain(url.hostname), { timeout: 15_000 })
+			.then(() => 'google' as const),
+		sdkPopup
+			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin), {
+				timeout: 15_000,
+			})
+			.then(() => 'post-auth' as const),
+	]).catch(async () => {
+		const latestUrl = new URL(sdkPopup.url())
+		if (isPostAuthSCWPath(latestUrl, scwOrigin)) return 'post-auth'
+		if (isGoogleDomain(latestUrl.hostname)) return 'google'
+		if (await googleButton.isVisible().catch(() => false)) return 'login'
+
+		throw new Error(
+			`Unable to determine Google OAuth entry state from popup URL: ${sdkPopup.url()}`,
+		)
+	})
+
+	return entryState
+}
+
 /**
  * Login with Google OAuth via the SDK popup.
  *
@@ -108,13 +152,17 @@ export const loginWithGoogle = async (
 
 	const scwOrigin = new URL(SCW_URL).origin
 
-	// Click the Google sign-in button. The button text varies by page:
-	// - Login page: "Log in with Google"
-	// - Sign up page: "Google"
-	const googleButton = sdkPopup
-		.getByRole('button', { name: 'Log in with Google' })
-		.or(sdkPopup.getByRole('button', { name: 'Google' }))
-	await googleButton.click()
+	const entryState = await resolveOAuthEntryState(sdkPopup, scwOrigin)
+
+	if (entryState === 'login') {
+		// Click the Google sign-in button. The button text varies by page:
+		// - Login page: "Log in with Google"
+		// - Sign up page: "Google"
+		const googleButton = sdkPopup
+			.getByRole('button', { name: 'Log in with Google' })
+			.or(sdkPopup.getByRole('button', { name: 'Google' }))
+		await googleButton.click()
+	}
 
 	// After clicking Google, the popup navigates to accounts.google.com.
 	// If session cookies are present (GOOGLE_SESSION_STATE), Google may
@@ -125,16 +173,12 @@ export const loginWithGoogle = async (
 	// match would resolve immediately before navigation even begins.
 	const needsManualLogin = await Promise.race([
 		sdkPopup
-			.waitForURL('**/accounts.google.com/**', { timeout: 30_000 })
+			.waitForURL((url) => isGoogleDomain(url.hostname), { timeout: 30_000 })
 			.then(() => true),
 		sdkPopup
-			.waitForURL(
-				(url) =>
-					url.origin === scwOrigin &&
-					(url.pathname.includes('/connect-wallet') ||
-						url.pathname.includes('/link-eoa')),
-				{ timeout: 30_000 },
-			)
+			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin), {
+				timeout: 30_000,
+			})
 			.then(() => false),
 	])
 
