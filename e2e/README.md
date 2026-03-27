@@ -38,7 +38,45 @@ Copy `.env.example` to `.env` and fill in:
 | `GOOGLE_TOTP_SECRET` | No | Base32 TOTP secret for 2FA |
 | `WALLET_SEED` | Yes (EOA) | MetaMask seed phrase for EOA tests |
 | `EOA_LINKED_WALLET_SEED` | Yes (EOA Required) | MetaMask seed phrase for EOA Required onboarding tests |
+| `GOOGLE_SESSION_STATE` | No | Google session cookies JSON (see below) |
 | `SKIP_GOOGLE_OAUTH` | No | Set `true` to skip Google tests |
+
+### Google Session State (`GOOGLE_SESSION_STATE`)
+
+Google blocks automated sign-ins from unknown IPs by showing a "Verify it's you" challenge (SMS/phone verification instead of TOTP). Since GitHub Actions runners use different IPs on every run, CI tests fail consistently.
+
+`GOOGLE_SESSION_STATE` injects Google's authentication cookies (SID, HSID, etc.) into the browser context. Google recognizes these cookies and skips the "Verify it's you" challenge, allowing the normal TOTP-based login to proceed.
+
+**How it works:**
+- When set: Google auto-authenticates via cookies → login form is skipped entirely
+- When not set: Normal login flow runs (email → password → TOTP)
+
+**Generating the session:**
+
+```bash
+# 1. Start the testapp
+cd examples/testapp && pnpm dev
+
+# 2. Run the session save script (opens a browser for manual login)
+cd e2e && pnpm save:google-session
+
+# 3. Filter to Google cookies only and copy to clipboard
+cat google-session.json | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+filtered = {'cookies': [c for c in d['cookies'] if c.get('domain','').endswith('google.com') or c.get('domain','').endswith('google.com.sg')], 'origins': []}
+print(json.dumps(filtered))
+" | pbcopy
+```
+
+**For CI:** Paste the filtered JSON into GitHub Secret `GOOGLE_SESSION_STATE`.
+
+**For local testing:** Add to `e2e/.env`:
+```
+GOOGLE_SESSION_STATE=<filtered JSON>
+```
+
+> **Note:** Google session cookies will be expired some times in the future. Re-run `save:google-session` if tests start failing with "Verify it's you" again.
 
 ## Test Inventory
 

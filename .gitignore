@@ -70,3 +70,4 @@ report/
 .playwright-mcp/
 .mcp.json
 docs/
+google-session.json

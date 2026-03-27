@@ -5,7 +5,7 @@ import { FunctionComponent, render } from 'preact'
 
 import { getDisplayableUsername } from ':core/username/getDisplayableUsername.js'
 import { store } from ':store/store.js'
-import { BaseLogo } from ':ui/assets/BaseLogo.js'
+import { StartaleLogo } from ':ui/assets/StartaleLogo.js'
 import { useEffect, useMemo, useState } from 'preact/hooks'
 import css from './Dialog-css.js'
 
@@ -223,7 +223,7 @@ export const DialogInstance: FunctionComponent<DialogInstanceProps> = ({
 	}, [])
 
 	const headerTitle = useMemo(() => {
-		return username ? `Signed in as ${username}` : 'Base Account'
+		return username ? `Signed in as ${username}` : 'Startale App'
 	}, [username])
 
 	const shouldShowHeaderTitle = !isLoadingUsername
@@ -237,7 +237,7 @@ export const DialogInstance: FunctionComponent<DialogInstanceProps> = ({
 		>
 			<div class="-base-acc-sdk-dialog-instance-header">
 				<div class="-base-acc-sdk-dialog-instance-header-icon-and-title">
-					<BaseLogo fill="blue" />
+					<StartaleLogo />
 					{shouldShowHeaderTitle && (
 						<div class="-base-acc-sdk-dialog-instance-header-icon-and-title-title">
 							{headerTitle}
