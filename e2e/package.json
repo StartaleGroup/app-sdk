@@ -3,7 +3,8 @@
 	"private": true,
 	"dependencies": {
 		"dotenv": "^16.6.0",
-		"otpauth": "^9.0.0"
+		"otpauth": "^9.0.0",
+		"viem": "^2.47.6"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",

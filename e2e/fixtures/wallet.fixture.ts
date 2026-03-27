@@ -45,6 +45,17 @@ export const createWalletFixture = (seedEnvVar: string) =>
 					headless: false,
 				})
 
+				// Prevent Google bot detection. Dappwright launches Chromium
+				// without --disable-blink-features=AutomationControlled
+				// (unlike Playwright's launchOptions in playwright.config.ts),
+				// so navigator.webdriver defaults to true. Override it via
+				// initScript to match the google-chromium project behavior.
+				await context.addInitScript(() => {
+					Object.defineProperty(navigator, 'webdriver', {
+						get: () => false,
+					})
+				})
+
 				const wallet = await getWallet('metamask', context)
 				await wallet
 					.addNetwork({

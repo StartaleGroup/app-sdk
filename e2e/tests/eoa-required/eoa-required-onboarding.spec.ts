@@ -1,9 +1,11 @@
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
 
 const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
+import { mnemonicToAccount } from 'viem/accounts'
+
 import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
 import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
@@ -12,11 +14,12 @@ import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
 
 /**
- * Expected EOA wallet address derived from EOA_LINKED_WALLET_SEED.
- * Used to verify that eth_requestAccounts returns the correct address
- * after the MetaMask wallet linking flow completes.
+ * Derive the expected EOA wallet address from EOA_LINKED_WALLET_SEED.
+ * Uses the same HD path as MetaMask (m/44'/60'/0'/0/0).
  */
-const EXPECTED_EOA_ADDRESS = '0x10D37b2c87029b3650D798fCD6f756AbA04f4133'
+const EXPECTED_EOA_ADDRESS = mnemonicToAccount(
+	process.env.EOA_LINKED_WALLET_SEED!,
+).address
 
 /**
  * Wait for SDK popup to reach /connect-wallet and click Approve.
@@ -29,20 +32,15 @@ const approveConnection = async (sdkPopup: Page): Promise<void> => {
 }
 
 /**
- * Disconnect any previously linked EOA wallet from Super App.
- * Assumes the page is already on the /wallets page.
- * Returns true if a wallet was disconnected, false if none found.
+ * Disconnect a single linked wallet from Super App.
+ * Assumes the page is on /wallets and the wallet row is visible.
+ * Clicks the wallet row → "Disconnect wallet" → confirm dialog.
  */
-const disconnectEOAWalletIfLinked = async (page: Page): Promise<boolean> => {
-	// Wait for wallet list to fully render (Smart Wallet is always present)
-	await expect(page.getByText('Smart Wallet')).toBeVisible({ timeout: 5_000 })
-
-	const eoaWallet = page.getByText('EOA wallet', { exact: true })
-	const isVisible = await eoaWallet.isVisible().catch(() => false)
-	if (!isVisible) return false
-
-	// Click EOA wallet row → edit page
-	await eoaWallet.click()
+const disconnectOneLinkedWallet = async (
+	page: Page,
+	walletLocator: ReturnType<Page['locator']>,
+): Promise<void> => {
+	await walletLocator.click()
 
 	// Click "Disconnect wallet" on edit page to open confirmation dialog
 	await page.getByText('Disconnect wallet').first().click()
@@ -54,10 +52,32 @@ const disconnectEOAWalletIfLinked = async (page: Page): Promise<boolean> => {
 
 	// Wait for dialog to close (SPA navigation back to wallet list)
 	await expect(confirmButton).not.toBeVisible()
+}
 
-	// Verify EOA wallet was removed from the list
-	await expect(page.getByText('EOA wallet', { exact: true })).not.toBeVisible()
-	return true
+/**
+ * Disconnect all linked wallets from Super App.
+ * Assumes the page is already on the /wallets page.
+ * Handles both "EOA wallet" and "MetaMask" labels, and loops
+ * until all linked wallets are removed.
+ * Returns the number of wallets disconnected.
+ */
+const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
+	// Wait for wallet list to fully render (Smart Wallet is always present)
+	await expect(page.getByText('Smart Wallet')).toBeVisible({ timeout: 5_000 })
+
+	// Match linked wallets by either name
+	const linkedWallet = page
+		.getByText('EOA wallet', { exact: true })
+		.or(page.getByText('MetaMask', { exact: true }))
+
+	let disconnected = 0
+
+	while (await linkedWallet.first().isVisible().catch(() => false)) {
+		await disconnectOneLinkedWallet(page, linkedWallet.first())
+		disconnected++
+	}
+
+	return disconnected
 }
 
 /**
@@ -85,8 +105,8 @@ const cleanupStaleEOAWallet = async (page: Page): Promise<void> => {
 
 	if (!hasSession) return
 
-	// Session exists — check for stale EOA wallet and disconnect if found
-	await disconnectEOAWalletIfLinked(page)
+	// Session exists — disconnect any stale linked wallets from previous runs
+	await disconnectAllLinkedWallets(page)
 }
 
 /**
@@ -112,8 +132,47 @@ test.describe('EOA Required — Onboarding', () => {
 
 	let page: Page
 
-	test.beforeAll(async ({ page: fixturedPage }) => {
+	test.beforeAll(async ({ page: fixturedPage, context }) => {
 		page = fixturedPage
+
+		// Inject Google session cookies via CDP to bypass Google's "Verify
+		// it's you" challenge. context.addCookies() does not work reliably
+		// with dappwright's persistent browser context (launchPersistentContext),
+		// so we use Chrome DevTools Protocol to set cookies directly.
+		const googleSession = process.env.GOOGLE_SESSION_STATE
+			? JSON.parse(process.env.GOOGLE_SESSION_STATE)
+			: undefined
+
+		if (googleSession?.cookies) {
+			const isGoogleDomain = (domain: string) =>
+				domain === 'google.com' ||
+				domain.endsWith('.google.com') ||
+				domain === 'accounts.google.com' ||
+				domain.endsWith('.google.com.sg')
+
+			const googleCookies = googleSession.cookies.filter(
+				(c: { domain: string }) => isGoogleDomain(c.domain),
+			)
+
+			if (googleCookies.length > 0) {
+				const cdp = await context.newCDPSession(page)
+				await cdp.send('Network.setCookies', {
+					cookies: googleCookies.map(
+						(c: Record<string, unknown>) => ({
+							name: c.name,
+							value: c.value,
+							domain: c.domain,
+							path: c.path || '/',
+							secure: c.secure ?? true,
+							httpOnly: c.httpOnly ?? false,
+							sameSite: c.sameSite || 'None',
+							expires: c.expires ?? -1,
+						}),
+					),
+				})
+				await cdp.detach()
+			}
+		}
 
 		// Clean up any stale linked wallet from a previous failed run
 		await cleanupStaleEOAWallet(page)
@@ -140,12 +199,16 @@ test.describe('EOA Required — Onboarding', () => {
 		// After Google OAuth: either /link-eoa (fresh) or /connect-wallet (dirty state).
 		// Dirty state occurs when a previous attempt already linked the wallet
 		// on the backend but the test failed before completing.
-		const reachedLinkEOA = await sdkPopup
-			.waitForURL((url) => url.pathname.includes('/link-eoa'), {
-				timeout: 5_000,
-			})
-			.then(() => true)
-			.catch(() => false)
+		// Wait for the SPA to settle on a final page — the popup lands on "/"
+		// first, then client-side routing redirects to the actual destination.
+		const reachedLinkEOA = await Promise.race([
+			sdkPopup
+				.waitForURL((url) => url.pathname.includes('/link-eoa'))
+				.then(() => true),
+			sdkPopup
+				.waitForURL((url) => url.pathname.includes('/connect-wallet'))
+				.then(() => false),
+		])
 
 		if (reachedLinkEOA) {
 			await linkEOAWallet(sdkPopup)
@@ -170,21 +233,27 @@ test.describe('EOA Required — Onboarding', () => {
 	test('should return EOA wallet address from eth_requestAccounts', async () => {
 		const ethRequestAccounts = rpcMethodCard(page, 'eth_requestAccounts')
 		const response = await ethRequestAccounts.getResponse()
-		expect(response).toContain(EXPECTED_EOA_ADDRESS)
+		expect(response?.toLowerCase()).toContain(
+			EXPECTED_EOA_ADDRESS.toLowerCase(),
+		)
 	})
 
 	test('should show linked EOA wallet on Super App wallets page', async () => {
 		await page.goto(`${SCW_URL}wallets`)
 
 		await expect(page.getByText('Linked wallets')).toBeVisible()
-		await expect(page.getByText('EOA wallet')).toBeVisible()
+		// Super App may label the wallet as "EOA wallet" or "MetaMask"
+		const linkedWallet = page
+			.getByText('EOA wallet', { exact: true })
+			.or(page.getByText('MetaMask', { exact: true }))
+		await expect(linkedWallet.first()).toBeVisible()
 	})
 
 	test('should disconnect EOA wallet from Super App', async () => {
 		await page.goto(`${SCW_URL}wallets`)
 		await expect(page.getByText('Linked wallets')).toBeVisible()
 
-		const disconnected = await disconnectEOAWalletIfLinked(page)
-		expect(disconnected).toBe(true)
+		const disconnected = await disconnectAllLinkedWallets(page)
+		expect(disconnected).toBeGreaterThan(0)
 	})
 })

@@ -108,20 +108,51 @@ export const loginWithGoogle = async (
 
 	// After clicking Google, the popup navigates to accounts.google.com.
 	// If session cookies are present (GOOGLE_SESSION_STATE), Google may
-	// auto-authenticate and redirect back to SCW so fast that we never
-	// see accounts.google.com as the current URL. Race both possibilities.
-	const emailInput = sdkPopup.locator('input[type="email"]')
+	// auto-authenticate and redirect: SCW login → Google → SCW /connect-wallet.
+	//
+	// IMPORTANT: Race against specific post-auth SCW paths, not scwOrigin/*.
+	// The popup STARTS on an SCW URL (the login page), so a generic scwOrigin
+	// match would resolve immediately before navigation even begins.
 	const needsManualLogin = await Promise.race([
-		emailInput
-			.waitFor({ state: 'visible', timeout: 30_000 })
+		sdkPopup
+			.waitForURL('**/accounts.google.com/**', { timeout: 30_000 })
 			.then(() => true),
 		sdkPopup
-			.waitForURL(`${scwOrigin}/**`, { timeout: 30_000 })
+			.waitForURL(
+				(url) =>
+					url.origin === scwOrigin &&
+					(url.pathname.includes('/connect-wallet') ||
+						url.pathname.includes('/link-eoa')),
+				{ timeout: 30_000 },
+			)
 			.then(() => false),
 	])
 
 	if (needsManualLogin) {
-		await completeGoogleOAuthForm(sdkPopup, email, password)
+		// Google may show two different pages:
+		// 1. Account chooser (/accountchooser) — session cookies exist but
+		//    expired ("Signed out"). Click the account row to skip email entry.
+		// 2. Email form (/identifier) — no session cookies, full login needed.
+		const isAccountChooser = sdkPopup
+			.url()
+			.includes('/accountchooser')
+
+		if (isAccountChooser) {
+			// Click the test account to proceed to password entry
+			await sdkPopup.getByText(email).click()
+
+			const passwordInput = sdkPopup.locator('input[name="Passwd"]')
+			await passwordInput.waitFor({ state: 'visible' })
+			await passwordInput.pressSequentially(password, { delay: 100 })
+			await sdkPopup.getByRole('button', { name: /Next/i }).click()
+
+			if (process.env.GOOGLE_TOTP_SECRET) {
+				await handle2FA(sdkPopup)
+			}
+		} else {
+			await completeGoogleOAuthForm(sdkPopup, email, password)
+		}
+
 		await sdkPopup.waitForURL(`${scwOrigin}/**`)
 	}
 
