@@ -5,6 +5,12 @@ import { BASE_URL } from './lib/constants.js'
 
 loadEnv()
 
+// Shared launch options for projects that need Google bot detection bypass.
+// Prevents Chrome from setting navigator.webdriver=true.
+const antiDetectionLaunchOptions = {
+	args: ['--disable-blink-features=AutomationControlled'],
+}
+
 export default defineConfig({
 	testDir: '.',
 	fullyParallel: false,
@@ -48,11 +54,15 @@ export default defineConfig({
 			testMatch: /google\/.*\.spec\.ts/,
 			use: {
 				...devices['Desktop Chrome'],
-				launchOptions: {
-					// Prevent Chrome from setting navigator.webdriver=true,
-					// which Google uses to detect browser automation (bot detection bypass).
-					args: ['--disable-blink-features=AutomationControlled'],
-				},
+				launchOptions: antiDetectionLaunchOptions,
+			},
+		},
+		{
+			name: 'eoa-required-chromium',
+			testMatch: /eoa-required\/.*\.spec\.ts/,
+			use: {
+				...devices['Desktop Chrome'],
+				launchOptions: antiDetectionLaunchOptions,
 			},
 		},
 	],

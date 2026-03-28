@@ -16,11 +16,13 @@ pnpm test              # All tests (headed)
 pnpm test:smoke        # Smoke tests only
 pnpm test:google       # Google OAuth + RPC method tests
 pnpm test:eoa          # MetaMask EOA tests
+pnpm test:eoa-required # EOA Required onboarding tests
 # CI (without --headed flag)
 pnpm test:ci           # All tests
 pnpm test:ci:smoke     # Smoke tests only
 pnpm test:ci:google    # Google OAuth tests
 pnpm test:ci:eoa       # MetaMask EOA tests
+pnpm test:ci:eoa-required # EOA Required tests
 ```
 
 > **Note:** EOA tests use dappwright which forces `headless: false` internally, so they always run in headed mode regardless of the `--headed` flag.
@@ -35,18 +37,21 @@ Copy `.env.example` to `.env` and fill in:
 | `GOOGLE_TEST_PASSWORD` | Yes (Google) | Google test account password |
 | `GOOGLE_TOTP_SECRET` | No | Base32 TOTP secret for 2FA |
 | `WALLET_SEED` | Yes (EOA) | MetaMask seed phrase for EOA tests |
-| `GOOGLE_SESSION_STATE` | No | Google session cookies JSON (see below) |
+| `EOA_LINKED_WALLET_SEED` | Yes (EOA Required) | MetaMask seed phrase for EOA Required onboarding tests |
+| `GOOGLE_SESSION_STATE` | Recommended | Google session cookies JSON — bypasses login form and "Verify it's you" challenges (see below) |
 | `SKIP_GOOGLE_OAUTH` | No | Set `true` to skip Google tests |
 
 ### Google Session State (`GOOGLE_SESSION_STATE`)
 
-Google blocks automated sign-ins from unknown IPs by showing a "Verify it's you" challenge (SMS/phone verification instead of TOTP). Since GitHub Actions runners use different IPs on every run, CI tests fail consistently.
+**Strongly recommended for both CI and local testing.**
 
-`GOOGLE_SESSION_STATE` injects Google's authentication cookies (SID, HSID, etc.) into the browser context. Google recognizes these cookies and skips the "Verify it's you" challenge, allowing the normal TOTP-based login to proceed.
+Google blocks automated sign-ins from unknown IPs by showing a "Verify it's you" challenge (SMS/phone verification instead of TOTP). Since GitHub Actions runners use different IPs on every run, and local environments can also trigger bot detection (`navigator.webdriver`), tests fail without pre-authenticated session cookies.
+
+`GOOGLE_SESSION_STATE` injects Google's authentication cookies (SID, HSID, etc.) into the browser context before any test navigates to Google. Google recognizes these cookies and auto-authenticates — the entire login form (email, password, TOTP, "Verify it's you") is bypassed.
 
 **How it works:**
-- When set: Google auto-authenticates via cookies → login form is skipped entirely
-- When not set: Normal login flow runs (email → password → TOTP)
+- When set: Google auto-authenticates via cookies → login form is skipped entirely (recommended)
+- When not set: Full login flow runs (email → password → TOTP) — may fail due to bot detection or IP-based challenges
 
 **Generating the session:**
 
@@ -73,7 +78,7 @@ print(json.dumps(filtered))
 GOOGLE_SESSION_STATE=<filtered JSON>
 ```
 
-> **Note:** Google session cookies will be expired some times in the future. Re-run `save:google-session` if tests start failing with "Verify it's you" again.
+> **Note:** Google session cookies expire periodically. Re-run `save:google-session` if tests start failing with "Verify it's you", account chooser showing "Signed out", or the Google login form appearing unexpectedly.
 
 ## Test Inventory
 
@@ -82,6 +87,7 @@ GOOGLE_SESSION_STATE=<filtered JSON>
 **Auth column legend:**
 - `Google` — requires Google OAuth login (serial, shared context)
 - `EOA` — requires MetaMask via dappwright
+- `EOA Required` — requires Google OAuth + MetaMask (EOA wallet linking)
 - `No` — no authentication required
 
 ### Smoke Tests (`tests/smoke/dashboard-loads.spec.ts`)
@@ -115,7 +121,18 @@ All tests run in serial mode within a single browser context. Google login is pe
 | 11 | eth_getBalance — error on invalid address | Google |
 | 12 | eth_getTransactionCount — error on invalid address | Google |
 
-**Total: 3 spec files, 12 tests**
+### EOA Required Onboarding (`tests/eoa-required/eoa-required-onboarding.spec.ts`)
+
+Tests the full EOA Required lifecycle: Google OAuth login, MetaMask wallet linking via Dynamic Auth, address verification, and wallet disconnect. Uses a dedicated `EOA_LINKED_WALLET_SEED` (separate from `WALLET_SEED`).
+
+| # | Test | Auth |
+|--:|------|:----:|
+| 13 | should complete EOA required onboarding with Google + MetaMask | EOA Required |
+| 14 | should return EOA wallet address from eth_requestAccounts | EOA Required |
+| 15 | should show linked EOA wallet on Super App wallets page | EOA Required |
+| 16 | should disconnect EOA wallet from Super App | EOA Required |
+
+**Total: 4 spec files, 16 tests**
 
 ## Directory Structure
 
@@ -124,6 +141,8 @@ e2e/
 ├── tests/
 │   ├── eoa/
 │   │   └── rpc-methods.spec.ts            # MetaMask EOA connect + personal_sign
+│   ├── eoa-required/
+│   │   └── eoa-required-onboarding.spec.ts # EOA Required onboarding lifecycle
 │   ├── google/
 │   │   └── rpc-methods.spec.ts            # Google OAuth + all RPC method tests
 │   └── smoke/
@@ -132,13 +151,14 @@ e2e/
 │   ├── dashboardPage.ts                   # Dashboard section selectors (data-testid)
 │   └── rpcMethodCard.ts                   # RPC method card selectors & actions
 ├── fixtures/
-│   └── wallet.fixture.ts                  # dappwright MetaMask fixture (worker-scoped)
+│   └── wallet.fixture.ts                  # dappwright MetaMask fixture (worker-scoped, parameterized)
 ├── lib/
 │   ├── constants.ts                       # Routes, timeouts, chain config
 │   ├── helpers.ts                         # Popup handling, SDK approval helpers
 │   └── auth/
 │       ├── google-oauth.ts                # Google OAuth + TOTP 2FA automation
-│       └── metamask-eoa.ts               # MetaMask/dappwright EOA login
+│       ├── metamask-eoa.ts               # MetaMask/dappwright EOA login
+│       └── eoa-required-onboarding.ts    # MetaMask wallet linking for EOA Required
 ├── playwright.config.ts
 ├── .env.example
 └── README.md

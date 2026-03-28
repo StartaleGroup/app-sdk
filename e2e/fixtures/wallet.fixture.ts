@@ -4,6 +4,9 @@
  * Provides a worker-scoped wallet context for MetaMask E2E tests.
  * Overrides built-in `page` fixture as worker-scoped so that serial
  * tests share the same page instance and preserve authentication state.
+ *
+ * Use `createWalletFixture` to create a fixture with a custom seed env var.
+ * The default export uses WALLET_SEED.
  */
 
 import { test as base, type BrowserContext, type Page } from '@playwright/test'
@@ -20,75 +23,100 @@ import { injectSCWUrl } from '../lib/helpers.js'
 // Enable Playwright to attach to Chrome side panel (required for MetaMask 13+)
 process.env.PW_CHROMIUM_ATTACH_TO_OTHER = '1'
 
-export const test = base.extend<
-	{ wallet: Dappwright; page: Page },
-	{ walletContext: BrowserContext; workerPage: Page }
->({
-	walletContext: [
-		async ({}, use) => {
-			const seedPhrase = process.env.WALLET_SEED
-			if (!seedPhrase) throw new Error('WALLET_SEED env var required')
-			const [, , context] = await bootstrap('', {
-				wallet: 'metamask',
-				version: MetaMaskWallet.recommendedVersion,
-				seed: seedPhrase,
-				headless: false,
-			})
-
-			const wallet = await getWallet('metamask', context)
-			// addNetwork may fail if network already exists or MetaMask UI is unstable
-			await wallet
-				.addNetwork({
-					networkName: SONEIUM_CHAIN.networkName,
-					rpc: SONEIUM_CHAIN.rpc,
-					chainId: SONEIUM_CHAIN.chainId,
-					symbol: SONEIUM_CHAIN.symbol,
+/**
+ * Create a wallet fixture that reads the seed from the given env var.
+ * Allows different test suites to use different MetaMask wallets
+ * (e.g. WALLET_SEED for EOA tests, EOA_LINKED_WALLET_SEED for EOA Required).
+ */
+export const createWalletFixture = (seedEnvVar: string) =>
+	base.extend<
+		{ wallet: Dappwright; page: Page },
+		{ walletContext: BrowserContext; workerPage: Page }
+	>({
+		walletContext: [
+			async ({}, use) => {
+				const seedPhrase = process.env[seedEnvVar]
+				if (!seedPhrase)
+					throw new Error(`${seedEnvVar} env var required`)
+				const [, , context] = await bootstrap('', {
+					wallet: 'metamask',
+					version: MetaMaskWallet.recommendedVersion,
+					seed: seedPhrase,
+					headless: false,
 				})
-				.catch(() => {})
-			await wallet.switchNetwork(SONEIUM_CHAIN.networkName).catch((err) => {
-				console.warn('[wallet.fixture] switchNetwork failed:', err?.message)
-			})
 
-			await use(context)
-			await context.close()
+				// Prevent Google bot detection. Dappwright launches Chromium
+				// without --disable-blink-features=AutomationControlled
+				// (unlike Playwright's launchOptions in playwright.config.ts),
+				// so navigator.webdriver defaults to true. Override it via
+				// initScript to match the google-chromium project behavior.
+				await context.addInitScript(() => {
+					Object.defineProperty(navigator, 'webdriver', {
+						get: () => false,
+					})
+				})
+
+				const wallet = await getWallet('metamask', context)
+				await wallet
+					.addNetwork({
+						networkName: SONEIUM_CHAIN.networkName,
+						rpc: SONEIUM_CHAIN.rpc,
+						chainId: SONEIUM_CHAIN.chainId,
+						symbol: SONEIUM_CHAIN.symbol,
+					})
+					.catch(() => {})
+				await wallet
+					.switchNetwork(SONEIUM_CHAIN.networkName)
+					.catch((err) => {
+						console.warn(
+							`[wallet.fixture/${seedEnvVar}] switchNetwork failed:`,
+							err?.message,
+						)
+					})
+
+				await use(context)
+				await context.close()
+			},
+			{ scope: 'worker' },
+		],
+
+		workerPage: [
+			async ({ walletContext }, use) => {
+				const page = await walletContext.newPage()
+				const originalGoto = page.goto.bind(page)
+				page.goto = (
+					url: string,
+					options?: Parameters<Page['goto']>[1],
+				) => {
+					const resolvedUrl = url.startsWith('/')
+						? `${BASE_URL}${url}`
+						: url
+					return originalGoto(resolvedUrl, options)
+				}
+
+				await injectSCWUrl(page)
+
+				await use(page)
+				await page.close()
+			},
+			{ scope: 'worker' },
+		],
+
+		page: async ({ workerPage }, use) => {
+			await use(workerPage)
 		},
-		{ scope: 'worker' },
-	],
 
-	// Worker-scoped page created from dappwright context.
-	// Serial tests share this instance to preserve authentication state.
-	workerPage: [
-		async ({ walletContext }, use) => {
-			const page = await walletContext.newPage()
-			const originalGoto = page.goto.bind(page)
-			// dappwright context does not inherit Playwright's baseURL — patch goto
-			// so relative URLs are resolved against BASE_URL, matching default behavior.
-			page.goto = (url: string, options?: Parameters<Page['goto']>[1]) => {
-				const resolvedUrl = url.startsWith('/') ? `${BASE_URL}${url}` : url
-				return originalGoto(resolvedUrl, options)
-			}
-
-			await injectSCWUrl(page)
-
-			await use(page)
-			await page.close()
+		context: async ({ walletContext }, use) => {
+			await use(walletContext)
 		},
-		{ scope: 'worker' },
-	],
 
-	// Override built-in page to expose the worker-scoped workerPage.
-	page: async ({ workerPage }, use) => {
-		await use(workerPage)
-	},
+		wallet: async ({ walletContext }, use) => {
+			const w = await getWallet('metamask', walletContext)
+			await use(w)
+		},
+	})
 
-	context: async ({ walletContext }, use) => {
-		await use(walletContext)
-	},
-
-	wallet: async ({ walletContext }, use) => {
-		const w = await getWallet('metamask', walletContext)
-		await use(w)
-	},
-})
+/** Default wallet fixture using WALLET_SEED */
+export const test = createWalletFixture('WALLET_SEED')
 
 export { expect } from '@playwright/test'

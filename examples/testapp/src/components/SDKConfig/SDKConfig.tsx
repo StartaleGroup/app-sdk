@@ -140,6 +140,7 @@ export function SDKConfig() {
 					<Box>
 						<FormControl mt={2}>
 							<Switch
+								data-testid="switch-eoa-required"
 								isChecked={config.eoaRequired ?? false}
 								onChange={handleSetEoaRequired}
 							/>

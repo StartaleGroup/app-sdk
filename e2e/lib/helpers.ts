@@ -3,6 +3,66 @@ import type { Page } from '@playwright/test'
 import { SCW_URL } from './constants.js'
 
 /**
+ * Check if a cookie domain belongs to Google.
+ * Used to filter Google session cookies from GOOGLE_SESSION_STATE.
+ * Covers known Google TLDs observed in session cookies (.google.com, .google.com.sg).
+ */
+export const isGoogleDomain = (domain: string): boolean =>
+	domain === 'google.com' ||
+	domain.endsWith('.google.com') ||
+	domain.endsWith('.google.com.sg')
+
+export type SessionCookie = {
+	name: string
+	value: string
+	domain: string
+	path: string
+	expires: number
+	httpOnly: boolean
+	secure: boolean
+	sameSite: 'None' | 'Strict' | 'Lax'
+}
+
+/**
+ * Parse GOOGLE_SESSION_STATE env var and return all cookies.
+ * Returns undefined when the env var is not set or contains invalid JSON.
+ */
+export const parseAllSessionCookies = (): SessionCookie[] | undefined => {
+	if (!process.env.GOOGLE_SESSION_STATE) return undefined
+
+	// CI secret — shape is controlled by save-google-session.ts output.
+	// Wrap in try-catch to surface clear errors on malformed JSON
+	// instead of crashing during beforeAll setup.
+	let session: { cookies?: SessionCookie[] } | undefined
+	try {
+		session = JSON.parse(process.env.GOOGLE_SESSION_STATE) as
+			| { cookies?: SessionCookie[] }
+			| undefined
+	} catch {
+		console.warn(
+			'[parseAllSessionCookies] GOOGLE_SESSION_STATE contains invalid JSON',
+		)
+		return undefined
+	}
+
+	if (!session?.cookies || !Array.isArray(session.cookies)) {
+		console.warn(
+			'[parseAllSessionCookies] GOOGLE_SESSION_STATE does not contain a valid cookies array',
+		)
+		return undefined
+	}
+
+	return session.cookies
+}
+
+/**
+ * Parse GOOGLE_SESSION_STATE env var and return only Google cookies.
+ * Returns undefined when the env var is not set.
+ */
+export const parseGoogleSessionCookies = (): SessionCookie[] | undefined =>
+	parseAllSessionCookies()?.filter((c) => isGoogleDomain(c.domain))
+
+/**
  * Inject SCW_URL into testapp localStorage so ConfigContextProvider
  * uses the correct wallet URL on mount. No-op when SCW_URL is not set.
  */
@@ -65,14 +125,11 @@ export const approveSDKPopup = async (popup: Page): Promise<void> => {
 
 	const result = await Promise.race([popupClosed, buttonReady])
 
-	if (result === 'clicked') {
-		if (!popup.isClosed()) {
-			await popupClosed
-		}
-	}
 	// 'closed': popup auto-closed (SDK handled it, e.g. auto-sign)
 	// 'button-failed' with closed popup: same as above
-	if (result === 'button-failed' && !popup.isClosed()) {
+	if (result === 'clicked' && !popup.isClosed()) {
+		await popupClosed
+	} else if (result === 'button-failed' && !popup.isClosed()) {
 		throw new Error(
 			'SDK popup action button (Sign/Approve/Confirm/Send) not found while popup is still open',
 		)
