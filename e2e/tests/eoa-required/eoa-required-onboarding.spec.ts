@@ -20,19 +20,18 @@ const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 
 /**
  * Derive the expected EOA wallet address from EOA_LINKED_WALLET_SEED.
- * Explicitly uses MetaMask's default HD path (m/44'/60'/0'/0/0).
+ * Uses `mnemonicToAccount`'s default derivation path (currently MetaMask's
+ * default HD path m/44'/60'/0'/0/0).
  * Lazily evaluated on first access to avoid crashing other test suites
  * when EOA_LINKED_WALLET_SEED is not set.
  */
-const getExpectedEOAAddress = (): string => {
-	const seed = process.env.EOA_LINKED_WALLET_SEED
-	if (!seed) throw new Error('EOA_LINKED_WALLET_SEED env var is required')
-	return mnemonicToAccount(seed).address
-}
-
 let _expectedEOAAddress: string | undefined
-const EXPECTED_EOA_ADDRESS = (): string => {
-	if (!_expectedEOAAddress) _expectedEOAAddress = getExpectedEOAAddress()
+const expectedEoaAddress = (): string => {
+	if (!_expectedEOAAddress) {
+		const seed = process.env.EOA_LINKED_WALLET_SEED
+		if (!seed) throw new Error('EOA_LINKED_WALLET_SEED env var is required')
+		_expectedEOAAddress = mnemonicToAccount(seed).address
+	}
 	return _expectedEOAAddress
 }
 
@@ -53,7 +52,7 @@ const approveConnection = async (sdkPopup: Page): Promise<void> => {
 
 const hasExpectedEOAAddress = (accounts: string[]): boolean =>
 	accounts.some(
-		(account) => account.toLowerCase() === EXPECTED_EOA_ADDRESS().toLowerCase(),
+		(account) => account.toLowerCase() === expectedEoaAddress().toLowerCase(),
 	)
 
 const formatAccounts = (accounts: string[]): string =>
@@ -441,7 +440,7 @@ const ensureExpectedEOAConnected = async (
 	if (hasExpectedEOAAddress(connectedAccounts)) return
 
 	throw new Error(
-		`EOA Required onboarding connected an unexpected wallet. Expected ${EXPECTED_EOA_ADDRESS().toLowerCase()}, received ${formatAccounts(connectedAccounts).toLowerCase()}`,
+		`EOA Required onboarding connected an unexpected wallet. Expected ${expectedEoaAddress().toLowerCase()}, received ${formatAccounts(connectedAccounts).toLowerCase()}`,
 	)
 }
 
@@ -515,7 +514,7 @@ test.describe('EOA Required — Onboarding', () => {
 	test('should return EOA wallet address from eth_requestAccounts', async () => {
 		const accounts = await requestConnectedAccounts(page)
 		expect(accounts.map((account) => account.toLowerCase())).toContain(
-			EXPECTED_EOA_ADDRESS().toLowerCase(),
+			expectedEoaAddress().toLowerCase(),
 		)
 	})
 
