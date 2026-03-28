@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 import * as OTPAuth from 'otpauth'
 
 import { SCW_URL } from '../constants.js'
@@ -194,6 +194,15 @@ const isPostAuthSCWPath = (url: URL, scwOrigin: string): boolean =>
 	(url.pathname.includes('/connect-wallet') ||
 		url.pathname.includes('/link-eoa'))
 
+/**
+ * Locator for the Google sign-in button on the SDK popup.
+ * The button text varies by page: "Log in with Google" (login) or "Google" (sign up).
+ */
+const getGoogleSignInButton = (page: Page): Locator =>
+	page
+		.getByRole('button', { name: 'Log in with Google' })
+		.or(page.getByRole('button', { name: 'Google' }))
+
 const resolveOAuthEntryState = async (
 	sdkPopup: Page,
 	scwOrigin: string,
@@ -202,11 +211,9 @@ const resolveOAuthEntryState = async (
 	if (isPostAuthSCWPath(currentUrl, scwOrigin)) return 'post-auth'
 	if (isGoogleDomain(currentUrl.hostname)) return 'google'
 
-	const googleButton = sdkPopup
-		.getByRole('button', { name: 'Log in with Google' })
-		.or(sdkPopup.getByRole('button', { name: 'Google' }))
+	const googleButton = getGoogleSignInButton(sdkPopup)
 
-	const entryState = await Promise.race([
+	return Promise.race([
 		googleButton
 			.waitFor({ state: 'visible' })
 			.then(() => 'login' as const),
@@ -226,8 +233,6 @@ const resolveOAuthEntryState = async (
 			`Unable to determine Google OAuth entry state from popup URL: ${sdkPopup.url()}`,
 		)
 	})
-
-	return entryState
 }
 
 const waitForGoogleAuthPage = async (
@@ -333,12 +338,7 @@ export const loginWithGoogle = async (
 	let needsManualLogin = entryState === 'google'
 
 	if (entryState === 'login') {
-		// Click the Google sign-in button. The button text varies by page:
-		// - Login page: "Log in with Google"
-		// - Sign up page: "Google"
-		const googleButton = sdkPopup
-			.getByRole('button', { name: 'Log in with Google' })
-			.or(sdkPopup.getByRole('button', { name: 'Google' }))
+		const googleButton = getGoogleSignInButton(sdkPopup)
 		const nextState = waitForGoogleAuthPage(sdkPopup, scwOrigin)
 		await googleButton.click()
 		const result = await nextState
@@ -355,14 +355,19 @@ export const loginWithGoogle = async (
 			scwOrigin,
 		)
 
-		if (manualLoginState === 'chooser') {
-			await continueFromAccountChooser(authPage, email, password, scwOrigin)
-		} else if (manualLoginState === 'password') {
-			await enterPasswordAndHandle2FA(authPage, password)
-		} else if (manualLoginState === 'email') {
-			await completeGoogleOAuthForm(authPage, email, password)
-		} else if (manualLoginState === 'complete' && authPage !== sdkPopup) {
-			await authPage.close().catch(() => {})
+		switch (manualLoginState) {
+			case 'chooser':
+				await continueFromAccountChooser(authPage, email, password, scwOrigin)
+				break
+			case 'password':
+				await enterPasswordAndHandle2FA(authPage, password)
+				break
+			case 'email':
+				await completeGoogleOAuthForm(authPage, email, password)
+				break
+			case 'complete':
+				if (authPage !== sdkPopup) await authPage.close().catch(() => {})
+				break
 		}
 
 		await waitForPostGoogleAuthState(sdkPopup, authPage, scwOrigin)

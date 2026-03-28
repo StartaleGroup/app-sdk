@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type { BrowserContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { mnemonicToAccount } from 'viem/accounts'
@@ -77,7 +77,7 @@ const waitForPopupIfOpened = async (
 	return popupPromise
 }
 
-const getLinkedWalletLocator = (page: Page) =>
+const getLinkedWalletLocator = (page: Page): Locator =>
 	page
 		.getByText('EOA wallet', { exact: true })
 		.or(page.getByText('MetaMask', { exact: true }))
@@ -521,11 +521,7 @@ test.describe('EOA Required — Onboarding', () => {
 		await page.goto(`${SCW_URL}wallets`)
 
 		await expect(page.getByText('Linked wallets')).toBeVisible()
-		// Super App may label the wallet as "EOA wallet" or "MetaMask"
-		const linkedWallet = page
-			.getByText('EOA wallet', { exact: true })
-			.or(page.getByText('MetaMask', { exact: true }))
-		await expect(linkedWallet.first()).toBeVisible()
+		await expect(getLinkedWalletLocator(page).first()).toBeVisible()
 	})
 
 	test('should disconnect EOA wallet from Super App', async () => {

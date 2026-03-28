@@ -27,7 +27,7 @@ import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 // Script is invoked via `pnpm save:google-session` from the e2e/ directory.
 const OUTPUT_PATH = resolve('google-session.json')
 
-const saveGoogleSession = async () => {
+const saveGoogleSession = async (): Promise<void> => {
 	console.log('Launching browser...')
 
 	const browser = await chromium.launch({
