@@ -84,6 +84,111 @@ const completeGoogleOAuthForm = async (
 	await enterPasswordAndHandle2FA(sdkPopup, password)
 }
 
+const completeGoogleOAuthAfterAccountSelection = async (
+	sdkPopup: Page,
+	email: string,
+	password: string,
+	scwOrigin: string,
+): Promise<void> => {
+	const nextStep = await Promise.race([
+		sdkPopup
+			.waitForURL((url) => url.origin === scwOrigin)
+			.then(() => 'scw' as const),
+		sdkPopup
+			.locator('input[name="Passwd"]')
+			.waitFor({ state: 'visible' })
+			.then(() => 'password' as const),
+		sdkPopup
+			.locator('input[type="email"]')
+			.waitFor({ state: 'visible' })
+			.then(() => 'email' as const),
+	])
+
+	if (nextStep === 'scw') return
+	if (nextStep === 'password') {
+		await enterPasswordAndHandle2FA(sdkPopup, password)
+		return
+	}
+
+	await completeGoogleOAuthForm(sdkPopup, email, password)
+}
+
+const continueFromAccountChooser = async (
+	sdkPopup: Page,
+	email: string,
+	password: string,
+	scwOrigin: string,
+): Promise<void> => {
+	const useAnotherAccount = sdkPopup.getByText('Use another account')
+	const hasSignedOutAccount = await sdkPopup
+		.getByText('Signed out')
+		.isVisible()
+		.catch(() => false)
+
+	if (hasSignedOutAccount && (await useAnotherAccount.isVisible().catch(() => false))) {
+		await useAnotherAccount.click()
+		await completeGoogleOAuthForm(sdkPopup, email, password)
+		return
+	}
+
+	await sdkPopup.getByText(email).click()
+	await completeGoogleOAuthAfterAccountSelection(
+		sdkPopup,
+		email,
+		password,
+		scwOrigin,
+	)
+}
+
+const resolveGoogleManualLoginState = async (
+	sdkPopup: Page,
+	scwOrigin: string,
+): Promise<'chooser' | 'email' | 'password' | 'complete' | 'scw'> => {
+	const currentUrl = sdkPopup.url()
+	if (currentUrl.includes('/accountchooser')) return 'chooser'
+	if (new URL(currentUrl).origin === scwOrigin) return 'scw'
+	if (
+		await sdkPopup
+			.getByText('You may now close this window')
+			.isVisible()
+			.catch(() => false)
+	) {
+		return 'complete'
+	}
+
+	const passwordInput = sdkPopup.locator('input[name="Passwd"]')
+	if (await passwordInput.isVisible().catch(() => false)) return 'password'
+
+	const emailInput = sdkPopup.locator('input[type="email"]')
+	if (await emailInput.isVisible().catch(() => false)) return 'email'
+
+	const chooserAccount = sdkPopup.getByText('Use another account')
+	if (await chooserAccount.isVisible().catch(() => false)) return 'chooser'
+
+	return Promise.race([
+		sdkPopup
+			.waitForURL((url) => url.pathname.includes('/accountchooser'))
+			.then(() => 'chooser' as const),
+		passwordInput
+			.waitFor({ state: 'visible' })
+			.then(() => 'password' as const),
+		emailInput
+			.waitFor({ state: 'visible' })
+			.then(() => 'email' as const),
+		sdkPopup
+			.getByText('You may now close this window')
+			.waitFor({ state: 'visible' })
+			.then(() => 'complete' as const),
+		sdkPopup
+			.waitForURL((url) => url.origin === scwOrigin)
+			.then(() => 'scw' as const),
+	]).catch(() => {
+		throw new Error(
+			`Unable to determine Google manual login state from popup URL: ${sdkPopup.url()}`,
+		)
+	})
+}
+
 const isPostAuthSCWPath = (url: URL, scwOrigin: string): boolean =>
 	url.origin === scwOrigin &&
 	(url.pathname.includes('/connect-wallet') ||
@@ -103,15 +208,13 @@ const resolveOAuthEntryState = async (
 
 	const entryState = await Promise.race([
 		googleButton
-			.waitFor({ state: 'visible', timeout: 15_000 })
+			.waitFor({ state: 'visible' })
 			.then(() => 'login' as const),
 		sdkPopup
-			.waitForURL((url) => isGoogleDomain(url.hostname), { timeout: 15_000 })
+			.waitForURL((url) => isGoogleDomain(url.hostname))
 			.then(() => 'google' as const),
 		sdkPopup
-			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin), {
-				timeout: 15_000,
-			})
+			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin))
 			.then(() => 'post-auth' as const),
 	]).catch(async () => {
 		const latestUrl = new URL(sdkPopup.url())
@@ -125,6 +228,79 @@ const resolveOAuthEntryState = async (
 	})
 
 	return entryState
+}
+
+const waitForGoogleAuthPage = async (
+	sdkPopup: Page,
+	scwOrigin: string,
+): Promise<{ authPage: Page; needsManualLogin: boolean }> =>
+	Promise.any([
+		sdkPopup
+			.waitForEvent('popup')
+			.then(async (popup) => {
+				await popup.waitForLoadState('domcontentloaded')
+				return {
+					authPage: popup,
+					needsManualLogin: true,
+				} as const
+			}),
+		sdkPopup
+			.waitForURL((url) => isGoogleDomain(url.hostname))
+			.then(
+				() =>
+					({
+						authPage: sdkPopup,
+						needsManualLogin: true,
+					}) as const,
+			),
+		sdkPopup
+			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin))
+			.then(
+				() =>
+					({
+						authPage: sdkPopup,
+						needsManualLogin: false,
+					}) as const,
+			),
+	]).catch(() => {
+		throw new Error(
+			`Google OAuth did not open a popup or navigate to a post-auth state from ${sdkPopup.url()}`,
+		)
+	})
+
+const waitForPostGoogleAuthState = async (
+	sdkPopup: Page,
+	authPage: Page,
+	scwOrigin: string,
+): Promise<void> => {
+	const postAuthReady = Promise.race([
+		sdkPopup.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin)),
+		sdkPopup
+			.getByRole('button', { name: 'Approve' })
+			.waitFor({ state: 'visible' }),
+	])
+
+	if (authPage === sdkPopup) {
+		await postAuthReady
+		return
+	}
+
+	await Promise.race([
+		postAuthReady,
+		authPage
+			.waitForEvent('close')
+			.then(() => undefined),
+		authPage
+			.getByText('You may now close this window')
+			.waitFor({ state: 'visible' })
+			.then(async () => {
+				if (!authPage.isClosed()) {
+					await authPage.close().catch(() => {})
+				}
+			}),
+	])
+
+	await postAuthReady
 }
 
 /**
@@ -153,6 +329,8 @@ export const loginWithGoogle = async (
 	const scwOrigin = new URL(SCW_URL).origin
 
 	const entryState = await resolveOAuthEntryState(sdkPopup, scwOrigin)
+	let authPage = sdkPopup
+	let needsManualLogin = entryState === 'google'
 
 	if (entryState === 'login') {
 		// Click the Google sign-in button. The button text varies by page:
@@ -161,43 +339,33 @@ export const loginWithGoogle = async (
 		const googleButton = sdkPopup
 			.getByRole('button', { name: 'Log in with Google' })
 			.or(sdkPopup.getByRole('button', { name: 'Google' }))
+		const nextState = waitForGoogleAuthPage(sdkPopup, scwOrigin)
 		await googleButton.click()
+		const result = await nextState
+		authPage = result.authPage
+		needsManualLogin = result.needsManualLogin
 	}
 
-	// After clicking Google, the popup navigates to accounts.google.com.
-	// If session cookies are present (GOOGLE_SESSION_STATE), Google may
-	// auto-authenticate and redirect: SCW login → Google → SCW /connect-wallet.
-	//
-	// IMPORTANT: Race against specific post-auth SCW paths, not scwOrigin/*.
-	// The popup STARTS on an SCW URL (the login page), so a generic scwOrigin
-	// match would resolve immediately before navigation even begins.
-	const needsManualLogin = await Promise.race([
-		sdkPopup
-			.waitForURL((url) => isGoogleDomain(url.hostname), { timeout: 30_000 })
-			.then(() => true),
-		sdkPopup
-			.waitForURL((url) => isPostAuthSCWPath(url, scwOrigin), {
-				timeout: 30_000,
-			})
-			.then(() => false),
-	])
-
 	if (needsManualLogin) {
-		// Google may show two different pages:
-		// 1. Account chooser (/accountchooser) — session cookies exist but
-		//    expired ("Signed out"). Click the account row to skip email entry.
-		// 2. Email form (/identifier) — no session cookies, full login needed.
-		const isAccountChooser = sdkPopup.url().includes('/accountchooser')
+		// Google may briefly land on intermediate URLs before rendering the
+		// actual prompt. Wait for the visible chooser/form state instead of
+		// branching on the first Google-domain URL we see.
+		const manualLoginState = await resolveGoogleManualLoginState(
+			authPage,
+			scwOrigin,
+		)
 
-		if (isAccountChooser) {
-			// Click the test account to proceed to password entry
-			await sdkPopup.getByText(email).click()
-			await enterPasswordAndHandle2FA(sdkPopup, password)
-		} else {
-			await completeGoogleOAuthForm(sdkPopup, email, password)
+		if (manualLoginState === 'chooser') {
+			await continueFromAccountChooser(authPage, email, password, scwOrigin)
+		} else if (manualLoginState === 'password') {
+			await enterPasswordAndHandle2FA(authPage, password)
+		} else if (manualLoginState === 'email') {
+			await completeGoogleOAuthForm(authPage, email, password)
+		} else if (manualLoginState === 'complete' && authPage !== sdkPopup) {
+			await authPage.close().catch(() => {})
 		}
 
-		await sdkPopup.waitForURL(`${scwOrigin}/**`)
+		await waitForPostGoogleAuthState(sdkPopup, authPage, scwOrigin)
 	}
 
 	if (!options?.skipApprove) {

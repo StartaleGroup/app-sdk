@@ -77,22 +77,51 @@ const waitForPopupIfOpened = async (
 	return popupPromise
 }
 
+const getLinkedWalletLocator = (page: Page) =>
+	page
+		.getByText('EOA wallet', { exact: true })
+		.or(page.getByText('MetaMask', { exact: true }))
+
+const waitForLinkedWalletDetails = async (page: Page): Promise<boolean> =>
+	page
+		.getByRole('button', { name: 'Disconnect wallet' })
+		.first()
+		.waitFor({ state: 'visible', timeout: 20_000 })
+		.then(() => true)
+		.catch(() => false)
+
+const openLinkedWalletDetails = async (page: Page): Promise<void> => {
+	for (let attempt = 0; attempt < 3; attempt++) {
+		const linkedWallet = getLinkedWalletLocator(page).first()
+		await linkedWallet.waitFor({ state: 'visible' })
+		await linkedWallet.click()
+
+		if (await waitForLinkedWalletDetails(page)) return
+
+		await page.goto(`${SCW_URL}wallets`)
+		await expect(page.getByText('Linked wallets')).toBeVisible()
+	}
+
+	throw new Error(
+		'Linked wallet details page did not load the Disconnect wallet action after 3 attempts',
+	)
+}
+
 /**
  * Disconnect a single linked wallet from Super App.
  * Assumes the page is on /wallets and the wallet row is visible.
  * Clicks the wallet row → "Disconnect wallet" → confirm dialog.
  */
-const disconnectOneLinkedWallet = async (
-	page: Page,
-	walletLocator: ReturnType<Page['locator']>,
-): Promise<void> => {
-	await walletLocator.click()
+const disconnectOneLinkedWallet = async (page: Page): Promise<void> => {
+	await openLinkedWalletDetails(page)
 
 	// Click "Disconnect wallet" on edit page to open confirmation dialog
-	await page.getByText('Disconnect wallet').first().click()
+	await page.getByRole('button', { name: 'Disconnect wallet' }).first().click()
 
 	// Wait for dialog to render, then click the red confirm button
-	const confirmButton = page.getByRole('button', { name: 'Disconnect wallet' })
+	const confirmButton = page
+		.getByRole('button', { name: 'Disconnect wallet' })
+		.last()
 	await confirmButton.waitFor({ state: 'visible' })
 	await confirmButton.click()
 
@@ -110,10 +139,7 @@ const disconnectOneLinkedWallet = async (
 const MAX_LINKED_WALLETS = 10
 
 const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
-	// Match linked wallets by either name
-	const linkedWallet = page
-		.getByText('EOA wallet', { exact: true })
-		.or(page.getByText('MetaMask', { exact: true }))
+	const linkedWallet = getLinkedWalletLocator(page)
 
 	await linkedWallet
 		.first()
@@ -128,7 +154,7 @@ const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
 				`Exceeded ${MAX_LINKED_WALLETS} wallet disconnections — possible infinite loop`,
 			)
 		}
-		await disconnectOneLinkedWallet(page, linkedWallet.first())
+		await disconnectOneLinkedWallet(page)
 		disconnected++
 	}
 
