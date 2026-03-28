@@ -368,6 +368,12 @@ export const loginWithGoogle = async (
 			case 'complete':
 				if (authPage !== sdkPopup) await authPage.close().catch(() => {})
 				break
+			case 'scw':
+				// Google auto-authenticated via session cookies and already
+				// redirected to the SCW origin. No manual login needed —
+				// waitForPostGoogleAuthState below will confirm the final state.
+				if (authPage !== sdkPopup) await authPage.close().catch(() => {})
+				break
 		}
 
 		await waitForPostGoogleAuthState(sdkPopup, authPage, scwOrigin)

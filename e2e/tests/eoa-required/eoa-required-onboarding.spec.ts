@@ -20,19 +20,20 @@ const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 
 /**
  * Derive the expected EOA wallet address from EOA_LINKED_WALLET_SEED.
- * Uses the same HD path as MetaMask (m/44'/60'/0'/0/0).
- *
- * Throws at module load if the env var is missing — this is intentional.
- * The fixture also validates the env var, but failing early here gives
- * a clearer error message than a cryptic mnemonic parsing failure.
+ * Uses `mnemonicToAccount`'s default derivation path (currently MetaMask's
+ * default HD path m/44'/60'/0'/0/0).
+ * Lazily evaluated on first access to avoid crashing other test suites
+ * when EOA_LINKED_WALLET_SEED is not set.
  */
-const getExpectedEOAAddress = (): string => {
-	const seed = process.env.EOA_LINKED_WALLET_SEED
-	if (!seed) throw new Error('EOA_LINKED_WALLET_SEED env var is required')
-	return mnemonicToAccount(seed).address
+let _expectedEOAAddress: string | undefined
+const expectedEoaAddress = (): string => {
+	if (!_expectedEOAAddress) {
+		const seed = process.env.EOA_LINKED_WALLET_SEED
+		if (!seed) throw new Error('EOA_LINKED_WALLET_SEED env var is required')
+		_expectedEOAAddress = mnemonicToAccount(seed).address
+	}
+	return _expectedEOAAddress
 }
-
-const EXPECTED_EOA_ADDRESS = getExpectedEOAAddress()
 
 const TESTAPP_PRESERVED_LOCAL_STORAGE_KEYS = [
 	'scw_url',
@@ -51,7 +52,7 @@ const approveConnection = async (sdkPopup: Page): Promise<void> => {
 
 const hasExpectedEOAAddress = (accounts: string[]): boolean =>
 	accounts.some(
-		(account) => account.toLowerCase() === EXPECTED_EOA_ADDRESS.toLowerCase(),
+		(account) => account.toLowerCase() === expectedEoaAddress().toLowerCase(),
 	)
 
 const formatAccounts = (accounts: string[]): string =>
@@ -66,7 +67,7 @@ const waitForPopupIfOpened = async (
 	trigger: () => Promise<void>,
 ): Promise<Page | null> => {
 	const popupPromise = page
-		.waitForEvent('popup', { timeout: 5_000 })
+		.waitForEvent('popup', { timeout: 10_000 })
 		.then(async (popup) => {
 			await popup.waitForLoadState('domcontentloaded')
 			return popup
@@ -439,7 +440,7 @@ const ensureExpectedEOAConnected = async (
 	if (hasExpectedEOAAddress(connectedAccounts)) return
 
 	throw new Error(
-		`EOA Required onboarding connected an unexpected wallet. Expected ${EXPECTED_EOA_ADDRESS.toLowerCase()}, received ${formatAccounts(connectedAccounts).toLowerCase()}`,
+		`EOA Required onboarding connected an unexpected wallet. Expected ${expectedEoaAddress().toLowerCase()}, received ${formatAccounts(connectedAccounts).toLowerCase()}`,
 	)
 }
 
@@ -513,7 +514,7 @@ test.describe('EOA Required — Onboarding', () => {
 	test('should return EOA wallet address from eth_requestAccounts', async () => {
 		const accounts = await requestConnectedAccounts(page)
 		expect(accounts.map((account) => account.toLowerCase())).toContain(
-			EXPECTED_EOA_ADDRESS.toLowerCase(),
+			expectedEoaAddress().toLowerCase(),
 		)
 	})
 
