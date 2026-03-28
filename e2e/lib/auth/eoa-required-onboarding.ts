@@ -6,7 +6,80 @@
  * approve Connect, confirm SIWE sign-in, and click Approve.
  */
 
-import type { BrowserContext, Page } from '@playwright/test'
+import type { BrowserContext, Locator, Page } from '@playwright/test'
+
+const isTargetClosedError = (error: unknown): boolean => {
+	if (error instanceof AggregateError) {
+		return error.errors.every((nestedError) => isTargetClosedError(nestedError))
+	}
+
+	return (
+		error instanceof Error &&
+		/Target page, context or browser has been closed|has been closed/i.test(
+			error.message,
+		)
+	)
+}
+
+const ignoreClosedError = async <T>(
+	promise: Promise<T>,
+): Promise<T | null> => {
+	try {
+		return await promise
+	} catch (error) {
+		if (isTargetClosedError(error)) return null
+		throw error
+	}
+}
+
+const getMetaMaskConnectButton = (page: Page): Locator =>
+	page
+		.getByTestId('confirm-btn')
+		.or(page.getByRole('button', { name: 'Connect' }))
+
+const getMetaMaskSignButton = (page: Page): Locator =>
+	page
+		.getByTestId('confirm-footer-button')
+		.or(page.getByRole('button', { name: /^(Sign|Confirm)$/ }))
+
+const waitForMetaMaskAction = async (
+	page: Page,
+): Promise<'connect' | 'sign' | 'closed'> => {
+	const connectButton = getMetaMaskConnectButton(page)
+	const signButton = getMetaMaskSignButton(page)
+
+	if (await connectButton.isVisible().catch(() => false)) return 'connect'
+	if (await signButton.isVisible().catch(() => false)) return 'sign'
+
+	const nextAction = await Promise.race([
+		ignoreClosedError(
+			connectButton.waitFor({ state: 'visible' }).then(() => 'connect' as const),
+		),
+		ignoreClosedError(
+			signButton.waitFor({ state: 'visible' }).then(() => 'sign' as const),
+		),
+		page.waitForEvent('close').then(() => 'closed' as const),
+	])
+
+	return nextAction ?? 'closed'
+}
+
+const waitForMetaMaskSignAction = async (
+	page: Page,
+): Promise<'sign' | 'closed'> => {
+	const signButton = getMetaMaskSignButton(page)
+
+	if (await signButton.isVisible().catch(() => false)) return 'sign'
+
+	const nextAction = await Promise.race([
+		ignoreClosedError(
+			signButton.waitFor({ state: 'visible' }).then(() => 'sign' as const),
+		),
+		page.waitForEvent('close').then(() => 'closed' as const),
+	])
+
+	return nextAction ?? 'closed'
+}
 
 /**
  * Wait for the SIWE signature popup to appear.
@@ -18,40 +91,31 @@ import type { BrowserContext, Page } from '@playwright/test'
 const waitForSignaturePopup = async (
 	context: BrowserContext,
 	metaMaskPopup: Page,
-): Promise<Page> => {
-	const signButton = metaMaskPopup.getByTestId('confirm-footer-button')
+): Promise<Page | null> => {
+	const signButton = getMetaMaskSignButton(metaMaskPopup)
 
 	if (metaMaskPopup.url().includes('signature-request')) {
 		await signButton.waitFor({ state: 'visible' })
 		return metaMaskPopup
 	}
 
-	const nextPopupPromise = context.waitForEvent('page')
+	const nextPopupPromise = context.waitForEvent('page', { timeout: 15_000 }).catch(
+		() => null,
+	)
+	const samePopupState = await waitForMetaMaskSignAction(metaMaskPopup)
+	if (samePopupState === 'sign') return metaMaskPopup
 
-	// Case 1: Same popup transitions to signature page
-	const samePopupSignature = Promise.race([
-		metaMaskPopup.waitForURL(/signature-request/).then(() => metaMaskPopup),
-		signButton.waitFor({ state: 'visible' }).then(() => metaMaskPopup),
-	])
+	const nextPopup = await nextPopupPromise
+	if (!nextPopup) return null
 
-	// Case 2: Popup closes, new one opens for signature
-	const nextPopupSignature = metaMaskPopup
-		.waitForEvent('close')
-		.then(async () => {
-			const nextPopup = await nextPopupPromise
-			const nextSignButton = nextPopup.getByTestId('confirm-footer-button')
+	await nextPopup.waitForLoadState('domcontentloaded')
+	await nextPopup.bringToFront()
 
-			await nextPopup.waitForLoadState('domcontentloaded')
-			await nextPopup.bringToFront()
-			await Promise.race([
-				nextPopup.waitForURL(/signature-request/),
-				nextSignButton.waitFor({ state: 'visible' }),
-			])
+	const nextPopupReady = await waitForMetaMaskSignAction(nextPopup)
 
-			return nextPopup
-		})
+	if (nextPopupReady === 'sign') return nextPopup
 
-	return Promise.race([samePopupSignature, nextPopupSignature])
+	return null
 }
 
 /**
@@ -64,36 +128,37 @@ const approveMetaMaskSignin = async (
 	context: BrowserContext,
 	metaMaskPopup: Page,
 ): Promise<void> => {
-	const confirmBtn = metaMaskPopup.getByTestId('confirm-btn')
+	const confirmBtn = getMetaMaskConnectButton(metaMaskPopup)
 
 	// MetaMask extension popups start as blank pages — wait for content
 	// to load before interacting (replaces global slowMo approach).
 	await metaMaskPopup.waitForLoadState('domcontentloaded')
 	await metaMaskPopup.bringToFront()
-	await Promise.race([
-		metaMaskPopup.waitForURL(/(connect)|(signature-request)/),
-		confirmBtn
-			.or(metaMaskPopup.getByTestId('confirm-footer-button'))
-			.waitFor({ state: 'visible' }),
-	])
+	const initialAction = await waitForMetaMaskAction(metaMaskPopup)
+	if (initialAction === 'closed' || metaMaskPopup.isClosed()) return
 
-	let signaturePopup = metaMaskPopup
+	let signaturePopup: Page | null = metaMaskPopup
 
 	// Handle Connect approval if shown
-	if (await confirmBtn.isVisible().catch(() => false)) {
+	if (initialAction === 'connect') {
 		const signaturePopupPromise = waitForSignaturePopup(context, metaMaskPopup)
 		await confirmBtn.scrollIntoViewIfNeeded()
 		await confirmBtn.click()
 		signaturePopup = await signaturePopupPromise
 	}
+	if (!signaturePopup || signaturePopup.isClosed()) return
 
 	// Handle SIWE signature
-	const signButton = signaturePopup.getByTestId('confirm-footer-button')
+	const signButton = getMetaMaskSignButton(signaturePopup)
 	const popupClosed = signaturePopup
 		.waitForEvent('close')
 		.catch(() => undefined)
 
-	await signButton.waitFor({ state: 'visible' })
+	const signReady = await ignoreClosedError(
+		signButton.waitFor({ state: 'visible' }).then(() => true),
+	)
+	if (!signReady || signaturePopup.isClosed()) return
+
 	await signButton.scrollIntoViewIfNeeded()
 	await signButton.click()
 
