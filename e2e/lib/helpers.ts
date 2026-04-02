@@ -89,8 +89,11 @@ export const waitForPopup = async (
 
 /**
  * Wait for a popup to close (e.g. after auth completes).
+ * Guards against race: if the popup already closed before this is called,
+ * waitForEvent('close') would hang forever.
  */
 export const waitForPopupClose = async (popup: Page): Promise<void> => {
+	if (popup.isClosed()) return
 	await popup.waitForEvent('close')
 }
 
