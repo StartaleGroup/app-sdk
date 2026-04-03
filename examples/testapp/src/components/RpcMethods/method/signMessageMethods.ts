@@ -12,10 +12,10 @@ import {
   isErc6492Signature,
   keccak256,
   parseAbiParameters
-} from 'viem';
+} from 'viem'
 
-import { parseMessage } from '../shortcut/ShortcutType';
-import { RpcRequestInput } from './RpcRequestInput';
+import { parseMessage } from '../shortcut/ShortcutType'
+import { RpcRequestInput } from './RpcRequestInput'
 
 const ethSign: RpcRequestInput = {
 	method: 'eth_sign',
@@ -147,14 +147,18 @@ export const verifySignMsg = async ({
             data: concat([erc6492SignatureValidatorByteCode as Hex, callData]),
           });
 
-          // The validator returns abi.encode(bool) — 32 bytes, last byte is 0/1
-          const valid = data?.slice(-1) === '1';
+          // The validator returns a single success byte (0x01 = valid, 0x00 = invalid)
+          if (!data) {
+            return 'SigUtil ERC-6492 validator returned no data';
+          }
+          const valid = Number(data) === 1;
           if (valid) {
             return `SigUtil Successfully verified signer as ${from} (ERC-6492)`;
           }
           return 'SigUtil Failed to verify signer (ERC-6492)';
         } catch (error) {
-          return `Error verifying ERC-6492 signature: ${error}`;
+          const message = error instanceof Error ? error.message : String(error);
+          return `Error verifying ERC-6492 signature: ${message}`;
         }
       }
 
