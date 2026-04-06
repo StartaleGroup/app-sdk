@@ -151,7 +151,7 @@ export const verifySignMsg = async ({
           if (!data) {
             return 'SigUtil ERC-6492 validator returned no data';
           }
-          const valid = Number(data) === 1;
+          const valid = data === '0x01';
           if (valid) {
             return `SigUtil Successfully verified signer as ${from} (ERC-6492)`;
           }
@@ -178,6 +178,7 @@ export const verifySignMsg = async ({
           ],
           functionName: 'isValidSignature',
           args: [finalHash, sign as Hex],
+          // Silences viem 2.x type warning that expects authorizationList
           authorizationList: undefined,
         });
 
