@@ -52,7 +52,7 @@ We use a naming convention to separate config by ownership and scope:
 
 | Tier    | Managed in                     | File pattern     | Scope                              |
 |---------|--------------------------------|------------------|------------------------------------|
-| team    | subtree `main`                 | `*.team.*`       | All projects across the team       |
+| team    | subtree `master`               | `*.team.*`       | All projects across the team       |
 | group   | subtree `group/*` branches     | `*.group.*`      | App-category-specific config       |
 | project | each project repo              | `*.project.*`    | Per-project config                 |
 | local   | each engineer's machine        | `*.local.*`      | Per-engineer, never committed      |
@@ -98,7 +98,7 @@ skills/
 
 Files are organized by domain (e.g., `design-and-ux/`) within each folder. This allows adding other domains later (e.g., `api/`, `testing/`).
 
-Each folder contains `*.team.*` files on `main`, with `*.group.*` files added on group branches.
+Each folder contains `*.team.*` files on `master`, with `*.group.*` files added on group branches.
 
 ---
 
@@ -106,14 +106,14 @@ Each folder contains `*.team.*` files on `main`, with `*.group.*` files added on
 
 ### Step 1: Add the subtree
 
-First, choose the branch that matches your project's group. Group branches include all team-level config from `main` plus group-specific rules:
+First, choose the branch that matches your project's group. Group branches include all team-level config from `master` plus group-specific rules:
 
 | If your project is... | Use branch |
 |----------------------|------------|
 | Strium homepage or DEX | `group/strium` |
 | Startale super app | `group/startale` |
 | SDK-related | `group/sdk` |
-| None of the above / team-only | `main` |
+| None of the above / team-only | `master` |
 
 ```bash
 # Add the remote (one-time)
@@ -169,7 +169,7 @@ git subtree pull --prefix=.claude claude-config group/strium
 
 ## Pushing changes back
 
-Changes made to config files inside a consumer project can be pushed back to this repo. Always push to a **feature branch** and open a PR — never push directly to `main` or `group/*`.
+Changes made to config files inside a consumer project can be pushed back to this repo. Always push to a **feature branch** and open a PR — never push directly to `master` or `group/*`.
 
 ### Team vs group: which branch to target
 
@@ -177,10 +177,10 @@ Before creating a PR, determine whether your change is **team-level** or **group
 
 | Change type | File pattern | PR targets | Example |
 |-------------|-------------|------------|---------|
-| Applies to all front-end projects | `*.team.*` | `main` | Accessibility rules, shared UX patterns |
+| Applies to all front-end projects | `*.team.*` | `master` | Accessibility rules, shared UX patterns |
 | Specific to one app category | `*.group.*` | `group/*` branch | DEX trading UI rules, super app nav patterns |
 
-**Never mix team and group changes in the same PR.** If a rule starts as group-specific but proves useful across all projects, promote it by creating a new `*.team.*` file in a separate PR to `main`.
+**Never mix team and group changes in the same PR.** If a rule starts as group-specific but proves useful across all projects, promote it by creating a new `*.team.*` file in a separate PR to `master`.
 
 ### Branch naming convention
 
@@ -191,7 +191,7 @@ from/<consumer-project>/<short-description>
 Examples:
 - `from/dex-app/add-trading-rules` → PR to `group/strium`
 - `from/super-app/update-motion-tokens` → PR to `group/startale`
-- `from/sdk-docs/fix-a11y-rule` → PR to `main` (applies to all projects)
+- `from/sdk-docs/fix-a11y-rule` → PR to `master` (applies to all projects)
 
 ### How to push
 
@@ -201,22 +201,22 @@ git cc-push from/my-project/add-api-rules
 git subtree push --prefix=.claude claude-config from/my-project/add-api-rules
 ```
 
-Then open a PR from `from/my-project/add-api-rules` → `main` (or the appropriate `group/*` branch).
+Then open a PR from `from/my-project/add-api-rules` → `master` (or the appropriate `group/*` branch).
 
 ### Merge direction
 
-Group branches (`group/strium`, `group/startale`, `group/sdk`) contain group-specific config that must not leak into `main`. The merge direction is strictly one-way:
+Group branches (`group/strium`, `group/startale`, `group/sdk`) contain group-specific config that must not leak into `master`. The merge direction is strictly one-way:
 
 ```
-main → group branches    ✅  (merge main INTO group)
-group branches → main    ❌  (NEVER merge group INTO main)
+master → group branches    ✅  (merge master INTO group)
+group branches → master    ❌  (NEVER merge group INTO master)
 ```
 
-When team-level changes are made on `main`, merge main into each group branch to pick them up:
+When team-level changes are made on `master`, merge master into each group branch to pick them up:
 
 ```bash
 git checkout group/strium
-git merge main
+git merge master
 ```
 
 ---
