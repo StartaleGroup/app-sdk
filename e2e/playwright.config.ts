@@ -32,7 +32,7 @@ export default defineConfig({
 		// High timeouts for SDK popup auth flows.
 		// Eliminates need for inline timeouts in most cases.
 		navigationTimeout: 90_000,
-		actionTimeout: 60_000,
+		actionTimeout: 90_000,
 	},
 
 	timeout: 5 * 60 * 1000,

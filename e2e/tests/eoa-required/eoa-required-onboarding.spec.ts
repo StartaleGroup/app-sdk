@@ -87,7 +87,7 @@ const waitForLinkedWalletDetails = async (page: Page): Promise<boolean> =>
 	page
 		.getByRole('button', { name: 'Disconnect wallet' })
 		.first()
-		.waitFor({ state: 'visible', timeout: 20_000 })
+		.waitFor({ state: 'visible' })
 		.then(() => true)
 		.catch(() => false)
 
