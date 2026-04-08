@@ -5,12 +5,12 @@ import { mnemonicToAccount } from 'viem/accounts'
 
 import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
 import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
-import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
+import { loginWithLine } from '../../lib/auth/line-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
 import {
 	type SessionCookie,
-	isGoogleDomain,
-	parseAllSessionCookies,
+	isLineDomain,
+	parseAllLineSessionCookies,
 	waitForPopup,
 } from '../../lib/helpers.js'
 import { dashboardPage } from '../../page-objects/dashboardPage.js'
@@ -163,9 +163,9 @@ const disconnectAllLinkedWallets = async (page: Page): Promise<number> => {
 }
 
 /**
- * Delete all non-Google cookies from the current browser context.
- * Keeps Google cookies from GOOGLE_SESSION_STATE so runtime login
- * can still bypass "Verify it's you" challenges.
+ * Delete all non-LINE cookies from the current browser context.
+ * Keeps LINE cookies from LINE_SESSION_STATE so runtime login
+ * can still use SSO bypass.
  */
 const deleteCookies = async (
 	context: BrowserContext,
@@ -190,30 +190,30 @@ const deleteCookies = async (
 	}
 }
 
-const deleteInjectedNonGoogleCookies = async (
+const deleteInjectedNonLineCookies = async (
 	context: BrowserContext,
 	page: Page,
 	cookies: SessionCookie[] | undefined,
 ): Promise<void> => {
-	const nonGoogleCookies =
-		cookies?.filter((cookie) => !isGoogleDomain(cookie.domain)) ?? []
-	if (nonGoogleCookies.length === 0) return
+	const nonLineCookies =
+		cookies?.filter((cookie) => !isLineDomain(cookie.domain)) ?? []
+	if (nonLineCookies.length === 0) return
 
-	await deleteCookies(context, page, nonGoogleCookies)
+	await deleteCookies(context, page, nonLineCookies)
 }
 
-const deleteRuntimeNonGoogleCookies = async (
+const deleteRuntimeNonLineCookies = async (
 	context: BrowserContext,
 	page: Page,
 ): Promise<void> => {
 	const cdp = await context.newCDPSession(page)
 	try {
 		const result = await cdp.send('Network.getAllCookies')
-		const nonGoogleCookies = result.cookies.filter(
-			(cookie) => !isGoogleDomain(cookie.domain),
+		const nonLineCookies = result.cookies.filter(
+			(cookie) => !isLineDomain(cookie.domain),
 		)
 
-		for (const cookie of nonGoogleCookies) {
+		for (const cookie of nonLineCookies) {
 			await cdp.send('Network.deleteCookies', {
 				name: cookie.name,
 				domain: cookie.domain,
@@ -290,7 +290,7 @@ const resetEOARequiredBrowserState = async (
 	// First load: needed so page.evaluate() can access localStorage/SDK state
 	await openDashboardWithEOARequiredEnabled(page)
 	await clearTestappSDKLocalState(page)
-	await deleteRuntimeNonGoogleCookies(context, page)
+	await deleteRuntimeNonLineCookies(context, page)
 	// Second load: picks up the freshly cleared state
 	await openDashboardWithEOARequiredEnabled(page)
 }
@@ -327,10 +327,10 @@ const runEOARequiredOnboarding = async (
 		)
 	}
 
-	// Google OAuth (stops after redirect — no Approve click)
-	await loginWithGoogle(sdkPopup, { skipApprove: true })
+	// LINE OAuth (stops after redirect — no Approve click)
+	await loginWithLine(sdkPopup, { skipApprove: true })
 
-	// After Google OAuth: either /link-eoa (fresh) or /connect-wallet (dirty state).
+	// After LINE OAuth: either /link-eoa (fresh) or /connect-wallet (dirty state).
 	// Dirty state occurs when a previous attempt already linked the wallet
 	// on the backend but the test failed before completing.
 	// Wait for the SPA to settle on a final page — the popup lands on "/"
@@ -349,7 +349,7 @@ const runEOARequiredOnboarding = async (
 
 		// linkEOAWallet closes the popup when /link-eoa doesn't navigate
 		// after MetaMask approval (wallet is linked on backend but the page
-		// didn't update). Re-open SDK popup — the cached Google session +
+		// didn't update). Re-open SDK popup — the cached LINE session +
 		// linked wallet will skip straight to /connect-wallet.
 		if (sdkPopup.isClosed()) {
 			sdkPopup = await waitForPopup(page, () =>
@@ -447,7 +447,7 @@ const ensureExpectedEOAConnected = async (
 /**
  * EOA Required onboarding lifecycle test.
  *
- * Verifies: Google OAuth → MetaMask wallet link → address check → disconnect.
+ * Verifies: LINE OAuth → MetaMask wallet link → address check → disconnect.
  * Uses dedicated EOA_LINKED_WALLET_SEED (separate from WALLET_SEED).
  *
  * Super App pages (SCW_URL) use full URLs because the fixture's patched
@@ -458,9 +458,9 @@ test.describe('EOA Required — Onboarding', () => {
 
 	test.beforeAll(() => {
 		// EOA_LINKED_WALLET_SEED is validated by the fixture (wallet.fixture.ts)
-		if (!process.env.GOOGLE_TEST_EMAIL) {
+		if (!process.env.LINE_TEST_EMAIL) {
 			throw new Error(
-				'GOOGLE_TEST_EMAIL env var is required for EOA Required tests',
+				'LINE_TEST_EMAIL env var is required for EOA Required tests',
 			)
 		}
 	})
@@ -474,7 +474,7 @@ test.describe('EOA Required — Onboarding', () => {
 
 		// Inject session cookies via CDP. context.addCookies() does not work
 		// reliably with dappwright's persistent browser context.
-		const allCookies = parseAllSessionCookies()
+		const allCookies = parseAllLineSessionCookies()
 		const cookiePayload = allCookies?.map((c) => ({
 			name: c.name,
 			value: c.value,
@@ -495,9 +495,9 @@ test.describe('EOA Required — Onboarding', () => {
 			}
 		}
 
-		// Start clean for SCW/Dynamic Auth even if GOOGLE_SESSION_STATE
-		// accidentally includes non-Google cookies.
-		await deleteInjectedNonGoogleCookies(walletContext, page, allCookies)
+		// Start clean for SCW/Dynamic Auth even if LINE_SESSION_STATE
+		// accidentally includes non-LINE cookies.
+		await deleteInjectedNonLineCookies(walletContext, page, allCookies)
 
 		// Dappwright uses a persistent browser context, so proactively clear
 		// any leftover SDK state before the first onboarding attempt.
@@ -507,7 +507,7 @@ test.describe('EOA Required — Onboarding', () => {
 		await clearTestappSDKLocalState(page)
 	})
 
-	test('should complete EOA required onboarding with Google + MetaMask', async () => {
+	test('should complete EOA required onboarding with LINE + MetaMask', async () => {
 		await ensureExpectedEOAConnected(page, context)
 	})
 

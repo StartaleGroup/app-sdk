@@ -1,34 +1,34 @@
 /**
- * Save Google OAuth session for CI E2E tests.
+ * Save LINE OAuth session for CI E2E tests.
  *
  * This script opens a browser, navigates to the testapp, triggers
- * the SDK popup, and waits for you to manually log in with Google.
+ * the SDK popup, and waits for you to manually log in with LINE.
  * After login completes (popup closes), it saves the browser's
- * storageState (cookies + localStorage) to google-session.json.
+ * LINE cookies to line-session.json.
  *
- * The saved session contains Google's authentication cookies
- * (SID, HSID, etc.) which prevent the "Verify it's you" challenge
- * when running tests from CI's different IP addresses.
+ * The saved session contains LINE's authentication cookies
+ * (access.line.me domain) which enable SSO login on subsequent
+ * runs — the "Continue as [user]" screen appears instead of
+ * the email/password form and verification code.
  *
  * Prerequisites:
  *   - testapp running at http://localhost:3001 (cd examples/testapp && pnpm dev)
  *
  * Usage:
- *   pnpm save:google-session
+ *   pnpm save:line-session
  */
 import { chromium } from '@playwright/test'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { BASE_URL, ROUTES } from '../lib/constants.js'
-import { injectSCWUrl, isGoogleDomain, waitForPopup } from '../lib/helpers.js'
+import { isLineDomain, injectSCWUrl, waitForPopup } from '../lib/helpers.js'
 import { dashboardPage } from '../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
-// Script is invoked via `pnpm save:google-session` from the e2e/ directory.
-const OUTPUT_PATH = resolve('google-session.json')
+const OUTPUT_PATH = resolve('line-session.json')
 
-const saveGoogleSession = async (): Promise<void> => {
+const saveLineSession = async (): Promise<void> => {
 	console.log('Launching browser...')
 
 	const browser = await chromium.launch({
@@ -52,41 +52,41 @@ const saveGoogleSession = async (): Promise<void> => {
 
 	console.log('')
 	console.log('=== Manual Login Required ===')
-	console.log('1. Log in with Google in the popup window')
-	console.log('2. Complete any verification steps (email, password)')
-	console.log('3. Click "Approve" on the connect-wallet screen')
+	console.log('1. Click "LINE" on the sign-up page')
+	console.log('2. Check the consent checkbox and click "Continue with LINE"')
+	console.log('3. Log in with LINE (email, password, verification code)')
+	console.log('4. Click "Approve" on the connect-wallet screen')
 	console.log('The script will save the session automatically when the popup closes.')
 	console.log('')
 
-	// 5 minutes to allow manual login + 2FA + verification
+	// 5 minutes to allow manual login + verification code
 	await sdkPopup.waitForEvent('close', { timeout: 5 * 60 * 1000 })
 
 	console.log('Login complete. Saving session...')
 
 	// Save full state for local debugging
-	const fullPath = resolve('google-session-full.json')
+	const fullPath = resolve('line-session-full.json')
 	await context.storageState({ path: fullPath })
 
-	// Filter to Google-only cookies for CI (GitHub Secrets has a 48KB limit).
-	// Tests only use Google cookies via parseGoogleSessionCookies().
+	// Filter to LINE-only cookies for CI (GitHub Secrets has a 48KB limit).
 	const state = await context.storageState()
-	const googleCookies = state.cookies.filter((c) => isGoogleDomain(c.domain))
-	const filtered = JSON.stringify({ cookies: googleCookies })
+	const lineCookies = state.cookies.filter((c) => isLineDomain(c.domain))
+	const filtered = JSON.stringify({ cookies: lineCookies })
 	writeFileSync(OUTPUT_PATH, filtered)
 
 	await browser.close()
 
 	console.log(`Full session saved to: ${fullPath}`)
-	console.log(`Filtered session (Google cookies only) saved to: ${OUTPUT_PATH}`)
-	console.log(`Size: ${(filtered.length / 1024).toFixed(1)}KB (GitHub Secrets limit: 48KB)`)
+	console.log(`Filtered session (LINE cookies only) saved to: ${OUTPUT_PATH}`)
+	console.log(`  Size: ${(filtered.length / 1024).toFixed(1)}KB (GitHub Secrets limit: 48KB)`)
 	console.log('')
 	console.log('Next steps:')
 	console.log('  1. Test locally:')
-	console.log('     GOOGLE_SESSION_STATE=$(cat e2e/google-session.json) pnpm test:google')
-	console.log('  2. For CI, copy the content of google-session.json to GitHub Secret GOOGLE_SESSION_STATE')
+	console.log('     LINE_SESSION_STATE=$(cat e2e/line-session.json) pnpm test:line')
+	console.log('  2. For CI, copy the content of line-session.json to GitHub Secret LINE_SESSION_STATE')
 }
 
-saveGoogleSession().catch((error) => {
+saveLineSession().catch((error) => {
 	console.error('Failed to save session:', error)
 	process.exit(1)
 })

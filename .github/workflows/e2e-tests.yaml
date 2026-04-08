@@ -12,12 +12,18 @@ on:
         type: string
     secrets:
       GOOGLE_TEST_EMAIL:
-        required: true
+        required: false
       GOOGLE_TEST_PASSWORD:
-        required: true
+        required: false
       GOOGLE_TOTP_SECRET:
-        required: true
+        required: false
       GOOGLE_SESSION_STATE:
+        required: false
+      LINE_TEST_EMAIL:
+        required: false
+      LINE_TEST_PASSWORD:
+        required: false
+      LINE_SESSION_STATE:
         required: false
       WALLET_SEED:
         required: true
@@ -129,17 +135,16 @@ jobs:
             e2e/playwright-report/
           retention-days: 1
 
-  google:
+  line:
     needs: setup
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
     env:
-      GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
-      GOOGLE_TEST_PASSWORD: ${{ secrets.GOOGLE_TEST_PASSWORD }}
-      GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
-      GOOGLE_SESSION_STATE: ${{ secrets.GOOGLE_SESSION_STATE }}
+      LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+      LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
+      LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
     steps:
       - uses: actions/checkout@v4
         if: inputs.superapp-branch != ''
@@ -163,18 +168,18 @@ jobs:
           name: sdk-dist
           path: packages/
 
-      - name: Run Google OAuth tests
+      - name: Run LINE OAuth tests
         env:
           SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
         run: |
           cd e2e
-          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:google
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:line
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-google-results
+          name: e2e-line-results
           path: |
             e2e/test-results/
             e2e/playwright-report/
@@ -234,10 +239,9 @@ jobs:
     timeout-minutes: 30
     env:
       EOA_LINKED_WALLET_SEED: ${{ secrets.EOA_LINKED_WALLET_SEED }}
-      GOOGLE_TEST_EMAIL: ${{ secrets.GOOGLE_TEST_EMAIL }}
-      GOOGLE_TEST_PASSWORD: ${{ secrets.GOOGLE_TEST_PASSWORD }}
-      GOOGLE_TOTP_SECRET: ${{ secrets.GOOGLE_TOTP_SECRET }}
-      GOOGLE_SESSION_STATE: ${{ secrets.GOOGLE_SESSION_STATE }}
+      LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+      LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
+      LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
     steps:
       - uses: actions/checkout@v4
         if: inputs.superapp-branch != ''

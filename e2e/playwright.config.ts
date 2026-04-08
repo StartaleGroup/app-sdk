@@ -58,6 +58,14 @@ export default defineConfig({
 			},
 		},
 		{
+			name: 'line-chromium',
+			testMatch: /line\/.*\.spec\.ts/,
+			use: {
+				...devices['Desktop Chrome'],
+				launchOptions: antiDetectionLaunchOptions,
+			},
+		},
+		{
 			name: 'eoa-required-chromium',
 			testMatch: /eoa-required\/.*\.spec\.ts/,
 			use: {

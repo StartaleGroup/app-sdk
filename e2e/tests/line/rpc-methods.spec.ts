@@ -4,11 +4,11 @@ import {
 	type BrowserContext,
 	type Page,
 } from '@playwright/test'
-import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
+import { loginWithLine } from '../../lib/auth/line-oauth.js'
 import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
 import {
 	injectSCWUrl,
-	parseGoogleSessionCookies,
+	parseLineSessionCookies,
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
@@ -17,30 +17,30 @@ import { dashboardPage } from '../../page-objects/dashboardPage.js'
 import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
 
 /**
- * All RPC method tests that require Google OAuth authentication.
+ * All RPC method tests that require LINE OAuth authentication.
  *
  * These tests run in serial mode sharing the same browser context
  * so that the SDK popup session (SCW_URL) is preserved
  * across tests. storageState alone cannot restore the popup session.
  */
-test.describe('Google OAuth — RPC Methods', () => {
+test.describe('LINE OAuth — RPC Methods', () => {
 	test.describe.configure({ mode: 'serial' })
 
 	test.skip(
-		process.env.OAUTH_MODE !== 'google',
-		'Google tests skipped: OAUTH_MODE is not google',
+		process.env.OAUTH_MODE === 'google',
+		'LINE tests skipped: OAUTH_MODE is google',
 	)
 
 	let context: BrowserContext
 	let page: Page
 
 	test.beforeAll(async ({ browser, baseURL }) => {
-		// Keep only Google cookies to bypass "Verify it's you" challenge.
+		// Keep only LINE cookies for SSO bypass.
 		// Exclude all other cookies (SCW, Dynamic Auth, privy) so the
 		// normal login flow runs from a clean state.
-		const googleCookies = parseGoogleSessionCookies()
-		const storageState = googleCookies
-			? { cookies: googleCookies, origins: [] }
+		const lineCookies = parseLineSessionCookies()
+		const storageState = lineCookies
+			? { cookies: lineCookies, origins: [] }
 			: undefined
 		context = await browser.newContext({ baseURL, storageState })
 		page = await context.newPage()
@@ -56,7 +56,7 @@ test.describe('Google OAuth — RPC Methods', () => {
 			ethRequestAccounts.submit(),
 		)
 
-		await loginWithGoogle(sdkPopup)
+		await loginWithLine(sdkPopup)
 		await waitForPopupClose(sdkPopup)
 
 		await expect(page.locator('#toast-connected')).toBeVisible()

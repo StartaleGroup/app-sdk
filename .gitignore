@@ -71,3 +71,6 @@ report/
 .mcp.json
 docs/
 google-session.json
+google-session-full.json
+line-session.json
+line-session-full.json
