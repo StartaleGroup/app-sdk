@@ -63,6 +63,49 @@ export const parseGoogleSessionCookies = (): SessionCookie[] | undefined =>
 	parseAllSessionCookies()?.filter((c) => isGoogleDomain(c.domain))
 
 /**
+ * Check if a cookie domain belongs to LINE.
+ * Used to filter LINE session cookies from LINE_SESSION_STATE.
+ */
+export const isLineDomain = (domain: string): boolean =>
+	domain === 'access.line.me' || domain.endsWith('.line.me')
+
+/**
+ * Parse LINE_SESSION_STATE env var and return all cookies.
+ * Returns undefined when the env var is not set or contains invalid JSON.
+ */
+export const parseAllLineSessionCookies = (): SessionCookie[] | undefined => {
+	if (!process.env.LINE_SESSION_STATE) return undefined
+
+	let session: { cookies?: SessionCookie[] } | undefined
+	try {
+		session = JSON.parse(process.env.LINE_SESSION_STATE) as
+			| { cookies?: SessionCookie[] }
+			| undefined
+	} catch {
+		console.warn(
+			'[parseAllLineSessionCookies] LINE_SESSION_STATE contains invalid JSON',
+		)
+		return undefined
+	}
+
+	if (!session?.cookies || !Array.isArray(session.cookies)) {
+		console.warn(
+			'[parseAllLineSessionCookies] LINE_SESSION_STATE does not contain a valid cookies array',
+		)
+		return undefined
+	}
+
+	return session.cookies
+}
+
+/**
+ * Parse LINE_SESSION_STATE env var and return only LINE cookies.
+ * Returns undefined when the env var is not set.
+ */
+export const parseLineSessionCookies = (): SessionCookie[] | undefined =>
+	parseAllLineSessionCookies()?.filter((c) => isLineDomain(c.domain))
+
+/**
  * Inject SCW_URL into testapp localStorage so ConfigContextProvider
  * uses the correct wallet URL on mount. No-op when SCW_URL is not set.
  */
