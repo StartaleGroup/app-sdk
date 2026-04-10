@@ -85,20 +85,37 @@ Use the tier marker as the middle segment: `name.<tier>.ext`
 ### Repo structure
 
 ```
-agents/
-commands/
-│   └── design-and-ux/    # UX review commands
+agents/                         # Specialized AI agent definitions
+│   ├── build-error-resolver.team.md
+│   ├── code-reviewer.team.md
+│   ├── e2e-runner.team.md
+│   ├── security-reviewer.team.md
+│   ├── skill-builder.team.md
+│   └── tdd-guide.team.md
+commands/                       # Slash commands
+│   ├── design-and-ux/          # UX review commands
+│   ├── e2e-maintenance.team.md
+│   ├── e2e.team.md
+│   ├── fix-conflict-lock.yaml.team.md
+│   └── tdd.team.md
 hooks/
-│   └── design-and-ux/    # UX-related hooks
-rules/
-│   └── design-and-ux/    # UX, a11y, motion, interaction rules
-skills/
-    └── design-and-ux/    # Design system context skills
+│   └── design-and-ux/          # UX-related hooks
+rules/                          # Coding standards and guidelines
+│   ├── design-and-ux/          # UX, a11y, motion, interaction rules
+│   ├── coding-style.team.md
+│   ├── react.team.md
+│   ├── typescript.team.md
+│   └── ...                     # (12 engineering rules total)
+skills/                         # Interactive skill workflows
+│   ├── achievements.team/
+│   ├── creating-ui-components.team/
+│   ├── debugging-with-chrome.team/
+│   ├── prepr.team/
+│   ├── team.team/
+│   └── ...                     # (12 engineering + 18 design skills)
 ```
 
-Files are organized by domain (e.g., `design-and-ux/`) within each folder. This allows adding other domains later (e.g., `api/`, `testing/`).
-
-Each folder contains `*.team.*` files on `master`, with `*.group.*` files added on group branches.
+Files are organized by domain (e.g., `design-and-ux/`) within each folder. `*.team.*` files live on `master`, with `*.group.*` files added on group branches.
 
 ---
 
@@ -152,6 +169,69 @@ The subtree is fully committed, so no `.gitignore` changes are strictly needed. 
 .claude/**/*.local.*
 settings.local.*
 ```
+
+---
+
+## Working with project-tier files
+
+Project-tier files (`*.project.*`) are **per-project config** that lives in the consumer project's repo, not in this shared config repo.
+
+### Why `git add -f` is required
+
+This repo's `.gitignore` excludes `*.project.*` files to prevent them from leaking into the shared config. When you add the subtree to your project, that `.gitignore` lands at `.claude/.gitignore` — and it will hide your project files from `git status`.
+
+To track project files in your consumer project, **force-add them once**:
+
+```bash
+# Force-add a new project file (first time only)
+git add -f .claude/rules/api.project.md
+
+# After force-adding, git tracks the file normally
+# Future edits are picked up by regular `git add`
+git add .claude/rules/api.project.md   # works after initial force-add
+```
+
+### Creating project files
+
+Use the `*.project.*` naming convention for files, and `*.project` suffix on directory names for skills:
+
+```
+.claude/
+├── rules/
+│   ├── react.team.md              # from shared config (don't edit directly)
+│   ├── api.project.md             # project-specific API rules
+│   └── tailwind.project.md        # project-specific Tailwind overrides
+├── skills/
+│   ├── achievements.team/         # team skill (from shared config)
+│   │   └── SKILL.md
+│   └── playwright-login.project/  # project-specific skill
+│       └── SKILL.md
+└── CLAUDE.project.md              # project-specific CLAUDE.md
+```
+
+**Skill naming convention:**
+
+| Tier | Directory name | Example |
+|------|---------------|---------|
+| team | `skill-name.team/` | `skills/achievements.team/SKILL.md` |
+| group | `skill-name.group/` | `skills/dex-trading.group/SKILL.md` |
+| project | `skill-name.project/` | `skills/playwright-login.project/SKILL.md` |
+| local | `skill-name.local/` | `skills/my-debug.local/SKILL.md` |
+
+The `.gitignore` patterns `**/*.project/**` and `**/*.local/**` automatically exclude project and local skill directories from `git cc-push`.
+
+### What happens on `git cc-push`
+
+When you push changes back to this repo, **project files are automatically excluded** by the `.gitignore`. Only `*.team.*` and `*.group.*` changes are pushed. You don't need to worry about project files leaking upstream.
+
+### Special files
+
+| File | Behavior |
+|------|----------|
+| `settings.json` | Not tier-named. Force-add with `git add -f`. Per-project. |
+| `settings.local.json` | Always gitignored. Per-engineer. |
+| `CLAUDE.project.md` | Project-level config. Force-add once. |
+| `CLAUDE.group.md` | From shared config (group branch). Don't edit directly. |
 
 ---
 
@@ -225,34 +305,82 @@ git merge master
 
 ### Rules
 
-Team-tier rules provide passive context that Claude uses when working on matching files:
+#### Engineering rules
 
-| Rule | Applies to | Description |
-|------|------------|-------------|
-| `ux.team.md` | `**/*.tsx`, `**/*.css` | UX patterns, component conventions, layout rules |
-| `a11y.team.md` | `**/*.tsx` | Accessibility — WCAG, ARIA, keyboard nav, focus |
-| `motion.team.md` | `**/*.tsx`, `**/*.css` | Animation, transitions, reduced-motion, performance |
-| `interaction.team.md` | `**/*.tsx` | States, touch targets, dialogs, optimistic UI |
-| `contributing.team.md` | all files | Branch naming and merge direction rules |
+| Rule | Description |
+|------|-------------|
+| `coding-style.team.md` | Immutability, file organization, implicit return, error handling, comments |
+| `react.team.md` | Component patterns, file structure, naming conventions |
+| `react-hooks.team.md` | Custom hooks, WebSocket guard, dependency management |
+| `state-management.team.md` | Zustand store patterns, selectors, subscriptions |
+| `tanstack.team.md` | TanStack Router + Query patterns, SSR considerations |
+| `typescript.team.md` | Type safety, Zod schemas, auto-generated files |
+| `tailwind.team.md` | Shared Tailwind conventions (cn(), spacing, colors) |
+| `security.team.md` | Environment variables, XSS prevention, data validation, logging |
+| `web3.team.md` | Wallet interactions, chain operations, Polkadot.js |
+| `testing.team.md` | Test coverage requirements, TDD workflow |
+| `unit-test.team.md` | Vitest patterns, boundary testing, mock conventions |
+| `e2e.team.md` | Playwright patterns, page objects, data-testid |
+| `contributing.team.md` | Branch naming and merge direction rules |
+
+#### Design and UX rules
+
+| Rule | Description |
+|------|-------------|
+| `design-and-ux/ux.team.md` | UX patterns, component conventions, layout rules |
+| `design-and-ux/a11y.team.md` | Accessibility — WCAG, ARIA, keyboard nav, focus |
+| `design-and-ux/motion.team.md` | Animation, transitions, reduced-motion, performance |
+| `design-and-ux/interaction.team.md` | States, touch targets, dialogs, optimistic UI |
+
+### Agents
+
+| Agent | Description |
+|-------|-------------|
+| `build-error-resolver.team.md` | Resolves build and TypeScript errors with minimal diffs |
+| `code-reviewer.team.md` | Code quality and standards review |
+| `e2e-runner.team.md` | E2E test generation and maintenance with Playwright |
+| `security-reviewer.team.md` | Security vulnerability detection and remediation |
+| `tdd-guide.team.md` | Test-driven development enforcement |
+| `skill-builder.team.md` | Skill authoring and improvement |
 
 ### Commands
 
+#### Engineering commands
+
 | Command | Description |
 |---------|-------------|
-| `/review-ux` | Full review across all four UX rule groups (a11y, motion, interaction, UX patterns) |
-| `/review-motion` | Motion-only review — subset of `/review-ux` for animation/transition work |
+| `/e2e` | Generate and run E2E tests |
+| `/e2e-maintenance` | Maintain and fix existing E2E tests |
+| `/tdd` | Test-driven development workflow |
+| `/fix-conflict-lock.yaml` | Resolve pnpm-lock.yaml merge conflicts |
 
-**`/review-ux`** runs a comprehensive UX review:
+#### Design and UX commands
 
-1. **Pre-check** — Scans for duplicate components that already exist in the design system
-2. **Accessibility** — WCAG compliance, ARIA, keyboard navigation, focus management
-3. **Animation & Motion** — Transitions, reduced-motion support, performance
-4. **Interaction Design** — States, touch targets, dialogs, optimistic UI
-5. **UX Patterns** — Design tokens, empty/loading states, forms, dark/light mode
+| Command | Description |
+|---------|-------------|
+| `/review-ux` | Full review across all four UX rule groups |
+| `/review-motion` | Motion-only review for animation/transition work |
 
-Output is a structured report with severity levels: `error`, `warning`, `prompt`.
+### Skills
 
-**`/review-motion`** is a quick motion-only subset of `/review-ux` for animation/transition work.
+#### Engineering skills
+
+| Skill | Description |
+|-------|-------------|
+| `/achievements.team` | Summarize branch changes |
+| `/creating-ui-components.team` | React component creation guide |
+| `/debugging-with-chrome.team` | Chrome browser UI debugging |
+| `/inconsistency-scan.team` | Full codebase consistency scan |
+| `/learn.team` | Extract reusable patterns |
+| `/polish-styling.team` | Tailwind CSS cleanup |
+| `/pr-summary.team` | PR summary generation |
+| `/prepr.team` | Pre-PR quality check with parallel agents |
+| `/reflect.team` | Review mistakes, update rules |
+| `/side-effect.team` | Side effect analysis |
+| `/team.team` | Role-based task delivery with specialized agents |
+| `/todo.team` | Todo-driven task tracking |
+
+#### Design and UX skills (Impeccable)
 
 ### Hooks
 
@@ -294,9 +422,9 @@ The `design-and-ux/` domain provides frontend quality tooling built on [Impeccab
 
 Skills reference each other — `/audit` suggests follow-ups like `/normalize` or `/optimize`. Run `/teach-impeccable` once per project to capture brand, audience, and aesthetic direction in `.impeccable.md`.
 
-### On agents
+### On design-and-ux agents
 
-The current commands are self-contained. If review logic grows complex enough to warrant separation, the recommended upgrade path is:
+The current design-and-ux commands are self-contained. If review logic grows complex enough to warrant separation, the recommended upgrade path is:
 
 - `@a11y-agent` — dedicated accessibility reviewer
 - `@motion-agent` — dedicated motion reviewer
