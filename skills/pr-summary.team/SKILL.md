@@ -11,7 +11,7 @@ disable-model-invocation: true
 * Do NOT include file/line count statistics (e.g., "39 files, +5,301 lines"). Focus on what changed and why, not how many files or lines were affected.
 * Always refer to the current `.github/PULL_REQUEST_TEMPLATE.md` file for the template.
 * Only use sections that exist in the template, don't add custom sections.
-* **Output**: Write the final PR summary to `./report/PR_SUMMARY.MD` (create the `report/` directory if it doesn't exist).
+* **Output**: Write the final PR summary to `report/PR_SUMMARY.MD` (create the `report/` directory if it doesn't exist).
 
 ## Parent Branch Detection
 
