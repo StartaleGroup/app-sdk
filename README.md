@@ -5,16 +5,18 @@ Shared Claude Code configuration for Startale front-end projects, distributed as
 ## Table of contents
 
 - [How it works](#how-it-works)
-  - [The four-tier system](#the-four-tier-system)
-  - [Available groups](#available-groups)
+  - [The tier system](#the-tier-system)
+  - [Available projects](#available-projects)
   - [Naming conventions](#naming-conventions)
   - [Repo structure](#repo-structure)
 - [Setup](#setup)
   - [Step 1: Add the subtree](#step-1-add-the-subtree)
   - [Step 2: Set up git aliases](#step-2-set-up-git-aliases-recommended)
   - [Step 3: Add to .gitignore](#step-3-add-to-gitignore-optional)
+- [Working with project files](#working-with-project-files)
 - [Pulling updates](#pulling-updates)
 - [Pushing changes back](#pushing-changes-back)
+  - [How team files are shared](#how-team-files-are-shared)
   - [Branch naming convention](#branch-naming-convention)
   - [How to push](#how-to-push)
   - [Merge direction](#merge-direction)
@@ -46,41 +48,40 @@ your-project/
 
 The subtree is fully committed in the consumer project's git history. You can pull updates from this repo and push changes back via PRs.
 
-### The four-tier system
+### The tier system
 
 We use a naming convention to separate config by ownership and scope:
 
 | Tier    | Managed in                     | File pattern     | Scope                              |
 |---------|--------------------------------|------------------|------------------------------------|
 | team    | subtree `master`               | `*.team.*`       | All projects across the team       |
-| group   | subtree `group/*` branches     | `*.group.*`      | App-category-specific config       |
-| project | each project repo              | `*.project.*`    | Per-project config                 |
+| project | subtree `<project>` branches   | `*.project.*`    | Per-project config                 |
 | local   | each engineer's machine        | `*.local.*`      | Per-engineer, never committed      |
 
 Config is applied in order from broadest to most specific:
 
 ```
-team → group → project → local
+team → project → local
 ```
 
 Later tiers can override or extend earlier ones.
 
-### Available groups
+### Available projects
 
-Groups represent categories of apps:
+Projects have dedicated branches that contain team config from `master` plus their own project-specific files:
 
-- **`strium`** — covers the Strium homepage and DEX application
-- **`startale`** — covers the Startale super app
-- **`sdk`** — covers SDK-related projects
+- **`strium-apps`** — Strium homepage and DEX application
+- **`superapp`** — Startale super app
+- **`sdk-docs`** — SDK documentation
 
-Each group has a dedicated branch: `group/strium`, `group/startale`, `group/sdk`
+Each project has a dedicated branch with the same name (e.g., `strium-apps`).
 
 ### Naming conventions
 
 Use the tier marker as the middle segment: `name.<tier>.ext`
 
-- Examples: `frontend.team.md`, `dex.group.md`, `lint.project.md`, `personal.local.md`
-- Tier markers: `team`, `group`, `project`, `local`
+- Examples: `frontend.team.md`, `api.project.md`, `personal.local.md`
+- Tier markers: `team`, `project`, `local`
 
 ### Repo structure
 
@@ -115,7 +116,7 @@ skills/                         # Interactive skill workflows
 │   └── ...                     # (12 engineering + 18 design skills)
 ```
 
-Files are organized by domain (e.g., `design-and-ux/`) within each folder. `*.team.*` files live on `master`, with `*.group.*` files added on group branches.
+Files are organized by domain (e.g., `design-and-ux/`) within each folder. `*.team.*` files live on `master`, with `*.project.*` files added on project branches.
 
 ---
 
@@ -123,30 +124,33 @@ Files are organized by domain (e.g., `design-and-ux/`) within each folder. `*.te
 
 ### Step 1: Add the subtree
 
-First, choose the branch that matches your project's group. Group branches include all team-level config from `master` plus group-specific rules:
+Choose the branch that matches your project:
 
 | If your project is... | Use branch |
 |----------------------|------------|
-| Strium homepage or DEX | `group/strium` |
-| Startale super app | `group/startale` |
-| SDK-related | `group/sdk` |
+| Strium homepage or DEX | `strium-apps` |
+| Startale super app | `superapp` |
+| SDK documentation | `sdk-docs` |
 | None of the above / team-only | `master` |
 
 ```bash
 # Add the remote (one-time)
 git remote add claude-config https://github.com/StartaleGroup/claude-config-frontend.git
 
-# Add the subtree (replace BRANCH with your group branch)
-git subtree add --prefix=.claude claude-config group/strium
+# Add the subtree (replace BRANCH with your project branch)
+git subtree add --prefix=.claude claude-config strium-apps --squash
 ```
 
 ### Step 2: Set up git aliases (recommended)
 
-Add these to your project's git config (replace `group/strium` with your group branch):
+Add these to your project's git config (replace `strium-apps` with your project branch):
 
 ```bash
-git config alias.cc-pull 'subtree pull --prefix=.claude claude-config group/strium'
-git config alias.cc-push 'subtree push --prefix=.claude claude-config'
+# cc-pull: Pull latest shared config
+git config alias.cc-pull 'subtree pull --prefix=.claude claude-config strium-apps --squash'
+
+# cc-push: Push .claude/ changes to your project branch
+git config alias.cc-push '!f() { git subtree push --prefix=.claude claude-config $1; }; f'
 ```
 
 Then use:
@@ -158,6 +162,8 @@ git cc-pull
 # Push changes back (always to a feature branch, then open a PR)
 git cc-push from/my-project/description-of-change
 ```
+
+**Team file promotion:** If your push includes `.team.*` file changes, a GitHub Action automatically opens a follow-up PR from `master` with those team files. Reviewers approve the promotion, and master syncs back to all project branches.
 
 ### Step 3: Add to .gitignore (optional)
 
@@ -172,24 +178,9 @@ settings.local.*
 
 ---
 
-## Working with project-tier files
+## Working with project files
 
-Project-tier files (`*.project.*`) are **per-project config** that lives in the consumer project's repo, not in this shared config repo.
-
-### Why `git add -f` is required
-
-This repo's `.gitignore` excludes `*.project.*` files to prevent them from leaking into the shared config. When you add the subtree to your project, that `.gitignore` lands at `.claude/.gitignore` — and it will hide your project files from `git status`.
-
-To track project files in your consumer project, **force-add them once**:
-
-```bash
-# Force-add a new project file (first time only)
-git add -f .claude/rules/api.project.md
-
-# After force-adding, git tracks the file normally
-# Future edits are picked up by regular `git add`
-git add .claude/rules/api.project.md   # works after initial force-add
-```
+Project files (`*.project.*`) live on project branches (e.g., `strium-apps`) and are tracked normally — no special `.gitignore` handling or `git add -f` needed.
 
 ### Creating project files
 
@@ -214,24 +205,8 @@ Use the `*.project.*` naming convention for files, and `*.project` suffix on dir
 | Tier | Directory name | Example |
 |------|---------------|---------|
 | team | `skill-name.team/` | `skills/achievements.team/SKILL.md` |
-| group | `skill-name.group/` | `skills/dex-trading.group/SKILL.md` |
 | project | `skill-name.project/` | `skills/playwright-login.project/SKILL.md` |
 | local | `skill-name.local/` | `skills/my-debug.local/SKILL.md` |
-
-The `.gitignore` patterns `**/*.project/**` and `**/*.local/**` automatically exclude project and local skill directories from `git cc-push`.
-
-### What happens on `git cc-push`
-
-When you push changes back to this repo, **project files are automatically excluded** by the `.gitignore`. Only `*.team.*` and `*.group.*` changes are pushed. You don't need to worry about project files leaking upstream.
-
-### Special files
-
-| File | Behavior |
-|------|----------|
-| `settings.json` | Not tier-named. Force-add with `git add -f`. Per-project. |
-| `settings.local.json` | Always gitignored. Per-engineer. |
-| `CLAUDE.project.md` | Project-level config. Force-add once. |
-| `CLAUDE.group.md` | From shared config (group branch). Don't edit directly. |
 
 ---
 
@@ -239,28 +214,21 @@ When you push changes back to this repo, **project files are automatically exclu
 
 ```bash
 git cc-pull
-# Or without alias (use your group branch):
-git subtree pull --prefix=.claude claude-config group/strium
+# Or without alias:
+git subtree pull --prefix=.claude claude-config strium-apps --squash
 ```
-
-> **Note:** This creates a merge commit, so your editor will open for a commit message. The default message is fine — save and quit (`:wq` in vim) to continue.
 
 ---
 
 ## Pushing changes back
 
-Changes made to config files inside a consumer project can be pushed back to this repo. Always push to a **feature branch** and open a PR — never push directly to `master` or `group/*`.
+Changes made to config files inside a consumer project can be pushed back to this repo. Always push to a **feature branch** and open a PR — never push directly to `master` or to a project branch.
 
-### Team vs group: which branch to target
+### How team files are shared
 
-Before creating a PR, determine whether your change is **team-level** or **group-level**:
+When you push to your project branch with `cc-push`, both `.team.*` and `.project.*` changes land on that project branch. If your push includes `.team.*` file changes, a GitHub Action automatically opens a follow-up PR from master with those team files — reviewers approve the promotion, and master syncs back to all project branches.
 
-| Change type | File pattern | PR targets | Example |
-|-------------|-------------|------------|---------|
-| Applies to all front-end projects | `*.team.*` | `master` | Accessibility rules, shared UX patterns |
-| Specific to one app category | `*.group.*` | `group/*` branch | DEX trading UI rules, super app nav patterns |
-
-**Never mix team and group changes in the same PR.** If a rule starts as group-specific but proves useful across all projects, promote it by creating a new `*.team.*` file in a separate PR to `master`.
+You don't need to decide which branch to target. Just push to your project branch via `cc-push`, and CI handles the rest.
 
 ### Branch naming convention
 
@@ -269,35 +237,28 @@ from/<consumer-project>/<short-description>
 ```
 
 Examples:
-- `from/dex-app/add-trading-rules` → PR to `group/strium`
-- `from/super-app/update-motion-tokens` → PR to `group/startale`
-- `from/sdk-docs/fix-a11y-rule` → PR to `master` (applies to all projects)
+- `from/strium-apps/add-trading-rules` → PR to `strium-apps`
+- `from/superapp/update-motion-tokens` → PR to `superapp`
+- `from/sdk-docs/fix-a11y-rule` → PR to `sdk-docs`
 
 ### How to push
 
 ```bash
 git cc-push from/my-project/add-api-rules
-# Or without alias:
-git subtree push --prefix=.claude claude-config from/my-project/add-api-rules
 ```
 
-Then open a PR from `from/my-project/add-api-rules` → `master` (or the appropriate `group/*` branch).
+Then open a PR from `from/my-project/add-api-rules` → your project branch (e.g., `strium-apps`).
 
 ### Merge direction
 
-Group branches (`group/strium`, `group/startale`, `group/sdk`) contain group-specific config that must not leak into `master`. The merge direction is strictly one-way:
+Project branches (`strium-apps`, `superapp`, `sdk-docs`) contain project-specific config alongside team config. Team files flow bidirectionally via CI automation:
 
 ```
-master → group branches    ✅  (merge master INTO group)
-group branches → master    ❌  (NEVER merge group INTO master)
+master → project branches    ✅  (sync-to-projects.yml, automatic)
+project branches → master    ✅  (promote-team-files.yml, .team.* files only)
 ```
 
-When team-level changes are made on `master`, merge master into each group branch to pick them up:
-
-```bash
-git checkout group/strium
-git merge master
-```
+When `.team.*` files are modified on a project branch, CI automatically creates a promotion PR to master. When master is updated, CI automatically merges it into all project branches. Engineers don't need to manage this manually.
 
 ---
 
