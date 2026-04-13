@@ -9,16 +9,5 @@ commands/**local**.md
 rules/**local**.md
 skills/**local**.md
 
-# for project rules, etc.
-settings.project.json
-settings.project.*
-**/*.project.*
-**/*.project/**
-**project**.md
-agents/**project**.md
-commands/**project**.md
-rules/**project**.md
-skills/**project**.md
-
 /docs
 /report
