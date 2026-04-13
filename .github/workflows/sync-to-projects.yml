@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [strium-apps, superapp, sdk-docs]
+        project: [strium-apps, superapp, superapp-sdk]
     steps:
       - uses: actions/checkout@v4
         with:

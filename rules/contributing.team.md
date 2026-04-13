@@ -7,9 +7,9 @@ Config in this repo is split across two tiers. It is critical to keep them separ
 **Team tier** (`*.team.*` files, on `master` branch):
 - Rules, skills, commands, and hooks that apply to **all** front-end projects
 - Examples: accessibility standards, animation guidelines, shared UX patterns, Impeccable skills
-- Must be generic enough to work across all projects (strium-apps, superapp, sdk-docs)
+- Must be generic enough to work across all projects (strium-apps, superapp, superapp-sdk)
 
-**Project tier** (`*.project.*` files, on project branches like `strium-apps`, `superapp`, `sdk-docs`):
+**Project tier** (`*.project.*` files, on project branches like `strium-apps`, `superapp`, `superapp-sdk`):
 - Rules, skills, commands, and hooks specific to a **single project**
 - Examples: DEX-specific trading UI rules, super app navigation patterns, project-specific API conventions
 - Lives on the project branch and is pulled into the consumer project via subtree
@@ -44,7 +44,7 @@ from/<consumer-project>/<short-description>
 ```
 
 - `from/` prefix indicates the change originates from a consumer project
-- `<consumer-project>` is the name of the app or project (e.g., `strium-apps`, `superapp`, `sdk-docs`)
+- `<consumer-project>` is the name of the app or project (e.g., `strium-apps`, `superapp`, `superapp-sdk`)
 - `<short-description>` briefly describes the change (e.g., `add-trading-rules`, `fix-a11y-rule`)
 
 ### Merge direction

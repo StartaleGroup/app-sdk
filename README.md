@@ -72,7 +72,7 @@ Projects have dedicated branches that contain team config from `master` plus the
 
 - **`strium-apps`** — Strium homepage and DEX application
 - **`superapp`** — Startale super app
-- **`sdk-docs`** — SDK documentation
+- **`superapp-sdk`** — SDK documentation
 
 Each project has a dedicated branch with the same name (e.g., `strium-apps`).
 
@@ -130,7 +130,7 @@ Choose the branch that matches your project:
 |----------------------|------------|
 | Strium homepage or DEX | `strium-apps` |
 | Startale super app | `superapp` |
-| SDK documentation | `sdk-docs` |
+| SDK documentation | `superapp-sdk` |
 | None of the above / team-only | `master` |
 
 ```bash
@@ -239,7 +239,7 @@ from/<consumer-project>/<short-description>
 Examples:
 - `from/strium-apps/add-trading-rules` → PR to `strium-apps`
 - `from/superapp/update-motion-tokens` → PR to `superapp`
-- `from/sdk-docs/fix-a11y-rule` → PR to `sdk-docs`
+- `from/superapp-sdk/fix-a11y-rule` → PR to `superapp-sdk`
 
 ### How to push
 
@@ -251,7 +251,7 @@ Then open a PR from `from/my-project/add-api-rules` → your project branch (e.g
 
 ### Merge direction
 
-Project branches (`strium-apps`, `superapp`, `sdk-docs`) contain project-specific config alongside team config. Team files flow bidirectionally via CI automation:
+Project branches (`strium-apps`, `superapp`, `superapp-sdk`) contain project-specific config alongside team config. Team files flow bidirectionally via CI automation:
 
 ```
 master → project branches    ✅  (sync-to-projects.yml, automatic)
