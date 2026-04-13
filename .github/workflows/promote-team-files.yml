@@ -2,7 +2,7 @@ name: Promote team files to master
 
 on:
   push:
-    branches: [strium-apps, superapp, sdk-docs]
+    branches: [strium-apps, superapp, superapp-sdk]
 
 permissions:
   contents: write
