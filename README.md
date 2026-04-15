@@ -27,7 +27,7 @@ Set up the shared Claude Code config for this project.
 4. If .claude-lib/project/ still doesn't exist after step 3, create it as an empty directory.
 
 5. Run the install script to generate .claude/ from the shared and project sources:
-	 bash .claude-lib/shared/install.sh
+	 bash .claude-lib/shared/.scripts/install.sh
 
 6. Ensure .claude and .claude-lib/shared-overridden are in .gitignore (install.sh does this, but verify).
 
@@ -60,8 +60,11 @@ your-project/
 │   │   ├── hooks/
 │   │   ├── rules/
 │   │   ├── skills/
-│   │   ├── install.sh   # generates .claude/ from shared + project
-│   │   ├── push.sh      # reverses install and pushes changes back
+│   │   ├── .scripts/
+│   │   │   ├── install.sh  # first-time setup (gitignore + unpack)
+│   │   │   ├── unpack.sh   # generates .claude/ from shared + project
+│   │   │   ├── pack.sh     # reverses unpack: .claude/ → shared + project
+│   │   │   └── push.sh     # pushes shared changes to source repo
 │   │   └── README.md
 │   ├── project/         # project-specific config (committed separately)
 │   │   ├── agents/
@@ -109,7 +112,7 @@ Applied broadest to most specific: `shared → project → local`
 
 ```bash
 git subtree pull --prefix=.claude-lib/shared claude-config <BRANCH> --squash
-bash .claude-lib/shared/unpack.sh
+bash .claude-lib/shared/.scripts/unpack.sh
 ```
 
 ### Pushing changes back
@@ -118,10 +121,10 @@ After editing files in `.claude/`, pack them back and push:
 
 ```bash
 # If you edited files in .claude/, pack them back into shared/ and project/ first
-bash .claude-lib/shared/pack.sh
+bash .claude-lib/shared/.scripts/pack.sh
 
 # Then push shared changes to the source repo
-bash .claude-lib/shared/push.sh
+bash .claude-lib/shared/.scripts/push.sh
 ```
 
 If you only edited files directly in `.claude-lib/shared/` or `.claude-lib/project/`, you can skip `pack.sh` and run `push.sh` directly.
