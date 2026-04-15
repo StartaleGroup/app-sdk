@@ -12,28 +12,30 @@ Paste this into Claude Code to set everything up automatically:
 Set up the shared Claude Code config for this project.
 
 1. Add the remote if it doesn't exist:
-	 git remote add claude-config https://github.com/StartaleGroup/claude-config-frontend.git
+     git remote add claude-config https://github.com/StartaleGroup/claude-config-frontend.git
 
 2. Pull the shared config as a subtree into .claude-lib/shared:
-	 git subtree add --prefix=.claude-lib/shared claude-config master
+     git subtree add --prefix=.claude-lib/shared claude-config <BRANCH>
 
-3. If .claude/ already exists with config files, migrate them to .claude-lib/project:
-	 - Compare each file in .claude/ against .claude-lib/shared/ (ignoring any tier suffixes like .team, .shared, .project in filenames).
-	 - If a file is identical to its shared counterpart, delete it from .claude/.
-	 - Move the remaining files (project-specific config) to .claude-lib/project/, stripping any tier suffix from the filename.
-	   For skills, move the entire skill folder and strip the tier suffix from the folder name.
-	 - Commit the new .claude-lib/project/ directory.
+   Use the appropriate branch from the table below.
+
+3. If .claude/ already exists with config files, run the migration script:
+     bash .claude-lib/shared/.scripts/migrate.sh
+
+   This compares each file against the shared config, deletes identical files,
+   and moves project-specific files to .claude-lib/project/.
+   Commit the resulting .claude-lib/project/ directory.
 
 4. If .claude-lib/project/ still doesn't exist after step 3, create it as an empty directory.
 
 5. Run the install script to generate .claude/ from the shared and project sources:
-	 bash .claude-lib/shared/.scripts/install.sh
+     bash .claude-lib/shared/.scripts/install.sh
 
-6. Ensure .claude and .claude-lib/shared-overridden are in .gitignore (install.sh does this, but verify).
+6. Ensure .claude/ and .claude-lib/shared-overridden are in .gitignore (install.sh does this, but verify).
 
 7. Do NOT commit .claude/ — it is generated and gitignored. Only .claude-lib/shared and .claude-lib/project are committed.
-	 After completing all steps, run `git status` — there should be no changes in .claude/ since it is gitignored.
-	 If .claude/ still shows as tracked, run `git rm -r --cached .claude` to untrack it.
+   After completing all steps, run `git status` — there should be no changes in .claude/ since it is gitignored.
+   If .claude/ still shows as tracked, run `git rm -r --cached .claude` to untrack it.
 ```
 
 ### Available project branches
@@ -62,6 +64,7 @@ your-project/
 │   │   ├── skills/
 │   │   ├── .scripts/
 │   │   │   ├── install.sh  # first-time setup (gitignore + unpack)
+│   │   │   ├── migrate.sh  # migrates existing .claude/ → .claude-lib/project/
 │   │   │   ├── unpack.sh   # generates .claude/ from shared + project
 │   │   │   ├── pack.sh     # reverses unpack: .claude/ → shared + project
 │   │   │   └── push.sh     # pushes shared changes to source repo
