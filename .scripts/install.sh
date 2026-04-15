@@ -10,7 +10,7 @@ ROOT_DIR="$(dirname "$LIB_DIR")"
 
 # Ensure .claude/ and .claude-lib/shared-overridden are in .gitignore
 GITIGNORE="$ROOT_DIR/.gitignore"
-for entry in .claude .claude-lib/shared-overridden; do
+for entry in .claude .claude-lib/shared-overridden .claude-lib/local; do
   # Match with or without trailing slash to avoid duplicates
   if ! grep -qE "^${entry}/?$" "$GITIGNORE" 2>/dev/null; then
     echo "$entry" >> "$GITIGNORE"

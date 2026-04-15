@@ -9,12 +9,14 @@ ROOT_DIR="$(dirname "$LIB_DIR")"
 TARGET_DIR="$ROOT_DIR/.claude"
 OVERRIDDEN_DIR="$LIB_DIR/shared-overridden"
 PROJECT_DIR="$LIB_DIR/project"
+LOCAL_DIR="$LIB_DIR/local"
 
 # --- Clear shared and project (preserve non-content files in shared like install.sh, .github, etc.) ---
 
 for dir in agents commands hooks rules skills; do
 	rm -rf "$SHARED_DIR/$dir"
 	rm -rf "$PROJECT_DIR/$dir"
+	rm -rf "$LOCAL_DIR/$dir"
 done
 
 # --- Sort .claude files back to shared/project based on suffix ---
@@ -38,6 +40,14 @@ for dir in agents commands hooks rules; do
 		mkdir -p "$(dirname "$dest")"
 		cp "$file" "$dest"
 	done
+
+	find "$src" -name '*.local.md' -type f | while read -r file; do
+		rel="${file#"$src"/}"
+		base="${rel%.local.md}"
+		dest="$LOCAL_DIR/$dir/${base}.md"
+		mkdir -p "$(dirname "$dest")"
+		cp "$file" "$dest"
+	done
 done
 
 # --- Sort skills back based on folder suffix ---
@@ -54,6 +64,10 @@ if [ -d "$src" ]; then
 			*.project)
 				skill_name="${skill_folder%.project}"
 				dest_dir="$PROJECT_DIR/skills/$skill_name"
+				;;
+			*.local)
+				skill_name="${skill_folder%.local}"
+				dest_dir="$LOCAL_DIR/skills/$skill_name"
 				;;
 			*)
 				continue
