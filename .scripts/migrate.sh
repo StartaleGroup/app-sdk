@@ -60,19 +60,21 @@ if [ -d "$CLAUDE_DIR/skills" ]; then
 
     if [ -d "$shared_skill" ]; then
       all_identical=true
+      migrate_check="$(mktemp)"
+      trap 'rm -f "$migrate_check"' EXIT
       find "$skill_dir" -type f | while read -r file; do
         rel="${file#"$skill_dir"/}"
         shared_file="$shared_skill/$rel"
         if [ ! -f "$shared_file" ] || ! diff -q "$file" "$shared_file" >/dev/null 2>&1; then
-          echo "differ" > /tmp/migrate_check
+          echo "differ" > "$migrate_check"
           break
         fi
       done
 
-      if [ -f /tmp/migrate_check ]; then
-        rm /tmp/migrate_check
+      if [ -s "$migrate_check" ]; then
         all_identical=false
       fi
+      rm -f "$migrate_check"
 
       if $all_identical; then
         rm -rf "$skill_dir"
@@ -101,9 +103,10 @@ for file in "$CLAUDE_DIR"/*.json; do
 done
 
 # Untrack .claude/ from git if it was tracked
-if git -C "$ROOT_DIR" ls-files --error-unmatch "$CLAUDE_DIR" >/dev/null 2>&1; then
+CLAUDE_REL="${CLAUDE_DIR#"$ROOT_DIR"/}"
+if git -C "$ROOT_DIR" ls-files --error-unmatch "$CLAUDE_REL" >/dev/null 2>&1; then
   echo "Untracking .claude/ from git..."
-  git -C "$ROOT_DIR" rm -r --cached "$CLAUDE_DIR" >/dev/null 2>&1 || true
+  git -C "$ROOT_DIR" rm -r --cached "$CLAUDE_REL" >/dev/null 2>&1 || true
 fi
 
 # Clean up empty directories
