@@ -149,7 +149,7 @@ from/<project>/<short-description>
 
 ### Team file promotion
 
-When a PR containing `.team.*` changes is merged to a project branch, a GitHub Action automatically opens a promotion PR to `master`. Once merged, `master` syncs back to all project branches.
+When a PR containing shared config changes (files in `.claude-lib/shared/`) is merged to a project branch, a GitHub Action automatically opens a promotion PR to `master`. Once merged, `master` syncs back to all project branches.
 
 ---
 
