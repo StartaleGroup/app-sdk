@@ -14,8 +14,8 @@ Set up the shared Claude Code config for this project.
 1. Add the remote if it doesn't exist:
 	 git remote add claude-config https://github.com/StartaleGroup/claude-config-frontend.git
 
-2. Pull the shared config as a subtree into .claude-lib/shared (use --squash):
-	 git subtree add --prefix=.claude-lib/shared claude-config master --squash
+2. Pull the shared config as a subtree into .claude-lib/shared:
+	 git subtree add --prefix=.claude-lib/shared claude-config master
 
 3. If .claude/ already exists with config files, migrate them to .claude-lib/project:
 	 - Compare each file in .claude/ against .claude-lib/shared/ (ignoring any tier suffixes like .team, .shared, .project in filenames).
@@ -111,7 +111,7 @@ Applied broadest to most specific: `shared → project → local`
 ### Pulling updates
 
 ```bash
-git subtree pull --prefix=.claude-lib/shared claude-config <BRANCH> --squash
+git subtree pull --prefix=.claude-lib/shared claude-config master --squash
 bash .claude-lib/shared/.scripts/unpack.sh
 ```
 
