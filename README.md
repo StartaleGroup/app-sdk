@@ -81,11 +81,15 @@ your-project/
 - Skills get the suffix on the folder name (e.g., `prepr/` → `prepr.shared/`)
 - When both shared and project have the same file, the shared version is moved to `shared-overridden/` so Claude Code only sees the project version
 
-**`push.sh`** reverses the process:
+**`unpack.sh`** is the core of `install.sh` — generates `.claude/` from `shared/` + `project/`. Called by `install.sh` but can also be run standalone to regenerate `.claude/`.
+
+**`pack.sh`** reverses `unpack.sh`:
 - Reads `.claude/` and sorts files back into `shared/` and `project/` based on their suffix
 - Restores overridden shared files from `shared-overridden/`
+
+**`push.sh`** pushes shared changes to the source repo:
 - Stages and commits any changes to `.claude-lib/shared`
-- Pushes to the source repo on a timestamped feature branch via `git subtree push`
+- Pushes to the source repo on a timestamped feature branch
 
 ### The tier system
 
@@ -105,22 +109,22 @@ Applied broadest to most specific: `shared → project → local`
 
 ```bash
 git subtree pull --prefix=.claude-lib/shared claude-config <BRANCH> --squash
-bash .claude-lib/shared/install.sh
+bash .claude-lib/shared/unpack.sh
 ```
 
 ### Pushing changes back
 
-After editing files in `.claude/`, run the push script:
+After editing files in `.claude/`, pack them back and push:
 
 ```bash
+# If you edited files in .claude/, pack them back into shared/ and project/ first
+bash .claude-lib/shared/pack.sh
+
+# Then push shared changes to the source repo
 bash .claude-lib/shared/push.sh
 ```
 
-This will:
-1. Sort files from `.claude/` back into `shared/` and `project/`
-2. Commit shared changes
-3. Push a feature branch to the source repo
-4. Print a PR link
+If you only edited files directly in `.claude-lib/shared/` or `.claude-lib/project/`, you can skip `pack.sh` and run `push.sh` directly.
 
 PRs should target your project branch (e.g., `superapp`).
 
