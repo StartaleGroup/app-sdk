@@ -18,16 +18,14 @@ if ! git -C "$ROOT_DIR" remote get-url "$CONFIG_REMOTE" &>/dev/null; then
 fi
 
 # Stage and commit shared changes
-git -C "$ROOT_DIR" add "$SHARED_DIR"
-if ! git -C "$ROOT_DIR" diff --cached --quiet -- "$SHARED_DIR"; then
-	git -C "$ROOT_DIR" commit -m "sync shared Claude Code config" -- "$SHARED_DIR"
+SHARED_REL="${SHARED_DIR#"$ROOT_DIR"/}"
+git -C "$ROOT_DIR" add -- "$SHARED_REL"
+if ! git -C "$ROOT_DIR" diff --cached --quiet -- "$SHARED_REL"; then
+	git -C "$ROOT_DIR" commit -m "sync shared Claude Code config" -- "$SHARED_REL"
 	echo "Committed shared changes"
 fi
 
-BRANCH_NAME="from/superapp/sync-$(date +%Y%m%d-%H%M%S)"
-
-# Split shared dir history and push to source repo
-SHARED_REL="${SHARED_DIR#"$ROOT_DIR"/}"
+BRANCH_NAME="from/$CONFIG_BRANCH/sync-$(date +%Y%m%d-%H%M%S)"
 git -C "$ROOT_DIR" subtree push --prefix="$SHARED_REL" "$CONFIG_REMOTE" "$BRANCH_NAME"
 
 echo "Pushed to $CONFIG_REMOTE/$BRANCH_NAME"
