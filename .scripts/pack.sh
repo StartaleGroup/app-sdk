@@ -73,9 +73,9 @@ if [ -d "$OVERRIDDEN_DIR" ]; then
 	for dir in agents commands hooks rules; do
 		src="$OVERRIDDEN_DIR/$dir"
 		[ -d "$src" ] || continue
-		find "$src" -name '*.shared.md' -type f | while read -r file; do
+		find "$src" -name '*.md' -type f | while read -r file; do
 			rel="${file#"$src"/}"
-			base="${rel%.shared.md}"
+			base="${rel%.md}"
 			dest="$SHARED_DIR/$dir/${base}.md"
 			# Only copy if shared doesn't already have this file (avoid overwriting edits)
 			if [ ! -f "$dest" ]; then
@@ -89,8 +89,7 @@ if [ -d "$OVERRIDDEN_DIR" ]; then
 	src="$OVERRIDDEN_DIR/skills"
 	if [ -d "$src" ]; then
 		find "$src" -mindepth 1 -maxdepth 1 -type d | while read -r skill_dir; do
-			skill_folder="$(basename "$skill_dir")"
-			skill_name="${skill_folder%.shared}"
+			skill_name="$(basename "$skill_dir")"
 			dest_dir="$SHARED_DIR/skills/$skill_name"
 			if [ ! -d "$dest_dir" ]; then
 				mkdir -p "$dest_dir"

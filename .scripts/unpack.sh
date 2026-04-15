@@ -71,7 +71,7 @@ for dir in agents commands hooks rules; do
     shared_file="$TARGET_DIR/$dir/${base}.shared.md"
     if [ -f "$shared_file" ]; then
       mkdir -p "$OVERRIDDEN_DIR/$dir"
-      mv "$shared_file" "$OVERRIDDEN_DIR/$dir/${base}.shared.md"
+      mv "$shared_file" "$OVERRIDDEN_DIR/$dir/${base}.md"
     fi
     mkdir -p "$(dirname "$dest")"
     cp "$file" "$dest"
@@ -88,7 +88,7 @@ if [ -d "$src" ]; then
     shared_dir="$TARGET_DIR/skills/${skill_name}.shared"
     if [ -d "$shared_dir" ]; then
       mkdir -p "$OVERRIDDEN_DIR/skills"
-      mv "$shared_dir" "$OVERRIDDEN_DIR/skills/${skill_name}.shared"
+      mv "$shared_dir" "$OVERRIDDEN_DIR/skills/${skill_name}"
     fi
     mkdir -p "$dest_dir"
     (cd "$skill_dir" && find . -type f | while read -r file; do
