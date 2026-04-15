@@ -103,4 +103,12 @@ if [ -d "$OVERRIDDEN_DIR" ]; then
 	fi
 fi
 
+# --- Copy standalone files (settings.json) back to project ---
+
+for file in "$TARGET_DIR"/*.json; do
+  [ -f "$file" ] || continue
+  mkdir -p "$PROJECT_DIR"
+  cp "$file" "$PROJECT_DIR/$(basename "$file")"
+done
+
 echo "Packed .claude → shared + project"

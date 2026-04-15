@@ -44,6 +44,12 @@ if [ -d "$src" ]; then
   done
 fi
 
+# Copy standalone files (settings.json, etc.)
+for file in "$SHARED_DIR"/*.json; do
+  [ -f "$file" ] || continue
+  cp "$file" "$TARGET_DIR/$(basename "$file")"
+done
+
 echo "Unpacked shared → .claude (with .shared suffix)"
 
 # --- Copy project with .project suffix, moving conflicts to shared-overridden ---
@@ -91,5 +97,11 @@ if [ -d "$src" ]; then
     done)
   done
 fi
+
+# Copy standalone files from project (settings.json overrides shared)
+for file in "$PROJECT_DIR"/*.json; do
+  [ -f "$file" ] || continue
+  cp "$file" "$TARGET_DIR/$(basename "$file")"
+done
 
 echo "Unpacked project → .claude (with .project suffix)"
