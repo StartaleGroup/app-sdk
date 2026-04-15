@@ -114,7 +114,7 @@ Applied broadest to most specific: `shared → project → local`
 ### Pulling updates
 
 ```bash
-git subtree pull --prefix=.claude-lib/shared claude-config master --squash
+git subtree pull --prefix=.claude-lib/shared claude-config master
 bash .claude-lib/shared/.scripts/unpack.sh
 ```
 
