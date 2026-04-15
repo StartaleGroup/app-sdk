@@ -6,5 +6,5 @@ Push shared Claude Code config changes back to the source repo.
 3. Run: `bash .claude-lib/shared/.scripts/push.sh`
    This stages, commits, and pushes shared changes to a timestamped feature branch.
 4. Show the branch name and suggest creating a PR:
-   `gh pr create --repo StartaleGroup/claude-config-frontend --base superapp --head <branch-name> --title "<short description>" --body "<summary of changes>"`
+   `gh pr create --repo StartaleGroup/claude-config-frontend --base master --head <branch-name> --title "<short description>" --body "<summary of changes>"`
    Ask the user for a title/description, or suggest one based on the changes.
