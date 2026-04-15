@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Generates .claude/ from shared/ and project/ sources, adding tier suffixes
 
-SHARED_DIR="$(cd "$(dirname "$0")" && pwd)"
+SHARED_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LIB_DIR="$(dirname "$SHARED_DIR")"
 ROOT_DIR="$(dirname "$LIB_DIR")"
 TARGET_DIR="$ROOT_DIR/.claude"

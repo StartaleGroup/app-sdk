@@ -3,7 +3,8 @@ set -euo pipefail
 
 # First-time setup: ensures .gitignore entries, then unpacks shared + project into .claude/
 
-SHARED_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SHARED_DIR="$(dirname "$SCRIPT_DIR")"
 LIB_DIR="$(dirname "$SHARED_DIR")"
 ROOT_DIR="$(dirname "$LIB_DIR")"
 
@@ -16,4 +17,4 @@ for entry in .claude .claude-lib/shared-overridden; do
 done
 
 # Unpack shared + project into .claude/
-bash "$SHARED_DIR/unpack.sh"
+bash "$SCRIPT_DIR/unpack.sh"

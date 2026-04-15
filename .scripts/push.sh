@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Pushes .claude-lib/shared changes to the source repo on a feature branch
 
-SHARED_DIR="$(cd "$(dirname "$0")" && pwd)"
+SHARED_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LIB_DIR="$(dirname "$SHARED_DIR")"
 ROOT_DIR="$(dirname "$LIB_DIR")"
 
