@@ -102,3 +102,49 @@ if [ -d "$OVERRIDDEN_DIR" ]; then
 fi
 
 echo "Pushed .claude → shared + project"
+
+# --- Push shared changes to source repo if any ---
+
+CONFIG_REMOTE="claude-config"
+CONFIG_REMOTE_URL="https://github.com/StartaleGroup/claude-config-frontend.git"
+CONFIG_BRANCH="superapp"
+
+# Add the remote if it doesn't exist
+if ! git -C "$ROOT_DIR" remote get-url "$CONFIG_REMOTE" &>/dev/null; then
+  echo "Adding '$CONFIG_REMOTE' remote..."
+  git -C "$ROOT_DIR" remote add "$CONFIG_REMOTE" "$CONFIG_REMOTE_URL"
+fi
+
+# Stage and commit shared changes so the worktree has them
+git -C "$ROOT_DIR" add "$SHARED_DIR"
+if ! git -C "$ROOT_DIR" diff --cached --quiet -- "$SHARED_DIR"; then
+  git -C "$ROOT_DIR" commit -m "chore: sync shared config" -- "$SHARED_DIR"
+  echo "Committed shared changes"
+fi
+
+git -C "$ROOT_DIR" fetch "$CONFIG_REMOTE" "$CONFIG_BRANCH" --quiet
+
+# Create a temp worktree to compare against the source repo
+WORKTREE_DIR="$(mktemp -d)"
+git -C "$ROOT_DIR" worktree add "$WORKTREE_DIR" "$CONFIG_REMOTE/$CONFIG_BRANCH" --detach --quiet
+
+# Sync shared contents into the worktree
+(
+  cd "$WORKTREE_DIR"
+  rm -rf agents commands hooks rules skills
+  rsync -a "$SHARED_DIR/" "$WORKTREE_DIR/"
+  git add -A
+
+  if git diff --cached --quiet; then
+    echo "No shared changes to push to source repo"
+  else
+    BRANCH_NAME="from/superapp/sync-$(date +%Y%m%d-%H%M%S)"
+    git checkout -b "$BRANCH_NAME"
+    git commit -m "Sync shared config from superapp"
+    git push "$CONFIG_REMOTE" "$BRANCH_NAME"
+    echo "Pushed to $CONFIG_REMOTE/$BRANCH_NAME"
+    echo "Open a PR: https://github.com/StartaleGroup/claude-config-frontend/pull/new/$BRANCH_NAME"
+  fi
+)
+
+git -C "$ROOT_DIR" worktree remove "$WORKTREE_DIR"
