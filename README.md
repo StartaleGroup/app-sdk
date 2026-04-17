@@ -6,16 +6,16 @@ Shared Claude Code configuration for Startale front-end projects, distributed as
 
 ### One-liner setup
 
-Run this from a biz repo to install:
+> **Note:** This repo is private. The install command uses `gh` CLI for authenticated access.
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) business
+bash <(gh api repos/StartaleGroup/claude-config-shared/contents/.scripts/install.sh --jq '.content' | base64 -d) business
 ```
 
 For frontend repos:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) frontend
+bash <(gh api repos/StartaleGroup/claude-config-shared/contents/.scripts/install.sh --jq '.content' | base64 -d) frontend
 ```
 
 ---
