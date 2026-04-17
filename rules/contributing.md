@@ -31,7 +31,7 @@ When pushing config changes back to this repo from a consumer project, always pu
 Every PR from a consumer project targets the project branch (e.g., `strium-apps`), regardless of whether it contains team or project files:
 
 - Consumer runs `git cc-push from/<project>/<description>`
-- The feature branch is pushed to `claude-config-frontend`
+- The feature branch is pushed to `claude-config-shared`
 - Open a PR from the feature branch → the project branch (e.g., `strium-apps`)
 - Reviewers merge the PR into the project branch
 

@@ -8,7 +8,7 @@ LIB_DIR="$(dirname "$SHARED_DIR")"
 ROOT_DIR="$(dirname "$LIB_DIR")"
 
 CONFIG_REMOTE="claude-config"
-CONFIG_REMOTE_URL="https://github.com/StartaleGroup/claude-config-frontend.git"
+CONFIG_REMOTE_URL="https://github.com/StartaleGroup/claude-config-shared.git"
 CONFIG_BRANCH="superapp"
 
 # Add the remote if it doesn't exist
@@ -29,4 +29,4 @@ BRANCH_NAME="from/$CONFIG_BRANCH/sync-$(date +%Y%m%d-%H%M%S)"
 git -C "$ROOT_DIR" subtree push --prefix="$SHARED_REL" "$CONFIG_REMOTE" "$BRANCH_NAME"
 
 echo "Pushed to $CONFIG_REMOTE/$BRANCH_NAME"
-echo "Open a PR: https://github.com/StartaleGroup/claude-config-frontend/pull/new/$BRANCH_NAME"
+echo "Open a PR: https://github.com/StartaleGroup/claude-config-shared/pull/new/$BRANCH_NAME"

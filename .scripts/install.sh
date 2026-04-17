@@ -4,12 +4,12 @@ set -euo pipefail
 # Sets up the shared Claude Code config for a project.
 #
 # First-time setup (via curl):
-#   bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-frontend/master/.scripts/install.sh) [branch]
+#   bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) [branch]
 #
 # Subsequent runs (locally):
 #   bash .claude-lib/shared/.scripts/install.sh
 
-REMOTE_URL="https://github.com/StartaleGroup/claude-config-frontend.git"
+REMOTE_URL="https://github.com/StartaleGroup/claude-config-shared.git"
 REMOTE_NAME="claude-config"
 PREFIX=".claude-lib/shared"
 
