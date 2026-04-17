@@ -7,15 +7,13 @@ Shared Claude Code configuration for Startale front-end projects, distributed as
 ### One-liner setup
 
 ```bash
-GH_TOKEN=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 \
-bash <(curl -sH "Authorization: token $GH_TOKEN" https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) business
+T=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; curl -sH "Authorization: token $T" https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh | bash -s business
 ```
 
 For frontend repos:
 
 ```bash
-GH_TOKEN=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 \
-bash <(curl -sH "Authorization: token $GH_TOKEN" https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) frontend
+T=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; curl -sH "Authorization: token $T" https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh | bash -s frontend
 ```
 
 NOTE: the above token only has permissions to read this repo. If you are reading this README then you already have more permissions than the token does so it can't be abused.
