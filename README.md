@@ -9,7 +9,7 @@ Shared Claude Code configuration for Startale front-end projects, distributed as
 Run this from your project root (must be a git repo):
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-frontend/master/.scripts/setup.sh) <branch>
+bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-frontend/master/.scripts/install.sh) <branch>
 ```
 
 Replace `<branch>` with the appropriate branch from the table below (defaults to `master` if omitted).
