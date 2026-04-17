@@ -73,7 +73,7 @@ fi
 # If first-time setup, stage and commit
 if [ -n "${BRANCH:-}" ]; then
   echo ""
-  git add .claude-lib/project/ .gitignore
+  git add .claude-lib/project/ .claude-lib/.branch .gitignore
   if git diff --cached --quiet; then
     echo "Nothing new to commit."
   else
