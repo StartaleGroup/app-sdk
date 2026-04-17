@@ -9,10 +9,10 @@ ROOT_DIR="$(dirname "$LIB_DIR")"
 
 CONFIG_REMOTE="claude-config"
 CONFIG_REMOTE_URL="https://github.com/StartaleGroup/claude-config-shared.git"
-CONFIG_BRANCH="${1:-$(cat "$LIB_DIR/.branch" 2>/dev/null)}"
+CONFIG_BRANCH="${1:-$(cat "$SHARED_DIR/.branch" 2>/dev/null)}"
 
 if [ -z "$CONFIG_BRANCH" ]; then
-	echo "Error: branch not specified and .claude-lib/.branch not found."
+	echo "Error: branch not specified and .claude-lib/shared/.branch not found."
 	echo "Usage: push.sh <branch>"
 	exit 1
 fi

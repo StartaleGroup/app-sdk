@@ -49,8 +49,6 @@ else
   # Ensure .claude-lib/project/ exists
   [ -d ".claude-lib/project" ] || mkdir -p ".claude-lib/project"
 
-  # Record which branch the subtree was installed from
-  echo "$BRANCH" > ".claude-lib/.branch"
 fi
 
 # Ensure .gitignore entries
@@ -73,7 +71,7 @@ fi
 # If first-time setup, stage and commit
 if [ -n "${BRANCH:-}" ]; then
   echo ""
-  git add .claude-lib/project/ .claude-lib/.branch .gitignore
+  git add .claude-lib/project/ .gitignore
   if git diff --cached --quiet; then
     echo "Nothing new to commit."
   else
