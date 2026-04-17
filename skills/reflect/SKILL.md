@@ -62,31 +62,12 @@ Present a summary to the user:
 ### Rules Updated
 | Rule File | Section | Action |
 |-----------|---------|--------|
-| react.md  | TanStack Query | Added: "No Side Effects in select" |
-| tailwind.md | Layout | Strengthened: "Real-time Numeric Displays" |
+| example.md | Section Name | Added: "Description of new rule" |
 
 ### Self-Reflection
 - [Why was each mistake made despite existing knowledge/rules?]
 - [What process improvement would prevent this class of mistake?]
 ```
-
-## Rule File Reference
-
-| Domain | File |
-|--------|------|
-| React components, props, memoization, browser APIs | `.claude/rules/react.md` |
-| React hook patterns | `.claude/rules/react-hooks.md` |
-| Zustand stores, selectors, getState() | `.claude/rules/state-management.md` |
-| TanStack Query/Router/Start/Form | `.claude/rules/tanstack.md` |
-| TypeScript, Zod, types | `.claude/rules/typescript.md` |
-| Tailwind CSS, styling | `.claude/rules/tailwind.md` |
-| Web3, blockchain, precision math | `.claude/rules/web3.md` |
-| API + WebSocket integration | `.claude/rules/api-wss.md` or `.claude/rules/api.md` |
-| Coding style, immutability | `.claude/rules/coding-style.md` |
-| Testing, TDD | `.claude/rules/testing.md` |
-| Unit testing, Vitest, boundary testing | `.claude/rules/unit-test.md` |
-| E2E testing | `.claude/rules/e2e.md` |
-| Security | `.claude/rules/security.md` |
 
 ## Important
 

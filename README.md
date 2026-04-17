@@ -1,6 +1,6 @@
-# Startale Front-End Team Claude Config
+# Startale Shared Claude Config
 
-Shared Claude Code configuration for Startale front-end projects, distributed as a **git subtree**.
+Shared Claude Code configuration for Startale projects, distributed as a **git subtree**.
 
 ## Quick setup
 
@@ -121,93 +121,11 @@ When a PR containing shared config changes (files in `.claude-lib/shared/`) is m
 
 ## What's included
 
-### Rules
-
-| Rule | Description |
-|------|-------------|
-| `coding-style` | Immutability, file organization, implicit return, error handling |
-| `react` | Component patterns, file structure, naming conventions |
-| `react-hooks` | Custom hooks, dependency management |
-| `state-management` | Zustand store patterns, selectors |
-| `tanstack` | TanStack Router + Query patterns |
-| `typescript` | Type safety, Zod schemas |
-| `tailwind` | Tailwind conventions (cn(), spacing, colors) |
-| `security` | Environment variables, XSS prevention, logging |
-| `web3` | Wallet interactions, chain operations |
-| `testing` | Test coverage requirements, TDD workflow |
-| `unit-test` | Vitest patterns, boundary testing |
-| `e2e` | Playwright patterns, page objects |
-| `contributing` | Branch naming and merge direction |
-| `design-ux-a11y` | Accessibility — WCAG, ARIA, keyboard nav |
-| `design-ux-conventions` | UX patterns, layout, component conventions |
-| `design-ux-interaction` | States, touch targets, dialogs, optimistic UI |
-| `design-ux-motion` | Animation, transitions, reduced-motion |
-
-### Agents
-
-| Agent | Description |
-|-------|-------------|
-| `build-error-resolver` | Resolves build/TypeScript errors with minimal diffs |
-| `code-reviewer` | Code quality and standards review |
-| `e2e-runner` | E2E test generation and maintenance |
-| `security-reviewer` | Security vulnerability detection |
-| `tdd-guide` | Test-driven development enforcement |
-
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/e2e` | Generate and run E2E tests |
-| `/e2e-maintenance` | Maintain and fix existing E2E tests |
-| `/tdd` | Test-driven development workflow |
-| `/design-ux-review-ux` | Full UX review |
-| `/design-ux-review-motion` | Motion-only review |
+| `/claude-config-pull` | Pull latest shared config |
+| `/claude-config-push` | Push shared changes to source repo |
 
-### Skills
-
-#### Engineering
-
-| Skill | Description |
-|-------|-------------|
-| `achievements` | Summarize branch changes |
-| `creating-ui-components` | React component creation guide |
-| `debugging-with-chrome` | Chrome browser UI debugging |
-| `inconsistency-scan` | Full codebase consistency scan |
-| `learn` | Extract reusable patterns |
-| `polish-styling` | Tailwind CSS cleanup |
-| `pr-summary` | PR summary generation |
-| `prepr` | Pre-PR quality check |
-| `reflect` | Review mistakes, update rules |
-| `review-renovate-prs` | Review Renovate dependency PRs |
-| `side-effect` | Side effect analysis |
-| `team` | Role-based task delivery |
-| `todo` | Todo-driven task tracking |
-
-#### Design and UX (Impeccable)
-
-Built on [Impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus.
-
-| Skill | Description |
-|-------|-------------|
-| `frontend-design` | Hub — design principles and anti-patterns |
-| `audit` | Quality audit (a11y, performance, theming) |
-| `critique` | UX review with scoring and feedback |
-| `polish` | Final pre-ship quality pass |
-| `normalize` | Align with design system standards |
-| `colorize` | Color palette and theming |
-| `typeset` | Typography improvements |
-| `arrange` | Layout and spatial design |
-| `animate` | Motion and transitions |
-| `bolder` | Increase visual impact |
-| `quieter` | Reduce visual noise |
-| `delight` | Personality and moments of joy |
-| `overdrive` | Maximum creative expression |
-| `clarify` | Improve comprehension |
-| `distill` | Simplify and reduce complexity |
-| `extract` | Pull reusable components |
-| `adapt` | Responsive and cross-platform |
-| `harden` | Edge cases and error states |
-| `onboard` | First-run and onboarding flows |
-| `optimize` | Performance optimization |
-| `teach-impeccable` | One-time project design context setup |
-| `design-dev-tools` | Design-dev workflow tools |
+Project-specific rules, agents, skills, and hooks should be added via `.claude-lib/project/` in each consumer repo.
