@@ -18,17 +18,6 @@ For frontend repos:
 bash <(curl -s https://raw.githubusercontent.com/StartaleGroup/claude-config-shared/master/.scripts/install.sh) frontend
 ```
 
-Replace `<branch>` with the appropriate branch from the table below (defaults to `master` if omitted).
-
-### Available project branches
-
-| Project | Branch |
-|---------|--------|
-| Strium homepage / DEX | `strium-apps` |
-| Startale super app | `superapp` |
-| SDK documentation | `superapp-sdk` |
-| Team-only (no project config) | `master` |
-
 ---
 
 ## How it works
