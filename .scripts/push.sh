@@ -9,7 +9,13 @@ ROOT_DIR="$(dirname "$LIB_DIR")"
 
 CONFIG_REMOTE="claude-config"
 CONFIG_REMOTE_URL="https://github.com/StartaleGroup/claude-config-shared.git"
-CONFIG_BRANCH="superapp"
+CONFIG_BRANCH="${1:-$(cat "$LIB_DIR/.branch" 2>/dev/null)}"
+
+if [ -z "$CONFIG_BRANCH" ]; then
+	echo "Error: branch not specified and .claude-lib/.branch not found."
+	echo "Usage: push.sh <branch>"
+	exit 1
+fi
 
 # Add the remote if it doesn't exist
 if ! git -C "$ROOT_DIR" remote get-url "$CONFIG_REMOTE" &>/dev/null; then

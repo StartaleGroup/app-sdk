@@ -48,6 +48,9 @@ else
 
   # Ensure .claude-lib/project/ exists
   [ -d ".claude-lib/project" ] || mkdir -p ".claude-lib/project"
+
+  # Record which branch the subtree was installed from
+  echo "$BRANCH" > ".claude-lib/.branch"
 fi
 
 # Ensure .gitignore entries

@@ -1,7 +1,8 @@
-Pull the latest shared Claude Code config from master.
+Pull the latest shared Claude Code config.
 
-1. Run: `git subtree pull --prefix=.claude-lib/shared claude-config master`
+1. Read the branch name from `.claude-lib/.branch`.
+2. Run: `git subtree pull --prefix=.claude-lib/shared claude-config <branch>`
 	 - If the `claude-config` remote doesn't exist, add it first:
 		 `git remote add claude-config https://github.com/StartaleGroup/claude-config-shared.git`
-2. Run: `bash .claude-lib/shared/.scripts/unpack.sh`
-3. Show a summary of what changed.
+3. Run: `bash .claude-lib/shared/.scripts/unpack.sh`
+4. Show a summary of what changed.
