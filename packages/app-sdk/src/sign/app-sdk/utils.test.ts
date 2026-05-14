@@ -832,6 +832,81 @@ describe('getCachedWalletConnectResponse', () => {
 			],
 		})
 	})
+
+	it('should include userInfo when stored userInfo has fields', async () => {
+		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
+		const userInfo = {
+			userId: 'user-1',
+			email: 'user@example.com',
+			name: 'User One',
+			authType: 'oauth',
+		}
+		vi.spyOn(store.userInfo, 'get').mockReturnValue(userInfo)
+
+		const result = await getCachedWalletConnectResponse()
+		expect(result?.userInfo).toEqual(userInfo)
+	})
+
+	it('should include context when stored context has fields', async () => {
+		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
+		const context = {
+			chain: 'soneium',
+			user: { username: 'tester' },
+			startale: {
+				starPoints: 42,
+				eoaWallets: ['0xabc'],
+			},
+		}
+		vi.spyOn(store.context, 'get').mockReturnValue(context)
+
+		const result = await getCachedWalletConnectResponse()
+		expect(result?.context).toEqual(context)
+	})
+
+	it('should omit userInfo and context when stored values are empty objects', async () => {
+		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
+		vi.spyOn(store.userInfo, 'get').mockReturnValue({})
+		vi.spyOn(store.context, 'get').mockReturnValue({})
+
+		const result = await getCachedWalletConnectResponse()
+		expect(result).not.toHaveProperty('userInfo')
+		expect(result).not.toHaveProperty('context')
+	})
+
+	it('should preserve userInfo and context across the cache round-trip', async () => {
+		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
+		const userInfo = {
+			userId: 'user-1',
+			email: 'user@example.com',
+			name: 'User One',
+			authType: 'oauth',
+		}
+		const context = {
+			chain: 'soneium',
+			user: { username: 'tester' },
+			startale: {
+				starPoints: 42,
+				eoaWallets: ['0xabc'],
+			},
+		}
+		vi.spyOn(store.userInfo, 'get').mockReturnValue(userInfo)
+		vi.spyOn(store.context, 'get').mockReturnValue(context)
+
+		const result = await getCachedWalletConnectResponse()
+		expect(result).toEqual({
+			accounts: [
+				{
+					address: '0x123',
+					capabilities: {
+						subAccounts: undefined,
+						spendPermissions: undefined,
+					},
+				},
+			],
+			userInfo,
+			context,
+		})
+	})
 })
 
 describe('addPaymasterToRequest', () => {
