@@ -381,6 +381,7 @@ describe('fillMissingParamsForFetchPermissions', () => {
 				version: '1.0.0',
 			},
 			userInfo: {},
+			context: {},
 		}))
 		const request = {
 			method: 'coinbase_fetchPermissions',

@@ -262,6 +262,8 @@ export class Signer {
 				return this.handleGetCapabilitiesRequest(request)
 			case 'wallet_getUserInfo':
 				return this.handleGetUserInfoRequest(request)
+			case 'wallet_getContext':
+				return this.handleGetContextRequest(request)
 			case 'wallet_switchEthereumChain':
 				return this.handleSwitchChainRequest(request)
 			case 'eth_ecRecover':
@@ -406,6 +408,9 @@ export class Signer {
 
 				const userInfo = response.userInfo
 				store.userInfo.set(userInfo)
+
+				const context = response.context
+				store.context.set(context)
 
 				const account = response.accounts.at(0)
 				const capabilities = account?.capabilities
@@ -552,6 +557,15 @@ export class Signer {
 		}
 
 		return userInfo
+	}
+
+	private async handleGetContextRequest(_request: RequestArguments) {
+		const context = store.getState().context
+		if (!context) {
+			throw standardErrors.provider.unauthorized('No context found')
+		}
+
+		return context
 	}
 
 	private async sendEncryptedRequest(

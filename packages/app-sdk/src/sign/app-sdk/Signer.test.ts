@@ -410,6 +410,7 @@ describe('Signer', () => {
 				},
 				subAccountConfig: undefined,
 				userInfo: {},
+				context: {},
 			}))
 		})
 
@@ -1645,6 +1646,7 @@ describe('Signer', () => {
 					version: '1.0.0',
 				},
 				userInfo: {},
+				context: {},
 			}))
 
 			signer['accounts'] = [globalAccountAddress]
@@ -1858,6 +1860,7 @@ describe('Signer', () => {
 					name: 'Test User',
 					authType: 'oauth',
 				},
+				context: {},
 			}))
 
 			signer['accounts'] = [globalAccountAddress]
@@ -2160,6 +2163,7 @@ describe('Signer', () => {
 					name: 'Test User',
 					authType: 'oauth',
 				},
+				context: {},
 			}))
 		})
 	})
@@ -2191,6 +2195,7 @@ describe('Signer', () => {
 					version: '1.0.0',
 				},
 				userInfo: {},
+				context: {},
 			}))
 
 			;(fetchRPCRequest as Mock).mockResolvedValue({

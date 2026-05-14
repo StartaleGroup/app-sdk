@@ -18,6 +18,11 @@ const walletGetUserInfo: RpcRequestInput = {
 	params: [],
 }
 
+const walletGetContext: RpcRequestInput = {
+	method: 'wallet_getContext',
+	params: [],
+}
+
 const walletSendCalls: RpcRequestInput = {
 	method: 'wallet_sendCalls',
 	params: [
@@ -56,4 +61,5 @@ export const walletTxMethods = [
 	walletShowCallsStatus,
 	walletSendCalls,
 	walletGetUserInfo,
+	walletGetContext,
 ]
