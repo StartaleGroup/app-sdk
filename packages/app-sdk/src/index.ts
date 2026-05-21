@@ -12,6 +12,10 @@ export { createStartaleAccountSDK } from './interface/builder/core/createStartal
 
 export { getCryptoKeyAccount, removeCryptoKey } from './kms/crypto-key/index.js'
 
+// Deterministic sign interface exports
+export { requestDeterministicSign } from './interface/public-utilities/deterministic-sign/index.js'
+export type { RequestDeterministicSignType } from './interface/public-utilities/deterministic-sign/index.js'
+
 // Payment interface exports
 export { base, getPaymentStatus, pay } from './interface/payment/index.js'
 export type {

@@ -267,6 +267,7 @@ export class Signer {
 			case 'eth_ecRecover':
 			case 'personal_sign':
 			case 'wallet_sign':
+			case 'wallet_deterministicSign':
 			case 'personal_ecRecover':
 			case 'eth_signTransaction':
 			case 'eth_sendTransaction':

@@ -77,12 +77,25 @@ const ethSignTypedDataV4: RpcRequestInput = {
 	],
 }
 
+const walletDeterministicSign: RpcRequestInput = {
+	method: 'wallet_deterministicSign',
+	params: [
+		{ key: 'message', required: true },
+		{ key: 'address', required: true },
+	],
+	format: (data: Record<string, string>) => [
+		`0x${Buffer.from(data.message, 'utf8').toString('hex')}`,
+		data.address,
+	],
+}
+
 export const signMessageMethods = [
 	ethSign,
 	personalSign,
 	ethSignTypedDataV1,
 	ethSignTypedDataV3,
 	ethSignTypedDataV4,
+	walletDeterministicSign,
 ]
 
 export const verifySignMsg = async ({
