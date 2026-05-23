@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
 
 test.describe('Dashboard smoke tests', () => {
 	test('dashboard loads with expected sections', async ({ page }) => {

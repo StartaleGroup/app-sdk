@@ -4,17 +4,17 @@ import {
 	type BrowserContext,
 	type Page,
 } from '@playwright/test'
-import { loginWithGoogle } from '../../lib/auth/google-oauth.js'
-import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
+import { loginWithGoogle } from '../lib/auth/google-oauth.js'
+import { CHAIN_IDS, ROUTES } from '../lib/constants.js'
 import {
 	injectSCWUrl,
 	parseGoogleSessionCookies,
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
-} from '../../lib/helpers.js'
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
-import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+} from '../lib/helpers.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
+import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
 /**
  * All RPC method tests that require Google OAuth authentication.
