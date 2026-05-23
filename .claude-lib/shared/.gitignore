@@ -1,0 +1,13 @@
+# for local, personal rules, etc.
+settings.local.json
+settings.local.*
+**/*.local.*
+**/*.local/**
+**local**.md
+agents/**local**.md
+commands/**local**.md
+rules/**local**.md
+skills/**local**.md
+
+/docs
+/report
