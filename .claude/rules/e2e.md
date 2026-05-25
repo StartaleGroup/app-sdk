@@ -6,10 +6,10 @@ RPC method tests run with **Google OAuth as the primary authentication method**.
 
 | Suite | Auth | Scope | File |
 |-------|------|-------|------|
-| Google OAuth | Google | All RPC method tests | `tests/google/rpc-methods.spec.ts` |
-| MetaMask EOA | MetaMask | Connection + personal_sign | `tests/eoa/rpc-methods.spec.ts` |
+| Google OAuth | Google | All RPC method tests | `specs/google-rpc-methods.spec.ts` |
+| MetaMask EOA | MetaMask | Connection + personal_sign | `specs/eoa-rpc-methods.spec.ts` |
 
-When adding a new RPC method test, add it to `tests/google/rpc-methods.spec.ts`.
+When adding a new RPC method test, add it to `specs/google-rpc-methods.spec.ts`.
 
 ## Element Selection
 
@@ -64,9 +64,11 @@ Follow the Page Object Model pattern. All page objects are in `e2e/page-objects/
 ```
 e2e/
 ├── lib/
-│   └── constants.ts       # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
-├── tests/
-│   ├── eoa/           # EOA connect + basic signing test
-│   ├── google/        # Google OAuth — full RPC method tests
-│   └── smoke/         # No-auth smoke tests
+│   └── constants.ts              # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
+├── specs/
+│   ├── smoke-dashboard-loads.spec.ts    # No-auth smoke tests
+│   ├── google-rpc-methods.spec.ts       # Google OAuth — full RPC method tests
+│   ├── line-rpc-methods.spec.ts         # LINE OAuth — full RPC method tests
+│   ├── eoa-rpc-methods.spec.ts          # EOA connect + basic signing test
+│   └── eoa-required-onboarding.spec.ts  # EOA Required onboarding lifecycle
 ```

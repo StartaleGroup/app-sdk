@@ -121,7 +121,7 @@ OAUTH_MODE=google GOOGLE_SESSION_STATE=$(cat e2e/google-session.json) pnpm test:
 - `EOA Required` — requires LINE OAuth + MetaMask (EOA wallet linking)
 - `No` — no authentication required
 
-### Smoke Tests (`tests/smoke/dashboard-loads.spec.ts`)
+### Smoke Tests (`specs/smoke-dashboard-loads.spec.ts`)
 
 | # | Test | Auth |
 |--:|------|:----:|
@@ -129,7 +129,7 @@ OAUTH_MODE=google GOOGLE_SESSION_STATE=$(cat e2e/google-session.json) pnpm test:
 | 2 | eth_requestAccounts card is visible | No |
 | 3 | wallet_connect card is visible | No |
 
-### EOA RPC Methods (`tests/eoa/rpc-methods.spec.ts`)
+### EOA RPC Methods (`specs/eoa-rpc-methods.spec.ts`)
 
 MetaMask login is performed in the first test, then personal_sign verifies basic signing works. Full RPC coverage is handled by the LINE/Google OAuth suite.
 
@@ -137,7 +137,7 @@ MetaMask login is performed in the first test, then personal_sign verifies basic
 |--:|------|:----:|
 | 4 | personal_sign — sign a message via shortcut | EOA |
 
-### LINE OAuth RPC Methods (`tests/line/rpc-methods.spec.ts`) — CI Default
+### LINE OAuth RPC Methods (`specs/line-rpc-methods.spec.ts`) — CI Default
 
 All tests run in serial mode within a single browser context. LINE login is performed once in `beforeAll`, then each test reuses the same authenticated page. Skipped when `OAUTH_MODE=google`.
 
@@ -152,7 +152,7 @@ All tests run in serial mode within a single browser context. LINE login is perf
 | 11 | eth_getBalance — error on invalid address | LINE |
 | 12 | eth_getTransactionCount — error on invalid address | LINE |
 
-### Google OAuth RPC Methods (`tests/google/rpc-methods.spec.ts`) — Local Only
+### Google OAuth RPC Methods (`specs/google-rpc-methods.spec.ts`) — Local Only
 
 All tests run in serial mode within a single browser context. Google login is performed once in `beforeAll`. Skipped unless `OAUTH_MODE=google`.
 
@@ -167,7 +167,7 @@ All tests run in serial mode within a single browser context. Google login is pe
 | 19 | eth_getBalance — error on invalid address | Google |
 | 20 | eth_getTransactionCount — error on invalid address | Google |
 
-### EOA Required Onboarding (`tests/eoa-required/eoa-required-onboarding.spec.ts`)
+### EOA Required Onboarding (`specs/eoa-required-onboarding.spec.ts`)
 
 Tests the full EOA Required lifecycle: LINE OAuth login, MetaMask wallet linking via Dynamic Auth, address verification, and wallet disconnect. Uses a dedicated `EOA_LINKED_WALLET_SEED` (separate from `WALLET_SEED`).
 
@@ -184,17 +184,12 @@ Tests the full EOA Required lifecycle: LINE OAuth login, MetaMask wallet linking
 
 ```
 e2e/
-├── tests/
-│   ├── line/
-│   │   └── rpc-methods.spec.ts            # LINE OAuth + all RPC method tests (CI default)
-│   ├── google/
-│   │   └── rpc-methods.spec.ts            # Google OAuth + all RPC method tests (local only)
-│   ├── eoa/
-│   │   └── rpc-methods.spec.ts            # MetaMask EOA connect + personal_sign
-│   ├── eoa-required/
-│   │   └── eoa-required-onboarding.spec.ts # EOA Required onboarding lifecycle
-│   └── smoke/
-│       └── dashboard-loads.spec.ts        # Dashboard loads without auth
+├── specs/
+│   ├── smoke-dashboard-loads.spec.ts       # Dashboard loads without auth
+│   ├── line-rpc-methods.spec.ts            # LINE OAuth + all RPC method tests (CI default)
+│   ├── google-rpc-methods.spec.ts          # Google OAuth + all RPC method tests (local only)
+│   ├── eoa-rpc-methods.spec.ts             # MetaMask EOA connect + personal_sign
+│   └── eoa-required-onboarding.spec.ts     # EOA Required onboarding lifecycle
 ├── page-objects/
 │   ├── dashboardPage.ts                   # Dashboard section selectors (data-testid)
 │   └── rpcMethodCard.ts                   # RPC method card selectors & actions
