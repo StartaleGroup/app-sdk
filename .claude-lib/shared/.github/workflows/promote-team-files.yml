@@ -1,0 +1,72 @@
+name: Promote team files to master
+
+on:
+  push:
+    branches: [strium-apps, superapp, superapp-sdk]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Skip if merge from master
+        id: skip-check
+        run: |
+          if git rev-parse HEAD^2 >/dev/null 2>&1 && \
+             git merge-base --is-ancestor HEAD^2 origin/master; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed team files
+        if: steps.skip-check.outputs.skip == 'false'
+        id: changed
+        run: |
+          CHANGED=$(git diff ${{ github.event.before }} ${{ github.event.after }} \
+            --name-only | grep -E '\.team\.' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            {
+              echo "files<<EOF"
+              echo "$CHANGED"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create team promotion PR
+        if: steps.changed.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          SOURCE="${GITHUB_REF##*/}"
+          BRANCH="promote/${SOURCE}-$(date +%Y%m%d-%H%M%S)"
+
+          git fetch origin master
+          git checkout -b "$BRANCH" origin/master
+
+          while IFS= read -r file; do
+            [ -n "$file" ] && git checkout ${{ github.event.after }} -- "$file"
+          done <<< "${{ steps.changed.outputs.files }}"
+
+          git commit -m "promote team files from $SOURCE"
+          git push origin "$BRANCH"
+
+          BODY=$(printf "Auto-generated PR from \`%s\` branch.\n\nChanged files:\n\n\`\`\`\n%s\n\`\`\`" "$SOURCE" "${{ steps.changed.outputs.files }}")
+          gh pr create \
+            --base master \
+            --head "$BRANCH" \
+            --title "Promote team files from $SOURCE" \
+            --body "$BODY"
