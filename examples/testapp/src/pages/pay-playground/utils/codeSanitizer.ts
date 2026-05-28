@@ -60,7 +60,6 @@ export const WHITELIST = {
 		'ObjectPattern', // Added: Object destructuring
 		'ArrayPattern', // Added: Array destructuring
 		'RestElement', // Added: Rest parameters
-		'ThisExpression', // Added: 'this' keyword
 		'ChainExpression', // Added: Optional chaining
 		'OptionalMemberExpression', // Added: Optional member access
 		'OptionalCallExpression', // Added: Optional function calls
@@ -79,6 +78,8 @@ export const WHITELIST = {
 		'export',
 		'process',
 		'global',
+		'globalThis',
+		'self',
 		'window',
 		'document',
 		'XMLHttpRequest',
@@ -105,6 +106,14 @@ export const WHITELIST = {
 		'clearInterval',
 		'clearTimeout',
 		'clearImmediate',
+		'Proxy',
+		'Reflect',
+		'constructor',
+		'__proto__',
+		'__defineGetter__',
+		'__defineSetter__',
+		'__lookupGetter__',
+		'__lookupSetter__',
 	],
 }
 
@@ -298,6 +307,16 @@ export class CodeSanitizer {
 		}
 	}
 
+	private static readonly DANGEROUS_PROPERTIES = [
+		'constructor',
+		'__proto__',
+		'prototype',
+		'__defineGetter__',
+		'__defineSetter__',
+		'__lookupGetter__',
+		'__lookupSetter__',
+	]
+
 	/**
 	 * Validate member expressions (object.property)
 	 */
@@ -319,6 +338,19 @@ export class CodeSanitizer {
 			propertyName = node.computed ? '' : node.property.name
 		} else if (node.property.type === 'Literal') {
 			propertyName = String(node.property.value)
+		}
+
+		// Block prototype-chain traversal properties on any object
+		if (
+			propertyName &&
+			CodeSanitizer.DANGEROUS_PROPERTIES.includes(propertyName)
+		) {
+			this.errors.push({
+				message: `Property '${propertyName}' is not allowed`,
+				line: node.loc?.start.line ? node.loc.start.line - 1 : undefined,
+				column: node.loc?.start.column,
+			})
+			return
 		}
 
 		// Validate against whitelist

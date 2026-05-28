@@ -1,6 +1,10 @@
 import { store } from ':store/store.js'
 import { TELEMETRY_SCRIPT_CONTENT } from './telemetry-content.js'
 
+const AMPLITUDE_API_KEY =
+	(typeof process !== 'undefined' && process.env?.AMPLITUDE_API_KEY) ||
+	'EXAMPLE_TOKEN'
+
 export const loadTelemetryScript = (): Promise<void> => {
 	return new Promise((resolve, reject) => {
 		if (window.ClientAnalytics) {
@@ -34,7 +38,7 @@ const initCCA = () => {
 
 			init({
 				isProd: true,
-				amplitudeApiKey: 'c66737ad47ec354ced777935b0af822e',
+				amplitudeApiKey: AMPLITUDE_API_KEY,
 				platform: PlatformName.web,
 				projectName: 'base_account_sdk',
 				showDebugLogging: false,

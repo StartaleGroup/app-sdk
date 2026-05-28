@@ -49,7 +49,8 @@
 	"packageManager": "pnpm@10.32.1",
 	"pnpm": {
 		"overrides": {
-			"basic-ftp": ">=5.2.0"
+			"basic-ftp": ">=5.2.0",
+			"@isaacs/brace-expansion": ">=5.0.1"
 		}
 	}
 }
