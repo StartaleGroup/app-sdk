@@ -616,6 +616,8 @@ export async function getCachedWalletConnectResponse(): Promise<WalletConnectRes
 	const spendPermissions = store.spendPermissions.get()
 	const subAccount = store.subAccounts.get()
 	const accounts = store.account.get().accounts
+	const userInfo = store.userInfo.get()
+	const context = store.context.get()
 
 	if (!accounts) {
 		return null
@@ -634,8 +636,17 @@ export async function getCachedWalletConnectResponse(): Promise<WalletConnectRes
 		},
 	}))
 
+	const hasUserInfo = userInfo && Object.keys(userInfo).length > 0
+	const hasContext = context && Object.keys(context).length > 0
+
 	return {
 		accounts: walletConnectAccounts,
+		...(hasUserInfo
+			? { userInfo: userInfo as WalletConnectResponse['userInfo'] }
+			: {}),
+		...(hasContext
+			? { context: context as WalletConnectResponse['context'] }
+			: {}),
 	}
 }
 

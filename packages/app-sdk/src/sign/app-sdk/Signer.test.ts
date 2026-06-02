@@ -410,6 +410,7 @@ describe('Signer', () => {
 				},
 				subAccountConfig: undefined,
 				userInfo: {},
+				context: {},
 			}))
 		})
 
@@ -1645,6 +1646,7 @@ describe('Signer', () => {
 					version: '1.0.0',
 				},
 				userInfo: {},
+				context: {},
 			}))
 
 			signer['accounts'] = [globalAccountAddress]
@@ -1858,6 +1860,7 @@ describe('Signer', () => {
 					name: 'Test User',
 					authType: 'oauth',
 				},
+				context: {},
 			}))
 
 			signer['accounts'] = [globalAccountAddress]
@@ -2160,6 +2163,258 @@ describe('Signer', () => {
 					name: 'Test User',
 					authType: 'oauth',
 				},
+				context: {},
+			}))
+		})
+	})
+
+	describe('wallet_getContext', () => {
+		let stateSpy: MockInstance
+
+		const mockContext = {
+			chain: 'soneium',
+			user: { username: 'tester' },
+			startale: {
+				starPoints: 100,
+				eoaWallets: ['0xabc'],
+			},
+		}
+
+		beforeEach(() => {
+			stateSpy = vi.spyOn(store, 'getState').mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: mockContext,
+			}))
+
+			signer['accounts'] = [globalAccountAddress]
+		})
+
+		afterEach(() => {
+			stateSpy.mockRestore()
+		})
+
+		it('should return context when available', async () => {
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			const result = await signer.request(request)
+
+			expect(result).toEqual(mockContext)
+		})
+
+		it('should return partial context when some fields are missing', async () => {
+			stateSpy.mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: {
+					chain: 'soneium',
+					// user and startale are missing
+				},
+			}))
+
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			const result = await signer.request(request)
+
+			expect(result).toEqual({ chain: 'soneium' })
+		})
+
+		it('should throw unauthorized error when context is undefined', async () => {
+			stateSpy.mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: undefined,
+			}))
+
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			await expect(signer.request(request)).rejects.toThrow(
+				standardErrors.provider.unauthorized('No context found'),
+			)
+		})
+
+		it('should throw unauthorized error when context is null', async () => {
+			stateSpy.mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: null,
+			}))
+
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			await expect(signer.request(request)).rejects.toThrow(
+				standardErrors.provider.unauthorized('No context found'),
+			)
+		})
+
+		it('should return empty object when context is empty object', async () => {
+			stateSpy.mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: {},
+			}))
+
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			// An empty object {} is truthy in JavaScript, so it will be returned
+			const result = await signer.request(request)
+			expect(result).toEqual({})
+		})
+
+		it('should not make any network requests', async () => {
+			const request = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			await signer.request(request)
+
+			expect(
+				mockCommunicator.postRequestAndWaitForResponse,
+			).not.toHaveBeenCalled()
+			expect(fetchRPCRequest).not.toHaveBeenCalled()
+		})
+
+		it('should handle context set from wallet_connect response', async () => {
+			// Remove the stateSpy to allow real store updates
+			stateSpy.mockRestore()
+
+			// First, clean up and simulate wallet_connect setting context
+			await signer.cleanup()
+
+			;(decryptContent as Mock).mockResolvedValueOnce({
+				result: {
+					value: null,
+				},
+			})
+
+			await signer.handshake({ method: 'handshake' })
+
+			// Mock wallet_connect response with context
+			;(decryptContent as Mock).mockResolvedValueOnce({
+				result: {
+					value: {
+						accounts: [
+							{
+								address: globalAccountAddress,
+								capabilities: {},
+							},
+						],
+						context: {
+							chain: 'soneium',
+							user: { username: 'connected-user' },
+							startale: {
+								starPoints: 500,
+								eoaWallets: ['0xdef'],
+							},
+						},
+					},
+				},
+			})
+
+			// Simulate wallet_connect
+			await signer.request({
+				method: 'wallet_connect',
+				params: [],
+			})
+
+			// Now test wallet_getContext
+			const contextRequest = {
+				method: 'wallet_getContext',
+				params: [],
+			}
+
+			const result = await signer.request(contextRequest)
+
+			expect(result).toEqual({
+				chain: 'soneium',
+				user: { username: 'connected-user' },
+				startale: {
+					starPoints: 500,
+					eoaWallets: ['0xdef'],
+				},
+			})
+
+			// Restore the mock for other tests
+			stateSpy = vi.spyOn(store, 'getState').mockImplementation(() => ({
+				account: {
+					accounts: [globalAccountAddress],
+				},
+				chains: [],
+				keys: {},
+				spendPermissions: [],
+				config: {
+					metadata: mockMetadata,
+					preference: { walletUrl: CB_KEYS_URL, options: 'all' },
+					version: '1.0.0',
+				},
+				userInfo: {},
+				context: mockContext,
 			}))
 		})
 	})
@@ -2191,6 +2446,7 @@ describe('Signer', () => {
 					version: '1.0.0',
 				},
 				userInfo: {},
+				context: {},
 			}))
 
 			;(fetchRPCRequest as Mock).mockResolvedValue({
