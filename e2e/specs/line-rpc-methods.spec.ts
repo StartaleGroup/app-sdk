@@ -4,17 +4,17 @@ import {
 	type BrowserContext,
 	type Page,
 } from '@playwright/test'
-import { loginWithLine } from '../../lib/auth/line-oauth.js'
-import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
+import { loginWithLine } from '../lib/auth/line-oauth.js'
+import { CHAIN_IDS, ROUTES } from '../lib/constants.js'
 import {
 	injectSCWUrl,
 	parseLineSessionCookies,
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
-} from '../../lib/helpers.js'
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
-import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+} from '../lib/helpers.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
+import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
 /**
  * All RPC method tests that require LINE OAuth authentication.

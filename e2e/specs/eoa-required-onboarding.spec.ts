@@ -3,18 +3,18 @@ import type { BrowserContext, Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { mnemonicToAccount } from 'viem/accounts'
 
-import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
-import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
-import { loginWithLine } from '../../lib/auth/line-oauth.js'
-import { ROUTES, SCW_URL } from '../../lib/constants.js'
+import { createWalletFixture } from '../fixtures/wallet.fixture.js'
+import { linkEOAWallet } from '../lib/auth/eoa-required-onboarding.js'
+import { loginWithLine } from '../lib/auth/line-oauth.js'
+import { ROUTES, SCW_URL } from '../lib/constants.js'
 import {
 	type SessionCookie,
 	isLineDomain,
 	parseAllLineSessionCookies,
 	waitForPopup,
-} from '../../lib/helpers.js'
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
-import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+} from '../lib/helpers.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
+import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
 const test = createWalletFixture('EOA_LINKED_WALLET_SEED')
 

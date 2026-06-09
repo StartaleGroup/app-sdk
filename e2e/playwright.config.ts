@@ -41,17 +41,17 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'smoke',
-			testMatch: /smoke\/.*\.spec\.ts/,
+			testMatch: /specs\/smoke-.*\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'] },
 		},
 		{
 			name: 'eoa-chromium',
-			testMatch: /eoa\/.*\.spec\.ts/,
+			testMatch: /specs\/eoa-.*\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'] },
 		},
 		{
 			name: 'google-chromium',
-			testMatch: /google\/.*\.spec\.ts/,
+			testMatch: /specs\/google-.*\.spec\.ts/,
 			use: {
 				...devices['Desktop Chrome'],
 				launchOptions: antiDetectionLaunchOptions,
@@ -59,7 +59,7 @@ export default defineConfig({
 		},
 		{
 			name: 'line-chromium',
-			testMatch: /line\/.*\.spec\.ts/,
+			testMatch: /specs\/line-.*\.spec\.ts/,
 			use: {
 				...devices['Desktop Chrome'],
 				launchOptions: antiDetectionLaunchOptions,
@@ -67,7 +67,7 @@ export default defineConfig({
 		},
 		{
 			name: 'eoa-required-chromium',
-			testMatch: /eoa-required\/.*\.spec\.ts/,
+			testMatch: /specs\/eoa-required-.*\.spec\.ts/,
 			use: {
 				...devices['Desktop Chrome'],
 				launchOptions: antiDetectionLaunchOptions,
