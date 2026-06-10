@@ -1,6 +1,6 @@
 {
 	"name": "@startale/app-sdk",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"description": "Superapp SDK",
 	"keywords": [
 		"startale",
@@ -32,10 +32,10 @@
 			"import": "./dist/interface/public-utilities/spend-permission/index.js",
 			"require": "./dist/interface/public-utilities/spend-permission/index.js"
 		},
-		"./deterministic-sign": {
-			"types": "./dist/interface/public-utilities/deterministic-sign/index.d.ts",
-			"import": "./dist/interface/public-utilities/deterministic-sign/index.js",
-			"require": "./dist/interface/public-utilities/deterministic-sign/index.js"
+		"./raw-digest-sign": {
+			"types": "./dist/interface/public-utilities/raw-digest-sign/index.d.ts",
+			"import": "./dist/interface/public-utilities/raw-digest-sign/index.js",
+			"require": "./dist/interface/public-utilities/raw-digest-sign/index.js"
 		},
 		"./ui-assets": {
 			"types": "./dist/ui/assets/index.d.ts",

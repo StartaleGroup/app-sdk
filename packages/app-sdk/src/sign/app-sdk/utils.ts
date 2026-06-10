@@ -40,7 +40,7 @@ export function getSenderFromRequest(request: RequestArguments) {
 	}
 	switch (request.method) {
 		case 'personal_sign':
-		case 'wallet_deterministicSign':
+		case 'wallet_signRawDigest':
 			return request.params[1] as Address
 		case 'eth_signTypedData_v4':
 			return request.params[0] as Address
@@ -68,7 +68,7 @@ export function addSenderToRequest(request: RequestArguments, sender: Address) {
 			params[0] = sender
 			break
 		case 'personal_sign':
-		case 'wallet_deterministicSign':
+		case 'wallet_signRawDigest':
 			params[1] = sender
 			break
 		default:

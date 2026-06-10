@@ -77,16 +77,13 @@ const ethSignTypedDataV4: RpcRequestInput = {
 	],
 }
 
-const walletDeterministicSign: RpcRequestInput = {
-	method: 'wallet_deterministicSign',
+const walletSignRawDigest: RpcRequestInput = {
+	method: 'wallet_signRawDigest',
 	params: [
-		{ key: 'message', required: true },
+		{ key: 'digest', required: true },
 		{ key: 'address', required: true },
 	],
-	format: (data: Record<string, string>) => [
-		`0x${Buffer.from(data.message, 'utf8').toString('hex')}`,
-		data.address,
-	],
+	format: (data: Record<string, string>) => [data.digest, data.address],
 }
 
 export const signMessageMethods = [
@@ -95,7 +92,7 @@ export const signMessageMethods = [
 	ethSignTypedDataV1,
 	ethSignTypedDataV3,
 	ethSignTypedDataV4,
-	walletDeterministicSign,
+	walletSignRawDigest,
 ]
 
 export const verifySignMsg = async ({
