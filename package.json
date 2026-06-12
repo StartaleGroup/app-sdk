@@ -1,6 +1,6 @@
 {
 	"name": "app-sdk",
-	"version": "1.3.1",
+	"version": "1.4.1",
 	"repository": "https://github.com/base/account-sdk",
 	"author": "Base",
 	"license": "MIT",
@@ -22,7 +22,9 @@
 		"test:e2e": "pnpm --filter @startale/app-sdk-e2e test:ci",
 		"typecheck": "nr -recursive typecheck",
 		"validate": "nr build:packages",
-		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public"
+		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public",
+		"claude:unpack": "bash .claude-lib/shared/.scripts/unpack.sh",
+		"claude:pack": "bash .claude-lib/shared/.scripts/pack.sh"
 	},
 	"devDependencies": {
 		"@antfu/ni": "^25.0.0",

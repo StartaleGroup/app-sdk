@@ -60,6 +60,12 @@ type UserInfo = {
 	authType?: string
 }
 
+type StartaleContext = {
+	chain?: string
+	user?: { username?: string }
+	startale?: { starPoints?: number; eoaWallets?: string[] }
+}
+
 const createChainSlice: StateCreator<StoreState, [], [], ChainSlice> = () => {
 	return {
 		chains: [],
@@ -163,6 +169,21 @@ const createUserInfoSlice: StateCreator<
 	}
 }
 
+type ContextSlice = {
+	context: StartaleContext
+}
+
+const createContextSlice: StateCreator<
+	StoreState,
+	[],
+	[],
+	ContextSlice
+> = () => {
+	return {
+		context: {},
+	}
+}
+
 type MergeTypes<T extends unknown[]> = T extends [infer First, ...infer Rest]
 	? First &
 			(Rest extends unknown[] ? MergeTypes<Rest> : Record<string, unknown>)
@@ -178,6 +199,7 @@ export type StoreState = MergeTypes<
 		SpendPermissionsSlice,
 		ConfigSlice,
 		UserInfoSlice,
+		ContextSlice,
 	]
 >
 
@@ -192,6 +214,7 @@ export const sdkstore = createStore(
 			...createConfigSlice(...args),
 			...createSubAccountConfigSlice(...args),
 			...createUserInfoSlice(...args),
+			...createContextSlice(...args),
 		}),
 		{
 			name: 'startale-app-sdk.store',
@@ -207,6 +230,7 @@ export const sdkstore = createStore(
 					spendPermissions: state.spendPermissions,
 					config: state.config,
 					userInfo: state.userInfo,
+					context: state.context,
 				} as StoreState
 			},
 		},
@@ -316,6 +340,20 @@ export const userInfo = {
 	},
 }
 
+export const context = {
+	get: () => sdkstore.getState().context,
+	set: (context: Partial<StartaleContext> | undefined) => {
+		sdkstore.setState((_state) => ({
+			context,
+		}))
+	},
+	clear: () => {
+		sdkstore.setState({
+			context: {},
+		})
+	},
+}
+
 const actions = {
 	subAccounts,
 	subAccountsConfig,
@@ -325,6 +363,7 @@ const actions = {
 	keys,
 	config,
 	userInfo,
+	context,
 }
 
 export const store = {

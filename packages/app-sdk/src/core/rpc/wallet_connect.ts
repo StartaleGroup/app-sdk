@@ -81,4 +81,9 @@ export type WalletConnectResponse = {
 		authType: string
 		userId: string
 	}
+	context?: {
+		chain: string
+		user: { username: string }
+		startale: { starPoints: number; eoaWallets: string[] }
+	}
 }
