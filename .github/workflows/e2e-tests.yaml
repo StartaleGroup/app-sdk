@@ -183,6 +183,9 @@ jobs:
       # host is exposed. Readiness is the connector /ready endpoint (the testapp
       # is started later by Playwright's webServer).
       - name: Start Cloudflare tunnel
+        # Force bash: the container's default shell is `sh` (dash), which can't
+        # parse `set -o pipefail` below.
+        shell: bash
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           # Pinned for reproducibility + supply-chain safety. Bump both together;
