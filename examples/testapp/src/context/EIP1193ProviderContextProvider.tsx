@@ -54,8 +54,10 @@ export function EIP1193ProviderContextProvider({
 		// Only the public host is exposed; the SCS key still stays server-side.
 		const origin =
 			typeof window !== 'undefined' ? window.location.origin : ''
-		const paymasterBase =
+		// Strip trailing slash(es)
+		const paymasterBase = (
 			process.env.NEXT_PUBLIC_PAYMASTER_BASE_URL || origin
+		).replace(/\/+$/, '')
 		const paymasterUrl = (chainId: number) =>
 			`${paymasterBase}/api/paymaster/${chainId}`
 
