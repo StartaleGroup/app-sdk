@@ -46,10 +46,18 @@ export function EIP1193ProviderContextProvider({
 		// (`/api/paymaster/<chainId>`). The SCS API key and paymaster ID stay
 		// server-side — never exposed to the browser. See
 		// `src/pages/api/paymaster/[chainId].page.ts` and `.env.local.example`.
+		//
+		// `NEXT_PUBLIC_PAYMASTER_BASE_URL` overrides the base origin so the
+		// paymaster URL can resolve to a publicly reachable host (e.g. a
+		// Cloudflare tunnel) when the wallet/superapp runs off-machine and
+		// cannot reach `localhost` — required for sponsored e2e against prod.
+		// Only the public host is exposed; the SCS key still stays server-side.
 		const origin =
 			typeof window !== 'undefined' ? window.location.origin : ''
+		const paymasterBase =
+			process.env.NEXT_PUBLIC_PAYMASTER_BASE_URL || origin
 		const paymasterUrl = (chainId: number) =>
-			`${origin}/api/paymaster/${chainId}`
+			`${paymasterBase}/api/paymaster/${chainId}`
 
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',

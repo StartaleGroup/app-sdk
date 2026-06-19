@@ -25,6 +25,12 @@ on:
         required: false
       LINE_SESSION_STATE:
         required: false
+      CLOUDFLARE_TUNNEL_TOKEN:
+        required: false
+      PAYMASTER_URL:
+        required: false
+      PAYMASTER_ID:
+        required: false
       WALLET_SEED:
         required: true
       EOA_LINKED_WALLET_SEED:
@@ -141,10 +147,23 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
+    # Named tunnel = one connector per token. Serialize the line job repo-wide
+    # so concurrent runs (different PRs) can't register two connectors on the
+    # same tunnel (Cloudflare 1016). Queue rather than cancel.
+    concurrency:
+      group: e2e-line-tunnel
+      cancel-in-progress: false
     env:
       LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
       LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
       LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
+      # Sponsored wallet_sendCalls. PAYMASTER_* stay server-side (testapp proxy);
+      # NEXT_PUBLIC_PAYMASTER_BASE_URL is the public tunnel host the prod superapp
+      # fetches to reach the testapp paymaster proxy. Required — the sponsored
+      # test fails (does not skip) if it is missing.
+      PAYMASTER_URL: ${{ secrets.PAYMASTER_URL }}
+      PAYMASTER_ID: ${{ secrets.PAYMASTER_ID }}
+      NEXT_PUBLIC_PAYMASTER_BASE_URL: ${{ vars.PAYMASTER_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
         if: inputs.superapp-branch != ''
@@ -157,6 +176,29 @@ jobs:
       - uses: ./.github/actions/e2e-setup
         with:
           install-chrome: 'true'
+
+      # Expose the testapp's same-origin paymaster proxy (localhost:3001) on a
+      # public hostname so the prod superapp can reach it for sponsored calls.
+      # The SCS key stays server-side in the testapp route — only the public
+      # host is exposed. Readiness is the connector /ready endpoint (the testapp
+      # is started later by Playwright's webServer).
+      - name: Start Cloudflare tunnel
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+        run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+            -o /usr/local/bin/cloudflared
+          chmod +x /usr/local/bin/cloudflared
+          cloudflared tunnel --no-autoupdate --metrics 127.0.0.1:4040 \
+            run --token "$CLOUDFLARE_TUNNEL_TOKEN" &
+          echo "Waiting for tunnel connector to register..."
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4040/ready >/dev/null 2>&1; then
+              echo "tunnel ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "tunnel did not become ready" >&2; exit 1
 
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
