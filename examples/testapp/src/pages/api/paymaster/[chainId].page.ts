@@ -37,8 +37,14 @@ type JsonRpcRequest = {
 	params?: unknown[]
 }
 
+// Allowed CORS origin. Defaults to `*` for local dev; set
+// `PAYMASTER_ALLOWED_ORIGIN` in deployments to lock the proxy down so arbitrary
+// third-party sites can't invoke it from a browser and consume sponsorship.
 const setCors = (res: NextApiResponse): void => {
-	res.setHeader('Access-Control-Allow-Origin', '*')
+	res.setHeader(
+		'Access-Control-Allow-Origin',
+		process.env.PAYMASTER_ALLOWED_ORIGIN ?? '*',
+	)
 	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 	res.setHeader('Access-Control-Allow-Headers', 'content-type')
 }
@@ -109,13 +115,34 @@ export default async function handler(
 	}
 
 	const body = (req.body ?? {}) as JsonRpcRequest
+
+	// This route exists only to proxy ERC-7677 paymaster calls. Reject anything
+	// else so it can't be used to relay arbitrary JSON-RPC to the SCS endpoint.
+	if (!body.method || !PAYMASTER_METHODS.has(body.method)) {
+		res.status(400).json({
+			error: `unsupported paymaster method: ${body.method ?? '(none)'}`,
+		})
+		return
+	}
+
 	const upstreamBody = injectPaymasterId(body, paymasterId)
 
-	const upstream = await fetch(paymasterUrl, {
-		method: 'POST',
-		headers: { 'content-type': 'application/json' },
-		body: JSON.stringify(upstreamBody),
-	})
+	let upstream: Response
+	try {
+		upstream = await fetch(paymasterUrl, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(upstreamBody),
+		})
+	} catch (err) {
+		// Network-level failure reaching SCS (DNS, timeout, refused). Surface a
+		// 502 with detail instead of a generic Next 500 so it's debuggable.
+		res.status(502).json({
+			error: 'paymaster upstream unreachable',
+			detail: err instanceof Error ? err.message : String(err),
+		})
+		return
+	}
 
 	const text = await upstream.text()
 	res.status(upstream.status)

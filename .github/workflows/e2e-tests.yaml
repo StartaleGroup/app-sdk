@@ -185,10 +185,25 @@ jobs:
       - name: Start Cloudflare tunnel
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          # Pinned for reproducibility + supply-chain safety. Bump both together;
+          # digest is the GitHub asset digest for cloudflared-linux-amd64.
+          CLOUDFLARED_VERSION: '2026.6.1'
+          CLOUDFLARED_SHA256: '5861a10a438fe8ddcfebb3b830f83966cbf193edafce0fe2eeb198fbae1f7a22'
         run: |
-          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+          set -euo pipefail
+          # Fail fast with a clear message if the sponsored-test config is absent,
+          # rather than starting the tunnel and failing opaquely later.
+          : "${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required for the sponsored e2e tunnel}"
+          : "${NEXT_PUBLIC_PAYMASTER_BASE_URL:?NEXT_PUBLIC_PAYMASTER_BASE_URL (vars.PAYMASTER_BASE_URL) is required}"
+          : "${PAYMASTER_URL:?PAYMASTER_URL is required}"
+          : "${PAYMASTER_ID:?PAYMASTER_ID is required}"
+
+          curl -fsSL \
+            "https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-amd64" \
             -o /usr/local/bin/cloudflared
+          echo "${CLOUDFLARED_SHA256}  /usr/local/bin/cloudflared" | sha256sum -c -
           chmod +x /usr/local/bin/cloudflared
+
           cloudflared tunnel --no-autoupdate --metrics 127.0.0.1:4040 \
             run --token "$CLOUDFLARE_TUNNEL_TOKEN" &
           echo "Waiting for tunnel connector to register..."
