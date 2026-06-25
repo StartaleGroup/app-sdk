@@ -5,7 +5,7 @@ import {
 	type Page,
 } from '@playwright/test'
 import { loginWithLine } from '../../lib/auth/line-oauth.js'
-import { ROUTES } from '../../lib/constants.js'
+import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
 import {
 	injectSCWUrl,
 	parseLineSessionCookies,
@@ -118,13 +118,20 @@ test.describe('LINE OAuth — RPC Methods', () => {
 
 	// --- Chain ---
 
+	// Switches to Ethereum to verify chain switching, then reverts to Soneium.
+	// The revert is required: subsequent read-only tests (eth_getBalance) hit the
+	// active chain's RPC, and mainnet reads are not served in the e2e wallet env.
 	test('wallet_switchEthereumChain — switch chain via shortcut', async () => {
 		const switchChain = rpcMethodCard(page, 'wallet_switchEthereumChain')
+		const chainChanged = page.getByTestId('event-chainChanged')
+
 		await switchChain.clickShortcut('Ethereum')
-		const eventSection = page.getByTestId('section-event-listeners')
-		await expect(eventSection.getByText('0x1')).toBeVisible()
+		await expect(chainChanged).toContainText(CHAIN_IDS.ETHEREUM)
 		// Chakra UI toasts use HTML id (from toast({ id })) — not data-testid
 		await expect(page.locator('#toast-chain-changed')).toBeVisible()
+
+		await switchChain.clickShortcut('Soneium')
+		await expect(chainChanged).toContainText(CHAIN_IDS.SONEIUM)
 	})
 
 	// --- Read-only ---

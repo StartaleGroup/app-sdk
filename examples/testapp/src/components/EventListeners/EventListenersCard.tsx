@@ -91,6 +91,7 @@ export function EventListenersCard() {
 					</Flex>
 					{chainChanged && (
 						<Code
+							data-testid="event-chainChanged"
 							mt={2}
 							as="pre"
 							p={4}
