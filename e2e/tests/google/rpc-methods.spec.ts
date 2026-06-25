@@ -116,6 +116,17 @@ test.describe('Google OAuth — RPC Methods', () => {
 		expect(response).toBeTruthy()
 	})
 
+	// --- Chain ---
+
+	test('wallet_switchEthereumChain — switch chain via shortcut', async () => {
+		const switchChain = rpcMethodCard(page, 'wallet_switchEthereumChain')
+		await switchChain.clickShortcut('Ethereum')
+		const eventSection = page.getByTestId('section-event-listeners')
+		await expect(eventSection.getByText('0x1')).toBeVisible()
+		// Chakra UI toasts use HTML id (from toast({ id })) — not data-testid
+		await expect(page.locator('#toast-chain-changed')).toBeVisible()
+	})
+
 	// --- Read-only ---
 
 	test('eth_getBalance — get balance via shortcut', async () => {
