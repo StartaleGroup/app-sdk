@@ -7,7 +7,7 @@ import {
 	useMemo,
 	useState,
 } from 'react'
-import { mainnet, soneium, soneiumMinato } from 'viem/chains'
+import { mainnet, soneium } from 'viem/chains'
 import { DisconnectedAlert } from '../components/alerts/DisconnectedAlert'
 import { useEventListeners } from '../hooks/useEventListeners'
 import { useSpyOnDisconnectedError } from '../hooks/useSpyOnDisconnectedError'
@@ -49,7 +49,7 @@ export function EIP1193ProviderContextProvider({
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',
 			appLogoUrl: 'https://startale.com/image/symbol.png',
-			appChainIds: [soneium.id, soneiumMinato.id, mainnet.id],
+			appChainIds: [soneium.id, mainnet.id],
 			preference: {
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],

@@ -5,7 +5,7 @@ import {
 	type Page,
 } from '@playwright/test'
 import { loginWithLine } from '../../lib/auth/line-oauth.js'
-import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
+import { ROUTES } from '../../lib/constants.js'
 import {
 	injectSCWUrl,
 	parseLineSessionCookies,
@@ -114,19 +114,6 @@ test.describe('LINE OAuth — RPC Methods', () => {
 		await walletSendCalls.waitForResponse()
 		const response = await walletSendCalls.getResponse()
 		expect(response).toBeTruthy()
-	})
-
-	// --- Chain ---
-
-	// Switches to Minato and does NOT revert — subsequent tests are chain-agnostic
-	// (read-only RPC calls and error cases work on any chain).
-	test('wallet_switchEthereumChain — switch chain via shortcut', async () => {
-		const switchChain = rpcMethodCard(page, 'wallet_switchEthereumChain')
-		await switchChain.clickShortcut('Minato')
-		const eventSection = page.getByTestId('section-event-listeners')
-		await expect(eventSection.getByText(CHAIN_IDS.MINATO)).toBeVisible()
-		// Chakra UI toasts use HTML id (from toast({ id })) — not data-testid
-		await expect(page.locator('#toast-chain-changed')).toBeVisible()
 	})
 
 	// --- Read-only ---
