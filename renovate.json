@@ -1,0 +1,40 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended", ":timezone(Asia/Tokyo)", "schedule:daily"],
+	"labels": ["dependencies"],
+	"reviewers": ["jgjp"],
+	"gitIgnoredAuthors": [
+		"github-actions[bot]@users.noreply.github.com",
+		"41898282+github-actions[bot]@users.noreply.github.com",
+		"action@github.com"
+	],
+	"prConcurrentLimit": 15,
+	"prHourlyLimit": 10,
+	"rangeStrategy": "pin",
+	"packageRules": [
+		{
+			"matchFileNames": [".claude-lib/shared/**"],
+			"enabled": false,
+			"description": "Vendored subtree of claude-config-shared — upstream owns these files and manages its own Renovate bumps. Local bumps create a phantom diff that the config-sync subtree push cannot carry."
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchUpdateTypes": ["major"],
+			"minimumReleaseAge": "14 days"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchUpdateTypes": ["minor"],
+			"groupName": "Minor updates (summary PR)",
+			"groupSlug": "minor-updates",
+			"minimumReleaseAge": "7 days"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchUpdateTypes": ["patch"],
+			"groupName": "Patch updates (summary PR)",
+			"groupSlug": "patch-updates",
+			"minimumReleaseAge": "3 days"
+		}
+	]
+}
