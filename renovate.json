@@ -40,6 +40,12 @@
 			"groupName": "Patch updates (summary PR)",
 			"groupSlug": "patch-updates",
 			"minimumReleaseAge": "3 days"
+		},
+		{
+			"matchManagers": ["github-actions"],
+			"groupName": "GitHub Actions (summary PR)",
+			"groupSlug": "github-actions",
+			"minimumReleaseAge": "7 days"
 		}
 	]
 }
