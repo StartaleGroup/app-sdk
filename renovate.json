@@ -11,7 +11,8 @@
 	"gitIgnoredAuthors": [
 		"github-actions[bot]@users.noreply.github.com",
 		"41898282+github-actions[bot]@users.noreply.github.com",
-		"action@github.com"
+		"action@github.com",
+		"startaleapp-frontend[bot]@users.noreply.github.com"
 	],
 	"prConcurrentLimit": 15,
 	"prHourlyLimit": 10,
