@@ -2,7 +2,7 @@ name: E2E Tests
 
 on:
   pull_request:
-    types: [labeled, synchronize, reopened]
+    types: [opened, synchronize, reopened]
   workflow_call:
     inputs:
       superapp-branch:
@@ -45,9 +45,6 @@ concurrency:
 
 jobs:
   setup:
-    if: >-
-      inputs.superapp-branch != '' ||
-      contains(github.event.pull_request.labels.*.name, 'e2e-test')
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
