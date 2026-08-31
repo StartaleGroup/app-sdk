@@ -32,6 +32,11 @@
 			"import": "./dist/interface/public-utilities/spend-permission/index.js",
 			"require": "./dist/interface/public-utilities/spend-permission/index.js"
 		},
+		"./raw-digest-sign": {
+			"types": "./dist/interface/public-utilities/raw-digest-sign/index.d.ts",
+			"import": "./dist/interface/public-utilities/raw-digest-sign/index.js",
+			"require": "./dist/interface/public-utilities/raw-digest-sign/index.js"
+		},
 		"./ui-assets": {
 			"types": "./dist/ui/assets/index.d.ts",
 			"import": "./dist/ui/assets/index.js",

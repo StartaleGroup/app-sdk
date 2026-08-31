@@ -31,6 +31,8 @@ export type {
 } from ':core/provider/interface.js'
 export { createStartaleAccountSDK } from './interface/builder/core/createStartaleAccountSDK.js'
 export { getCryptoKeyAccount, removeCryptoKey } from './kms/crypto-key/index.js'
+export { requestSignRawDigest } from './interface/public-utilities/raw-digest-sign/index.js'
+export type { RequestSignRawDigestType } from './interface/public-utilities/raw-digest-sign/index.js'
 export { base, CHAIN_IDS, getPaymentStatus, pay, TOKENS }
 export type {
 	InfoRequest,

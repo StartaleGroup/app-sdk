@@ -11,6 +11,16 @@ const personalSignShortcuts: ShortcutType[] = [
 	},
 ]
 
+const walletSignRawDigestShortcuts: ShortcutType[] = [
+	{
+		key: 'Example digest',
+		data: {
+			digest: `0x${'ab'.repeat(32)}`,
+			address: ADDR_TO_FILL,
+		},
+	},
+]
+
 const ethSignTypedDataV1Shortcuts: ShortcutType[] = [
 	{
 		key: EXAMPLE_MESSAGE,
@@ -180,4 +190,5 @@ export const signMessageShortcutsMap = (chainId: number) => ({
 	eth_signTypedData_v1: ethSignTypedDataV1Shortcuts,
 	eth_signTypedData_v3: ethSignTypedDataV3Shortcuts(chainId),
 	eth_signTypedData_v4: ethSignTypedDataV4Shortcuts(chainId),
+	wallet_signRawDigest: walletSignRawDigestShortcuts,
 })

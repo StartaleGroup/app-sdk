@@ -449,6 +449,7 @@ describe('Signer', () => {
 			'eth_ecRecover',
 			'personal_sign',
 			'wallet_sign',
+			'wallet_signRawDigest',
 			'personal_ecRecover',
 			'eth_signTransaction',
 			'eth_sendTransaction',
