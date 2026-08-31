@@ -91,7 +91,7 @@
 		"@rollup/plugin-replace": "^5.0.5",
 		"@rollup/plugin-typescript": "^11.1.6",
 		"@size-limit/preset-big-lib": "^11.1.6",
-		"@testing-library/jest-dom": "^6.5.0",
+		"@testing-library/jest-dom": "^7.0.0",
 		"@testing-library/preact": "^3.2.4",
 		"@types/node": "^22.18.10",
 		"@vitest/coverage-v8": "2.1.9",
