@@ -116,7 +116,7 @@ describe('initCCA', () => {
 
 			expect(mockClientAnalytics.init).toHaveBeenCalledWith({
 				isProd: true,
-				amplitudeApiKey: 'c66737ad47ec354ced777935b0af822e',
+				amplitudeApiKey: 'EXAMPLE_TOKEN',
 				platform: 'web',
 				projectName: 'base_account_sdk',
 				showDebugLogging: false,
