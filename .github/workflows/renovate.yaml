@@ -43,7 +43,7 @@ jobs:
           permission-members: read
           permission-metadata: read
           permission-vulnerability-alerts: read
-      - uses: renovatebot/github-action@v46.2.2
+      - uses: renovatebot/github-action@v46.2.4
         env:
           LOG_LEVEL: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.logLevel) || 'info' }}
           RENOVATE_DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dryRun == 'true') && 'full' || 'null' }}
