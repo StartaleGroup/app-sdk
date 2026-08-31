@@ -42,9 +42,24 @@ export function EIP1193ProviderContextProvider({
 	const [provider, setProvider] = useState(null)
 
 	useEffect(() => {
-		const paymasterId = process.env.NEXT_PUBLIC_PAYMASTER_ID
-		const paymasterApiKey = process.env.NEXT_PUBLIC_PAYMASTER_API_KEY
-		const bundlerApiKey = process.env.NEXT_PUBLIC_BUNDLER_API_KEY
+		// Paymaster URL points at this app's same-origin proxy route
+		// (`/api/paymaster/<chainId>`). The SCS API key and paymaster ID stay
+		// server-side — never exposed to the browser. See
+		// `src/pages/api/paymaster/[chainId].page.ts` and `.env.local.example`.
+		//
+		// `NEXT_PUBLIC_PAYMASTER_BASE_URL` overrides the base origin so the
+		// paymaster URL can resolve to a publicly reachable host (e.g. a
+		// Cloudflare tunnel) when the wallet/superapp runs off-machine and
+		// cannot reach `localhost` — required for sponsored e2e against prod.
+		// Only the public host is exposed; the SCS key still stays server-side.
+		const origin =
+			typeof window !== 'undefined' ? window.location.origin : ''
+		// Strip trailing slash(es)
+		const paymasterBase = (
+			process.env.NEXT_PUBLIC_PAYMASTER_BASE_URL || origin
+		).replace(/\/+$/, '')
+		const paymasterUrl = (chainId: number) =>
+			`${paymasterBase}/api/paymaster/${chainId}`
 
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',
@@ -58,10 +73,16 @@ export function EIP1193ProviderContextProvider({
 				authType: undefined,
 			},
 			subAccounts: subAccountsConfig,
-			paymasterOptions: paymasterId && paymasterApiKey ? {	
-				[soneium.id]: {url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, 
-				id: paymasterId}
-			} : undefined,
+			// `id` is read by the SDK but the proxy injects the paymaster ID
+			// into the upstream SCS request itself, so we leave it empty.
+			// SCS sponsors Soneium networks only — mainnet (ETH) is omitted.
+			paymasterOptions: {
+				[soneium.id]: { url: paymasterUrl(soneium.id), id: '' },
+				[soneiumMinato.id]: {
+					url: paymasterUrl(soneiumMinato.id),
+					id: '',
+				},
+			},
 		}
 
 		const sdk = createStartaleAccountSDKHEAD(sdkParams)
