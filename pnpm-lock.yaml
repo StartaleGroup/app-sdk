@@ -150,8 +150,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(rollup@4.52.5)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.3
-        version: 15.3.1(rollup@4.52.5)
+        specifier: ^16.0.0
+        version: 16.0.3(rollup@4.52.5)
       '@rollup/plugin-replace':
         specifier: ^5.0.5
         version: 5.0.7(rollup@4.52.5)
@@ -927,8 +927,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-node-resolve@15.3.1':
-    resolution: {integrity: sha512-tgg6b91pAybXHJQMAAwW9VuWBO6Thi+q7BCNARLwSqlmsHz0XYURtGvh/AuwSADXSI4h/2uHbs7s4FzlZDGSGA==}
+  '@rollup/plugin-node-resolve@16.0.3':
+    resolution: {integrity: sha512-lUYM3UBGuM93CnMPG1YocWu7X802BrNF3jW2zny5gQyLQgRFJhV1Sq0Zi74+dh/6NBx1DxFC4b4GXg9wUCG5Qg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0||^4.0.0
@@ -4463,7 +4463,7 @@ snapshots:
     optionalDependencies:
       rollup: 4.52.5
 
-  '@rollup/plugin-node-resolve@15.3.1(rollup@4.52.5)':
+  '@rollup/plugin-node-resolve@16.0.3(rollup@4.52.5)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.52.5)
       '@types/resolve': 1.20.2
