@@ -19,7 +19,7 @@ importers:
         version: 2.3.1
       bun:
         specifier: runtime:^1.3.1
-        version: runtime:1.4.0
+        version: runtime:1.4.2
       node:
         specifier: runtime:^24.10.0
         version: runtime:24.20.0
@@ -213,7 +213,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: ^3.0.0
+        specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
 
 packages:
@@ -1638,57 +1638,57 @@ packages:
     resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
     engines: {node: '>=6.14.2'}
 
-  bun@runtime:1.4.0:
+  bun@runtime:1.4.2:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-xmnpf2Fk4cluBwF0jbmN+ndJKQjL2DlMdVcTSnNd44E=
+            integrity: sha256-kJh6OhbX21VtiGrD1VHnttPt8KHPQ6yu1iLoZ2vh0S8=
             prefix: bun-darwin-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-aarch64.zip
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-HQIRuPHcmRGCNEaHrRXnLuhvFUhFpff6R3mUzTQd2bA=
+            integrity: sha256-gFINfhdSYwjJGF0mFnmsbSd5jTgDoOn3/5Ehq4r/sBI=
             prefix: bun-darwin-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-x64.zip
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-y/K0tK1EXr6K3epDGVN15TmaojRiKR1NyVL6Vh0BqWA=
+            integrity: sha256-pVSVjlaRxQNuV22njvtBFGZdo1TIgssMoFm71KiWtEo=
             prefix: bun-freebsd-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-aarch64.zip
           targets:
             - cpu: arm64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-54noZI/nsFZ+W4YKhDD8ln5DR5Ywhgv/CQNyMGOts24=
+            integrity: sha256-7ARO2Rw3Chb15DQgjdUCCT6Y7Iajyxr/Oq0psTQm7MI=
             prefix: bun-freebsd-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-x64.zip
           targets:
             - cpu: x64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-V2MAzjP/Fv/NRVvxeMLwlfnfhFxsw9AoS6HJbKDoBHM=
+            integrity: sha256-cXYLbI6jBiO4GkkHy4FdSOLqJm8uc+dRU0pEoGB5UN8=
             prefix: bun-linux-aarch64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64-musl.zip
           targets:
             - cpu: arm64
               os: linux
@@ -1696,20 +1696,20 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-SxozLuhhmD65O8/m93D/+U4+MbLDiL2uo8jtNeWO7Q4=
+            integrity: sha256-VDKLvC2cjgyfiSxUTWbFeoO4QTnjSQnl7oF1jxrI/ac=
             prefix: bun-linux-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64.zip
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-g7XxL9JY3Y1P3K6mXt6VQ2aqcX2rOZ4gCT7KsoDVTno=
+            integrity: sha256-SDXspZ1tpw9GdPVkL25Fncrat3NpWy7Zki0TEFeYl0I=
             prefix: bun-linux-x64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64-musl.zip
           targets:
             - cpu: x64
               os: linux
@@ -1717,34 +1717,34 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-LQP7X7g6yLVnrKCigbLOGhoZ1Ij1bClo2Iw/Jekv5FI=
+            integrity: sha256-NjaPrvdSeHXV/6UuU81IAhdB8qg+tiCKjdZAaNQiqRM=
             prefix: bun-linux-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64.zip
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-9HO/4t9z7ncFSMk91dOArqcSDCGOwqoa/dC7unvxjEc=
+            integrity: sha256-p6Frh2owX9ECnGbb0nAHtPYRKuiWUy9nWHhzGiHlDP0=
             prefix: bun-windows-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-aarch64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-5vCT052khrICYsqM3V7Wqei8nC8nW3jm06DFsozJWQE=
+            integrity: sha256-zkwXSXsvKXEqmdPVPwKN4ozULjusuFiVmefwAOSbZAU=
             prefix: bun-windows-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 1.4.0
+    version: 1.4.2
     hasBin: true
 
   busboy@1.6.0:
@@ -5194,7 +5194,7 @@ snapshots:
       node-gyp-build: 4.8.4
     optional: true
 
-  bun@runtime:1.4.0: {}
+  bun@runtime:1.4.2: {}
 
   busboy@1.6.0:
     dependencies:
