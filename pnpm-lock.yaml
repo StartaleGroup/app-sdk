@@ -162,8 +162,8 @@ importers:
         specifier: ^11.1.6
         version: 11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(utf-8-validate@6.0.6)
       '@testing-library/jest-dom':
-        specifier: ^6.5.0
-        version: 6.9.1
+        specifier: ^7.0.0
+        version: 7.0.1(@testing-library/dom@8.20.1)(vitest@2.1.9(@types/node@22.18.12)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))
       '@testing-library/preact':
         specifier: ^3.2.4
         version: 3.2.4(preact@10.24.2)
@@ -1181,9 +1181,15 @@ packages:
     resolution: {integrity: sha512-/DiOQ5xBxgdYRC8LNk7U+RWat0S3qRLeIw3ZIkMQ9kkVlRmwD/Eg8k8CqIpD6GW7u20JIUOfMKbxtiLutpjQ4g==}
     engines: {node: '>=12'}
 
-  '@testing-library/jest-dom@6.9.1':
-    resolution: {integrity: sha512-zIcONa+hVtVSSep9UT3jZ5rizo2BsxgyDYU7WFD5eICBE7no3881HGeb/QkGfsJs6JTkY1aQhT7rIPC7e+0nnA==}
-    engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
+  '@testing-library/jest-dom@7.0.1':
+    resolution: {integrity: sha512-oMDTC3oA+6CXSO2JZnvOI7CA6oVub6kij5ggk9ohwye5slmkwxYDXcPOVxgMw/RQlticjtO0C1RZkR97HgrWMw==}
+    engines: {node: '>=22', npm: '>=6', yarn: '>=1'}
+    peerDependencies:
+      '@testing-library/dom': '>=10 <11'
+      vitest: '>= 0.32'
+    peerDependenciesMeta:
+      vitest:
+        optional: true
 
   '@testing-library/preact@3.2.4':
     resolution: {integrity: sha512-F+kJ243LP6VmEK1M809unzTE/ijg+bsMNuiRN0JEDIJBELKKDNhdgC/WrUSZ7klwJvtlO3wQZ9ix+jhObG07Fg==}
@@ -4713,14 +4719,17 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.9.1':
+  '@testing-library/jest-dom@7.0.1(@testing-library/dom@8.20.1)(vitest@2.1.9(@types/node@22.18.12)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))':
     dependencies:
       '@adobe/css-tools': 4.4.4
+      '@testing-library/dom': 8.20.1
       aria-query: 5.3.2
       css.escape: 1.5.1
       dom-accessibility-api: 0.6.3
       picocolors: 1.1.1
       redent: 3.0.0
+    optionalDependencies:
+      vitest: 2.1.9(@types/node@22.18.12)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
 
   '@testing-library/preact@3.2.4(preact@10.24.2)':
     dependencies:
