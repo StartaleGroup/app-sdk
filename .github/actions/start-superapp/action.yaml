@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Download SuperApp artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: superapp-ready
         path: /tmp/

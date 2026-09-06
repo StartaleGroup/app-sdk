@@ -14,14 +14,14 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: 24
 
-    - uses: pnpm/action-setup@v4
+    - uses: pnpm/action-setup@v6
 
     - name: Cache pnpm store
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/.local/share/pnpm/store/v10
         key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
