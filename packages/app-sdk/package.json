@@ -77,12 +77,12 @@
 		"@wagmi/core": "^3.0.2",
 		"abitype": "^1.1.1",
 		"clsx": "1.2.1",
-		"eventemitter3": "5.0.1",
+		"eventemitter3": "5.0.4",
 		"idb-keyval": "6.2.1",
 		"ox": "^0.9.6",
 		"preact": "10.24.2",
 		"viem": "^2.31.7",
-		"zustand": "5.0.3"
+		"zustand": "5.0.15"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^25.0.7",
@@ -96,11 +96,11 @@
 		"@types/node": "^22.18.10",
 		"@vitest/coverage-v8": "2.1.9",
 		"@vitest/web-worker": "^2.1.9",
-		"fake-indexeddb": "^6.0.0",
+		"fake-indexeddb": "^6.2.4",
 		"glob": "^11.0.0",
 		"jest-websocket-mock": "^2.4.0",
 		"jsdom": "^25.0.1",
-		"nodemon": "^3.1.0",
+		"nodemon": "^3.1.10",
 		"rollup": "^4.9.6",
 		"rollup-plugin-terser": "^7.0.2",
 		"sass": "^1.64.1",
