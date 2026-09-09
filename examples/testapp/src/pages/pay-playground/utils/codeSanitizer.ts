@@ -1,5 +1,4 @@
 import * as acorn from 'acorn'
-
 // Define the whitelist of allowed operations
 export const WHITELIST = {
 	// Allowed SDK functions
@@ -13,7 +12,7 @@ export const WHITELIST = {
 		Object: ['keys', 'values', 'entries', 'assign'],
 		Array: ['isArray', 'from'],
 		JSON: ['stringify', 'parse'],
-		Math: ['floor', 'ceil', 'round', 'min', 'max', 'abs'],
+		Math: ['floor', 'ceil', 'round', 'min', 'max', 'abs']
 	} as Record<string, string[]>,
 
 	// Allowed keywords and statements
@@ -105,8 +104,8 @@ export const WHITELIST = {
 		'clearInterval',
 		'clearTimeout',
 		'clearImmediate',
-	],
-}
+	]
+} as Record<string, string[]>;
 
 interface ValidationError {
 	message: string
@@ -115,7 +114,7 @@ interface ValidationError {
 }
 
 interface ASTNode {
-	body?: ASTNode[]
+	tbody?: ASTNode[]
 	type?: string
 	loc?: { start: { line: number; column: number } }
 	callee?: ASTNode
@@ -130,9 +129,7 @@ interface ASTNode {
 export class CodeSanitizer {
 	private errors: ValidationError[] = []
 
-	/**
-	 * Sanitize and validate the code based on whitelist
-	 */
+	/** Sanitize and validate the code based on whitelist */
 	sanitize(code: string): {
 		isValid: boolean
 		sanitizedCode: string
@@ -172,50 +169,16 @@ export class CodeSanitizer {
 					errors: [],
 				}
 			}
+		}
 
-			return {
-				isValid: false,
-				sanitizedCode: '',
-				errors: this.errors,
-			}
-		} catch (error) {
-			// Parse error - try to extract meaningful line number
-			if (error instanceof SyntaxError) {
-				const match = error.message.match(/\((\d+):(\d+)\)/)
-				let line
-				let column
-
-				if (match) {
-					// Adjust line number since we wrapped the code
-					line = Number.parseInt(match[1]) - 1
-					column = Number.parseInt(match[2])
-				}
-
-				this.errors.push({
-					message: error.message.replace(
-						/\(\d+:\d+\)/,
-						line ? `(${line}:${column})` : '',
-					),
-					line,
-					column,
-				})
-			} else {
-				this.errors.push({
-					message: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
-				})
-			}
-
-			return {
-				isValid: false,
-				sanitizedCode: '',
-				errors: this.errors,
-			}
+		return {
+			isValid: false,
+			sanitizedCode: '',
+			errors: this.errors,
 		}
 	}
 
-	/**
-	 * Recursively validate AST nodes
-	 */
+	/** Recursively validate AST nodes */
 	private validateNode(node: ASTNode): void {
 		if (!node) return
 
@@ -269,9 +232,7 @@ export class CodeSanitizer {
 		}
 	}
 
-	/**
-	 * Validate function calls
-	 */
+	/** Validate function calls */
 	private validateCallExpression(node: ASTNode): void {
 		// Check if it's a direct function call
 		if (node.callee.type === 'Identifier') {
@@ -298,33 +259,81 @@ export class CodeSanitizer {
 		}
 	}
 
-	/**
-	 * Validate member expressions (object.property)
-	 */
+	/** Validate member expressions (object.property) */
 	private validateMemberExpression(node: ASTNode): void {
-		// Get the object name
+		// Get the object name - handle computed property names and nested member expressions
 		let objectName = ''
 		if (node.object.type === 'Identifier') {
 			objectName = node.object.name
-		} else if (
-			node.object.type === 'MemberExpression' &&
-			node.object.object.type === 'Identifier'
-		) {
+		} else if (node.object.type === 'MemberExpression' && node.object.object.type === 'Identifier') {
+			// Handle cases like a.b where the base is an identifier
 			objectName = node.object.object.name
+		} else if (node.object.type === 'ArrayExpression') {
+			// Handle [] pattern
+			objectName = '[]'
+		} else if (node.object.type === 'ObjectExpression') {
+			// Handle {} pattern
+			objectName = '{}'
 		}
 
-		// Get the property name
+		// Get the property name - handle computed property names
 		let propertyName = ''
 		if (node.property.type === 'Identifier') {
 			propertyName = node.computed ? '' : node.property.name
 		} else if (node.property.type === 'Literal') {
 			propertyName = String(node.property.value)
+		} else if (node.property.type === 'TemplateLiteral') {
+			// Handle template literals for computed property names
+			propertyName = node.quasis?.length > 0 ? node.quasis[0].value.cooked : ''
+		}
+
+		// NEW: DANGEROUS_PROPERTIES check - catch all potentially dangerous property accesses
+		// This fires regardless of whether propertyName is empty, catching:
+		// constructor, __proto__, prototype, call, apply, bind, caller, callee, arguments, parent, top, window, self, document, frameElement, name
+		const DANGEROUS_PROPERTIES = [
+			'constructor',
+			'__proto__',
+			'prototype',
+			'call',
+			'apply',
+			'bind',
+			'caller',
+			'callee',
+			'arguments',
+			'parent',
+			'top',
+			'window',
+			'self',
+			'frames',
+			'window',
+			'document',
+			'frameElement',
+			'name',
+			'caller',
+			'arguments',
+		]
+		if (propertyName && DANGEROUS_PROPERTIES.includes(propertyName.toLowerCase())) {
+			this.errors.push({
+				message: `Property '${objectName}.${propertyName}' is disallowed for security`,
+				line: node.loc?.start.line ? node.loc.start.line - 1 : undefined,
+				column: node.loc?.start.column,
+			})
 		}
 
 		// Validate against whitelist
 		if (objectName && objectName in WHITELIST.allowedObjects) {
 			const allowedProps = WHITELIST.allowedObjects[objectName]
-			if (propertyName && !allowedProps.includes(propertyName)) {
+			// When propertyName is empty (computed), we need extra scrutiny
+			if (!propertyName) {
+				// For computed property names, check if the object itself is disallowed
+				if (WHITELIST.disallowedGlobals.includes(objectName)) {
+					this.errors.push({
+						message: `Object '${objectName}' is not allowed with computed properties`,
+						line: node.loc?.start.line ? node.loc.start.line - 1 : undefined,
+						column: node.loc?.start.column,
+					})
+				}
+			} else if (propertyName && !allowedProps.includes(propertyName)) {
 				this.errors.push({
 					message: `Property '${objectName}.${propertyName}' is not allowed`,
 					line: node.loc?.start.line ? node.loc.start.line - 1 : undefined,
@@ -343,9 +352,7 @@ export class CodeSanitizer {
 		}
 	}
 
-	/**
-	 * Validate identifiers
-	 */
+	/** Validate identifiers */
 	private validateIdentifier(node: ASTNode): void {
 		// Skip validation for allowed functions and objects
 		if (WHITELIST.allowedFunctions.includes(node.name)) return
@@ -361,37 +368,33 @@ export class CodeSanitizer {
 		}
 	}
 
-	/**
-	 * Apply sanitization transformations to the code
-	 */
+	/** Apply sanitization transformations to the code */
 	private applySanitization(code: string): string {
 		let sanitized = code
 
 		// Remove import statements
 		sanitized = sanitized.replace(
-			/^\s*import\s+.*?(?:from\s+['"][^'"]+['"])?[;\s]*$/gm,
+			/^\\s*import\\s+.*?(?:from\\s+['\"][^'\"]+['\"])?[;\\s]*$/gm,
 			'',
 		)
 
 		// Remove multiline imports
 		sanitized = sanitized.replace(
-			/^\s*import\s+[\s\S]*?from\s+['"][^'"]+['"]\s*;?\s*$/gm,
+			/^\\s*import\\s+[\\s\\S]*?from\\s+['\"][^'\"]+['\"]\\s*;?\\s*$/gm,
 			'',
 		)
 
 		// Remove export statements
-		sanitized = sanitized.replace(/^\s*export\s+.*?[;\s]*$/gm, '')
+		sanitized = sanitized.replace(/^\\s*export\\s+.*?[;\\s]*$/gm, '')
 
 		// Clean up extra newlines
-		sanitized = sanitized.replace(/^\s*\n/gm, '')
+		sanitized = sanitized.replace(/^\\s*\\n/gm, '')
 
 		return sanitized
 	}
 }
 
-/**
- * Convenience function to sanitize code
- */
+/** Convenience function to sanitize code */
 export function sanitizeCode(code: string): {
 	isValid: boolean
 	sanitizedCode: string
