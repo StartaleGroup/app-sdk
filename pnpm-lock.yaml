@@ -19,7 +19,7 @@ importers:
         version: 2.3.1
       bun:
         specifier: runtime:^1.3.1
-        version: runtime:1.4.0
+        version: runtime:1.4.2
       node:
         specifier: runtime:^24.10.0
         version: runtime:24.20.0
@@ -34,7 +34,7 @@ importers:
         version: 9.5.0
       viem:
         specifier: ^2.47.6
-        version: 2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)
     devDependencies:
       '@playwright/test':
         specifier: ^1.57.0
@@ -92,7 +92,7 @@ importers:
         version: 7.45.2(react@18.3.1)
       viem:
         specifier: ^2.27.2
-        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)
     devDependencies:
       '@testing-library/react':
         specifier: ^16.2.0
@@ -111,16 +111,16 @@ importers:
     dependencies:
       '@farcaster/miniapp-sdk':
         specifier: ^0.2.3
-        version: 0.2.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 0.2.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)
       '@noble/hashes':
         specifier: 2.3.0
         version: 2.3.0
       '@wagmi/core':
         specifier: ^3.0.2
-        version: 3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
+        version: 3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4))
       abitype:
         specifier: ^1.1.1
-        version: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+        version: 1.1.1(typescript@5.9.3)(zod@4.5.4)
       clsx:
         specifier: 1.2.1
         version: 1.2.1
@@ -131,14 +131,14 @@ importers:
         specifier: 6.2.1
         version: 6.2.1
       ox:
-        specifier: ^0.9.6
-        version: 0.9.13(typescript@5.9.3)(zod@3.25.76)
+        specifier: ^1.0.0
+        version: 1.7.4(typescript@5.9.3)
       preact:
         specifier: 10.24.2
         version: 10.24.2
       viem:
         specifier: ^2.31.7
-        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)
       zustand:
         specifier: 5.0.15
         version: 5.0.15(@types/react@18.2.15)(react@18.3.1)
@@ -769,12 +769,28 @@ packages:
     resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/ciphers@2.2.0':
+    resolution: {integrity: sha512-Z6pjIZ/8IJcCGzb2S/0Px5J81yij85xASuk1teLNeg75bfT07MV3a/O2Mtn1I2se43k3lkVEcFaR10N4cgQcZA==}
+    engines: {node: '>= 20.19.0'}
+
+  '@noble/ciphers@2.4.0':
+    resolution: {integrity: sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw==}
+    engines: {node: '>= 20.19.0'}
+
   '@noble/curves@1.4.2':
     resolution: {integrity: sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==}
 
   '@noble/curves@1.9.1':
     resolution: {integrity: sha512-k11yZxZg+t+gWvBbIswW0yoJlu8cHOC7dhunwOzoWH/mXGBiYyR4YY6hAEK/3EUs4UpB8la1RfdRpeGsFHkWsA==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/curves@2.2.0':
+    resolution: {integrity: sha512-T/BoHgFXirb0ENSPBquzX0rcjXeM6Lo892a2jlYJkqk83LqZx0l1Of7DzlKJ6jkpvMrkHSnAcgb5JegL8SeIkQ==}
+    engines: {node: '>= 20.19.0'}
+
+  '@noble/curves@2.4.0':
+    resolution: {integrity: sha512-P4/62zrgfH33CneE3Dn4WhJVA22YUU0eR51wKIan4NVRvwsA0YnPTwWGpNbpuacSujmSFLvyzpyuR30+fbq2Ew==}
+    engines: {node: '>= 20.19.0'}
 
   '@noble/hashes@1.4.0':
     resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
@@ -788,8 +804,20 @@ packages:
     resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
     engines: {node: '>= 20.19.0'}
 
+  '@noble/hashes@2.2.0':
+    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+    engines: {node: '>= 20.19.0'}
+
   '@noble/hashes@2.3.0':
     resolution: {integrity: sha512-oN+QwyX7VSHotibwubG3kpzbwKrfnyR6OOO+3Nk/53ADL7FmgHHz4TgrbaYKvvOw09u6QTx0oiH1cNCIOuN0CQ==}
+    engines: {node: '>= 20.19.0'}
+
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
+    engines: {node: '>= 20.19.0'}
+
+  '@noble/post-quantum@0.6.1':
+    resolution: {integrity: sha512-+pormrDZwjRw05U8ADK4JpHejo87+gBd+muRBB/ozztH5yhDLMDF4jHQWN3NQQAsu1zBNPWTG0ZwVI0CR29H0A==}
     engines: {node: '>= 20.19.0'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -1094,17 +1122,26 @@ packages:
   '@scure/base@1.2.6':
     resolution: {integrity: sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==}
 
+  '@scure/base@2.4.0':
+    resolution: {integrity: sha512-thZ1TuJwFwBblOhgsjDKvvGirBxNp+wSvY/DR6tJBJOTDhdAAcHJ8Vbr2eFnqaxeca4+t0i9KBf+uHYGWwZORg==}
+
   '@scure/bip32@1.4.0':
     resolution: {integrity: sha512-sVUpc0Vq3tXCkDGYVWGIZTRfnvu8LoTDaev7vbwh0omSvVORONr960MQWdKqJDCReIEmTj3PAr73O3aoxz7OPg==}
 
   '@scure/bip32@1.7.0':
     resolution: {integrity: sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw==}
 
+  '@scure/bip32@2.4.0':
+    resolution: {integrity: sha512-i3DS0CptAocyvqE4n3SUkpzeQK4vJMFwWLofTwRiiKo2aWojBOfyMCgfKw9HVpO6fSY5AK86sHS/Uzn8kK9Few==}
+
   '@scure/bip39@1.3.0':
     resolution: {integrity: sha512-disdg7gHuTDZtY+ZdkmLpPCk7fxZSu3gBiEGuoC1XYxv9cGx3Z6cpTggCgW6odSOOIXCiDjuGejW+aJKCY/pIQ==}
 
   '@scure/bip39@1.6.0':
     resolution: {integrity: sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==}
+
+  '@scure/bip39@2.4.0':
+    resolution: {integrity: sha512-82dxFbZUYboyOf0AXiydsQrFQ5Q4h9mX+O2UkE91ROYmsc0BKMGZLwDmy96Jpa2+vrtoxomjUhy1RPIgH/r2nA==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -1432,6 +1469,17 @@ packages:
       zod:
         optional: true
 
+  abitype@1.3.0:
+    resolution: {integrity: sha512-fk6Te+bojIFrMvMZrnOO+SxCB+RUksTGOzq/60ZRvs1L+BVzvi2bqt9L3W/17ZLdZsyM1FuYf65P5nlmoiH1Bg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3.22.0 || ^4.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+
   acorn-import-phases@1.0.4:
     resolution: {integrity: sha512-wKmbr/DDiIXzEOiWrTTUcDm24kQ2vGfZQvM2fwg2vXqR5uW6aapr7ObPtj1th32b9u90/Pf4AItvdTh42fBmVQ==}
     engines: {node: '>=10.13.0'}
@@ -1638,57 +1686,57 @@ packages:
     resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
     engines: {node: '>=6.14.2'}
 
-  bun@runtime:1.4.0:
+  bun@runtime:1.4.2:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-xmnpf2Fk4cluBwF0jbmN+ndJKQjL2DlMdVcTSnNd44E=
+            integrity: sha256-kJh6OhbX21VtiGrD1VHnttPt8KHPQ6yu1iLoZ2vh0S8=
             prefix: bun-darwin-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-aarch64.zip
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-HQIRuPHcmRGCNEaHrRXnLuhvFUhFpff6R3mUzTQd2bA=
+            integrity: sha256-gFINfhdSYwjJGF0mFnmsbSd5jTgDoOn3/5Ehq4r/sBI=
             prefix: bun-darwin-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-x64.zip
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-y/K0tK1EXr6K3epDGVN15TmaojRiKR1NyVL6Vh0BqWA=
+            integrity: sha256-pVSVjlaRxQNuV22njvtBFGZdo1TIgssMoFm71KiWtEo=
             prefix: bun-freebsd-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-aarch64.zip
           targets:
             - cpu: arm64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-54noZI/nsFZ+W4YKhDD8ln5DR5Ywhgv/CQNyMGOts24=
+            integrity: sha256-7ARO2Rw3Chb15DQgjdUCCT6Y7Iajyxr/Oq0psTQm7MI=
             prefix: bun-freebsd-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-x64.zip
           targets:
             - cpu: x64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-V2MAzjP/Fv/NRVvxeMLwlfnfhFxsw9AoS6HJbKDoBHM=
+            integrity: sha256-cXYLbI6jBiO4GkkHy4FdSOLqJm8uc+dRU0pEoGB5UN8=
             prefix: bun-linux-aarch64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64-musl.zip
           targets:
             - cpu: arm64
               os: linux
@@ -1696,20 +1744,20 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-SxozLuhhmD65O8/m93D/+U4+MbLDiL2uo8jtNeWO7Q4=
+            integrity: sha256-VDKLvC2cjgyfiSxUTWbFeoO4QTnjSQnl7oF1jxrI/ac=
             prefix: bun-linux-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64.zip
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-g7XxL9JY3Y1P3K6mXt6VQ2aqcX2rOZ4gCT7KsoDVTno=
+            integrity: sha256-SDXspZ1tpw9GdPVkL25Fncrat3NpWy7Zki0TEFeYl0I=
             prefix: bun-linux-x64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64-musl.zip
           targets:
             - cpu: x64
               os: linux
@@ -1717,34 +1765,34 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-LQP7X7g6yLVnrKCigbLOGhoZ1Ij1bClo2Iw/Jekv5FI=
+            integrity: sha256-NjaPrvdSeHXV/6UuU81IAhdB8qg+tiCKjdZAaNQiqRM=
             prefix: bun-linux-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64.zip
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-9HO/4t9z7ncFSMk91dOArqcSDCGOwqoa/dC7unvxjEc=
+            integrity: sha256-p6Frh2owX9ECnGbb0nAHtPYRKuiWUy9nWHhzGiHlDP0=
             prefix: bun-windows-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-aarch64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-5vCT052khrICYsqM3V7Wqei8nC8nW3jm06DFsozJWQE=
+            integrity: sha256-zkwXSXsvKXEqmdPVPwKN4ozULjusuFiVmefwAOSbZAU=
             prefix: bun-windows-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 1.4.0
+    version: 1.4.2
     hasBin: true
 
   busboy@1.6.0:
@@ -2874,16 +2922,16 @@ packages:
       typescript:
         optional: true
 
-  ox@0.9.13:
-    resolution: {integrity: sha512-Cx2aCUIHoX711Q5TtAI2YvkXPe53ZA7Y21nAkH7JkfPk2c/J3ryKGzxrHkn5ujIyxMbvIn+CYlulnmKbWAwY+A==}
+  ox@0.9.6:
+    resolution: {integrity: sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  ox@0.9.6:
-    resolution: {integrity: sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==}
+  ox@1.7.4:
+    resolution: {integrity: sha512-bpi/fBiftKb8aO4vHbvTq+pMRRTbzAML52ZRa+fH1gdwtLDCNE2VxpyASLeukltrDpXhzXQy69iNX3O0PtBWEw==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -3766,6 +3814,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.5.4:
+    resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
+
   zustand@5.0.0:
     resolution: {integrity: sha512-LE+VcmbartOPM+auOjCCLQOsQ05zUTp8RkgwRzefUk+2jISdMMFnxvyTjA4YNWr5ZGXYbVsEMZosttuxUBkojQ==}
     engines: {node: '>=12.20.0'}
@@ -4207,13 +4258,13 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@farcaster/miniapp-sdk@0.2.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)':
+  '@farcaster/miniapp-sdk@0.2.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)':
     dependencies:
       '@farcaster/miniapp-core': 0.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@farcaster/quick-auth': 0.0.6(typescript@5.9.3)
       comlink: 4.4.2
       eventemitter3: 5.0.4
-      ox: 0.4.4(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.4.4(typescript@5.9.3)(zod@4.5.4)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -4332,6 +4383,10 @@ snapshots:
 
   '@noble/ciphers@1.3.0': {}
 
+  '@noble/ciphers@2.2.0': {}
+
+  '@noble/ciphers@2.4.0': {}
+
   '@noble/curves@1.4.2':
     dependencies:
       '@noble/hashes': 1.4.0
@@ -4340,13 +4395,31 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
 
+  '@noble/curves@2.2.0':
+    dependencies:
+      '@noble/hashes': 2.2.0
+
+  '@noble/curves@2.4.0':
+    dependencies:
+      '@noble/hashes': 2.4.0
+
   '@noble/hashes@1.4.0': {}
 
   '@noble/hashes@1.8.0': {}
 
   '@noble/hashes@2.0.1': {}
 
+  '@noble/hashes@2.2.0': {}
+
   '@noble/hashes@2.3.0': {}
+
+  '@noble/hashes@2.4.0': {}
+
+  '@noble/post-quantum@0.6.1':
+    dependencies:
+      '@noble/ciphers': 2.2.0
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4567,6 +4640,8 @@ snapshots:
 
   '@scure/base@1.2.6': {}
 
+  '@scure/base@2.4.0': {}
+
   '@scure/bip32@1.4.0':
     dependencies:
       '@noble/curves': 1.4.2
@@ -4579,6 +4654,12 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
+  '@scure/bip32@2.4.0':
+    dependencies:
+      '@noble/curves': 2.4.0
+      '@noble/hashes': 2.4.0
+      '@scure/base': 2.4.0
+
   '@scure/bip39@1.3.0':
     dependencies:
       '@noble/hashes': 1.4.0
@@ -4588,6 +4669,10 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
+
+  '@scure/bip39@2.4.0':
+    dependencies:
+      '@noble/hashes': 2.4.0
 
   '@sinclair/typebox@0.27.8': {}
 
@@ -4895,11 +4980,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wagmi/core@3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))':
+  '@wagmi/core@3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4))':
     dependencies:
       eventemitter3: 5.0.1
       mipd: 0.0.7(typescript@5.9.3)
-      viem: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4)
       zustand: 5.0.0(@types/react@18.2.15)(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
@@ -4997,20 +5082,30 @@ snapshots:
     dependencies:
       '@zag-js/dom-query': 0.31.1
 
-  abitype@1.1.0(typescript@5.9.3)(zod@3.25.76):
+  abitype@1.1.0(typescript@5.9.3)(zod@4.5.4):
     optionalDependencies:
       typescript: 5.9.3
-      zod: 3.25.76
+      zod: 4.5.4
 
   abitype@1.1.1(typescript@5.9.3)(zod@3.25.76):
     optionalDependencies:
       typescript: 5.9.3
       zod: 3.25.76
 
-  abitype@1.2.3(typescript@5.9.3)(zod@3.25.76):
+  abitype@1.1.1(typescript@5.9.3)(zod@4.5.4):
     optionalDependencies:
       typescript: 5.9.3
-      zod: 3.25.76
+      zod: 4.5.4
+
+  abitype@1.2.3(typescript@5.9.3)(zod@4.5.4):
+    optionalDependencies:
+      typescript: 5.9.3
+      zod: 4.5.4
+
+  abitype@1.3.0(typescript@5.9.3)(zod@4.5.4):
+    optionalDependencies:
+      typescript: 5.9.3
+      zod: 4.5.4
 
   acorn-import-phases@1.0.4(acorn@8.15.0):
     dependencies:
@@ -5194,7 +5289,7 @@ snapshots:
       node-gyp-build: 4.8.4
     optional: true
 
-  bun@runtime:1.4.0: {}
+  bun@runtime:1.4.2: {}
 
   busboy@1.6.0:
     dependencies:
@@ -6241,7 +6336,7 @@ snapshots:
     dependencies:
       '@noble/hashes': 2.0.1
 
-  ox@0.14.7(typescript@5.9.3)(zod@3.25.76):
+  ox@0.14.7(typescript@5.9.3)(zod@4.5.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -6249,7 +6344,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.5.4)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
@@ -6270,22 +6365,21 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.9.13(typescript@5.9.3)(zod@3.25.76):
+  ox@0.4.4(typescript@5.9.3)(zod@4.5.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.1.1(typescript@5.9.3)(zod@4.5.4)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
       - zod
 
-  ox@0.9.6(typescript@5.9.3)(zod@3.25.76):
+  ox@0.9.6(typescript@5.9.3)(zod@4.5.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -6293,12 +6387,27 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.1.1(typescript@5.9.3)(zod@4.5.4)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
       - zod
+
+  ox@1.7.4(typescript@5.9.3):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 2.4.0
+      '@noble/curves': 2.4.0
+      '@noble/hashes': 2.3.0
+      '@noble/post-quantum': 0.6.1
+      '@scure/bip32': 2.4.0
+      '@scure/bip39': 2.4.0
+      abitype: 1.3.0(typescript@5.9.3)(zod@4.5.4)
+      eventemitter3: 5.0.1
+      zod: 4.5.4
+    optionalDependencies:
+      typescript: 5.9.3
 
   pac-proxy-agent@7.2.0:
     dependencies:
@@ -6995,15 +7104,15 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.1.0(typescript@5.9.3)(zod@4.5.4)
       isows: 1.0.7(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
-      ox: 0.9.6(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.9.6(typescript@5.9.3)(zod@4.5.4)
       ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
       typescript: 5.9.3
@@ -7012,15 +7121,15 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  viem@2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.5.4):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.5.4)
       isows: 1.0.7(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
-      ox: 0.14.7(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.14.7(typescript@5.9.3)(zod@4.5.4)
       ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
       typescript: 5.9.3
@@ -7336,6 +7445,8 @@ snapshots:
       fd-slicer: 1.1.0
 
   zod@3.25.76: {}
+
+  zod@4.5.4: {}
 
   zustand@5.0.0(@types/react@18.2.15)(react@18.3.1):
     optionalDependencies:
