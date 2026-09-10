@@ -54,10 +54,6 @@ describe('EIP1193ProviderContextProvider', () => {
 			setSDKVersion: vi.fn(),
 			setScwUrlAndSave: vi.fn(),
 			setConfig: vi.fn(),
-			subAccountsConfig: {
-				enableAutoSubAccounts: true,
-			},
-			setSubAccountsConfig: vi.fn(),
 		})
 
 		vi.spyOn(EventListeners, 'useEventListeners').mockReturnValue({
@@ -98,9 +94,6 @@ describe('EIP1193ProviderContextProvider', () => {
 					walletUrl: scwUrls[0],
 					telemetry: false,
 				},
-				subAccounts: {
-					enableAutoSubAccounts: true,
-				},
 			}),
 		)
 		expect(screen.getByTestId('sdk-exists')).toBeTruthy()
@@ -117,13 +110,9 @@ describe('EIP1193ProviderContextProvider', () => {
 				attribution: { dataSuffix: '0xtestattribution' },
 				telemetry: false,
 			},
-			subAccountsConfig: {
-				enableAutoSubAccounts: true,
-			},
 			setSDKVersion: vi.fn(),
 			setScwUrlAndSave: vi.fn(),
 			setConfig: vi.fn(),
-			setSubAccountsConfig: vi.fn(),
 		})
 
 		render(
@@ -141,9 +130,6 @@ describe('EIP1193ProviderContextProvider', () => {
 					attribution: { dataSuffix: '0xtestattribution' },
 					walletUrl: scwUrls[0],
 					telemetry: false,
-				},
-				subAccounts: {
-					enableAutoSubAccounts: true,
 				},
 			}),
 		)
