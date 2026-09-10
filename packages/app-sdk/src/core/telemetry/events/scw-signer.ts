@@ -1,4 +1,3 @@
-import { store } from ':store/store.js'
 import {
 	ActionType,
 	AnalyticsEventImportance,
@@ -19,10 +18,7 @@ export const logHandshakeStarted = ({
 			action: ActionType.unknown,
 			componentType: ComponentType.unknown,
 			method,
-			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			correlationId,		},
 		AnalyticsEventImportance.high,
 	)
 }
@@ -43,10 +39,7 @@ export const logHandshakeError = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			errorMessage,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			errorMessage,		},
 		AnalyticsEventImportance.high,
 	)
 }
@@ -64,10 +57,7 @@ export const logHandshakeCompleted = ({
 			action: ActionType.unknown,
 			componentType: ComponentType.unknown,
 			method,
-			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			correlationId,		},
 		AnalyticsEventImportance.high,
 	)
 }
@@ -85,10 +75,7 @@ export const logRequestStarted = ({
 			action: ActionType.unknown,
 			componentType: ComponentType.unknown,
 			method,
-			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			correlationId,		},
 		AnalyticsEventImportance.high,
 	)
 }
@@ -109,10 +96,7 @@ export const logRequestError = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			errorMessage,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			errorMessage,		},
 		AnalyticsEventImportance.high,
 	)
 }
@@ -130,10 +114,7 @@ export const logRequestCompleted = ({
 			action: ActionType.unknown,
 			componentType: ComponentType.unknown,
 			method,
-			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
-		},
+			correlationId,		},
 		AnalyticsEventImportance.high,
 	)
 }

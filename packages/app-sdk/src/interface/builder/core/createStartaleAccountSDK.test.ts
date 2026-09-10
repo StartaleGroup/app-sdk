@@ -14,9 +14,6 @@ import * as getInjectedProviderModule from './getInjectedProvider.js'
 // Mock all dependencies
 vi.mock(':store/store.js', () => ({
 	store: {
-		subAccountsConfig: {
-			set: vi.fn(),
-		},
 		config: {
 			set: vi.fn(),
 		},
@@ -36,7 +33,6 @@ vi.mock(':util/checkCrossOriginOpenerPolicy.js', () => ({
 
 vi.mock(':util/validatePreferences.js', () => ({
 	validatePreferences: vi.fn(),
-	validateSubAccount: vi.fn(),
 }))
 
 vi.mock('./BaseAccountProvider.js', () => ({
@@ -57,8 +53,6 @@ const mockCheckCrossOriginOpenerPolicy =
 	checkCrossOriginModule.checkCrossOriginOpenerPolicy as any
 const mockValidatePreferences =
 	validatePreferencesModule.validatePreferences as any
-const mockValidateSubAccount =
-	validatePreferencesModule.validateSubAccount as any
 const mockBaseAccountProvider = BaseAccountProvider as any
 const mockGetInjectedProvider =
 	getInjectedProviderModule.getInjectedProvider as any
@@ -155,116 +149,6 @@ describe('createProvider', () => {
 		})
 	})
 
-	describe('Sub-account configuration', () => {
-		it('should set sub-account configuration when provided', () => {
-			const mockToOwnerAccount = vi.fn()
-			const params: CreateProviderOptions = {
-				subAccounts: {
-					toOwnerAccount: mockToOwnerAccount,
-					// @ts-expect-error - enableAutoSubAccounts is not officially supported yet
-					enableAutoSubAccounts: true,
-				},
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: mockToOwnerAccount,
-				enableAutoSubAccounts: true,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-
-		it('should handle partial sub-account configuration', () => {
-			const params: CreateProviderOptions = {
-				subAccounts: {
-					// @ts-expect-error - enableAutoSubAccounts is not officially supported yet
-					enableAutoSubAccounts: true,
-				},
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockValidateSubAccount).not.toHaveBeenCalled()
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: undefined,
-				enableAutoSubAccounts: true,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-
-		it('should handle empty sub-account configuration', () => {
-			const params: CreateProviderOptions = {
-				subAccounts: undefined,
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: undefined,
-				enableAutoSubAccounts: undefined,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-
-		it('should set unstable_enableAutoSpendPermissions when provided', () => {
-			const mockToOwnerAccount = vi.fn()
-			const params: CreateProviderOptions = {
-				subAccounts: {
-					toOwnerAccount: mockToOwnerAccount,
-					// @ts-expect-error - enableAutoSubAccounts is not officially supported yet
-					enableAutoSubAccounts: true,
-					unstable_enableAutoSpendPermissions: true,
-				},
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: mockToOwnerAccount,
-				enableAutoSubAccounts: true,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-
-		it('should default unstable_enableAutoSpendPermissions to true when not provided', () => {
-			const mockToOwnerAccount = vi.fn()
-			const params: CreateProviderOptions = {
-				subAccounts: {
-					toOwnerAccount: mockToOwnerAccount,
-				},
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: mockToOwnerAccount,
-				enableAutoSubAccounts: undefined,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-
-		it('should default unstable_enableAutoSpendPermissions to true when explicitly set to undefined', () => {
-			const mockToOwnerAccount = vi.fn()
-			const params: CreateProviderOptions = {
-				subAccounts: {
-					toOwnerAccount: mockToOwnerAccount,
-					unstable_enableAutoSpendPermissions: undefined,
-				},
-			}
-
-			createStartaleAccountSDK(params).getProvider()
-
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: mockToOwnerAccount,
-				enableAutoSubAccounts: undefined,
-				unstable_enableAutoSpendPermissions: true,
-			})
-		})
-	})
-
 	describe('Store configuration', () => {
 		it('should set store configuration', () => {
 			const params: CreateProviderOptions = {
@@ -301,15 +185,6 @@ describe('createProvider', () => {
 			expect(mockValidatePreferences).toHaveBeenCalledWith(preference)
 		})
 
-		it('should validate sub-account when toOwnerAccount is provided', () => {
-			const mockToOwnerAccount = vi.fn()
-			createStartaleAccountSDK({
-				subAccounts: { toOwnerAccount: mockToOwnerAccount },
-			}).getProvider()
-
-			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
-		})
-
 		it('should check cross-origin opener policy', () => {
 			createStartaleAccountSDK({}).getProvider()
 
@@ -340,20 +215,6 @@ describe('createProvider', () => {
 			}).getProvider()
 
 			expect(mockLoadTelemetryScript).not.toHaveBeenCalled()
-		})
-	})
-
-	describe('Error handling', () => {
-		it('should handle sub-account validation errors', () => {
-			mockValidateSubAccount.mockImplementationOnce(() => {
-				throw new Error('Invalid sub-account function')
-			})
-
-			expect(() => {
-				createStartaleAccountSDK({
-					subAccounts: { toOwnerAccount: 'not-a-function' as any },
-				}).getProvider()
-			}).toThrow('Invalid sub-account function')
 		})
 	})
 
@@ -394,7 +255,6 @@ describe('createProvider', () => {
 
 	describe('Integration', () => {
 		it('should perform all setup steps in correct order', () => {
-			const mockToOwnerAccount = vi.fn()
 			const params: CreateProviderOptions = {
 				appName: 'Integration Test',
 				appLogoUrl: 'https://example.com/logo.png',
@@ -402,25 +262,12 @@ describe('createProvider', () => {
 				preference: {
 					telemetry: true,
 				},
-				subAccounts: {
-					toOwnerAccount: mockToOwnerAccount,
-					// @ts-expect-error - enableAutoSubAccounts is not officially supported yet
-					enableAutoSubAccounts: true,
-				},
 				paymasterOptions: {
 					1: { url: 'https://paymaster.example.com', id: 'pm-1' },
 				},
 			}
 
 			const result = createStartaleAccountSDK(params).getProvider()
-
-			// Check sub-account validation and configuration
-			expect(mockValidateSubAccount).toHaveBeenCalledWith(mockToOwnerAccount)
-			expect(mockStore.subAccountsConfig.set).toHaveBeenCalledWith({
-				toOwnerAccount: mockToOwnerAccount,
-				enableAutoSubAccounts: true,
-				unstable_enableAutoSpendPermissions: true,
-			})
 
 			// Check store configuration
 			expect(mockStore.config.set).toHaveBeenCalledWith({
