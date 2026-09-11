@@ -27,8 +27,8 @@
 		"claude:pack": "bash .claude-lib/shared/.scripts/pack.sh"
 	},
 	"devDependencies": {
-		"@antfu/ni": "^25.0.0",
-		"@biomejs/biome": "^2.2.6"
+		"@antfu/ni": "25.0.0",
+		"@biomejs/biome": "2.3.1"
 	},
 	"engines": {
 		"node": ">=24 <25",
