@@ -161,8 +161,6 @@ assertPresence(chainId, undefined, 'Chain ID must be specified')  // narrows T |
 
 Use for: required parameters, type narrowing, invariants, defensive guards.
 
-See also: `assertArrayPresence()` in `src/util/assertPresence.ts`, `assertSubAccount()` in `src/util/assertSubAccount.ts`.
-
 ## Formatting & Code Style
 
 - Run `pnpm lint` and `pnpm format` from packages/app-sdk directory
