@@ -1,11 +1,109 @@
+---
+lockfileVersion: '9.0'
+
+importers:
+
+  .:
+    configDependencies: {}
+    packageManagerDependencies:
+      pnpm:
+        specifier: 12.1.0
+        version: 12.1.0
+
+packages:
+
+  '@pnpm/exe.darwin-arm64@12.1.0':
+    resolution: {integrity: sha512-9K+uSnTsJe9zD/YCMPiQDiwU8IiQRp+ZEE9IyVSr0Ppzfg5/xC0pwet2R320ifDIMroT3WYLkCEolV6XxtSS/g==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@pnpm/exe.darwin-x64@12.1.0':
+    resolution: {integrity: sha512-JcOc77W/KLg5ZZXr7q0WN8UDKirxQTuoaTkqRfMNkGyUHc/4bfNxLwjoZBilRQV6xmhJvU79ZUg++eYohzJhog==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@pnpm/exe.linux-arm64-musl@12.1.0':
+    resolution: {integrity: sha512-RVJlfI4T2l6XXA5s/Wv9HHEq4ztIq79fiZXDVHyHaKEbp+11ZM5k61z0gaGzXCEGUp5anW2Uc3UgQpmjAR+IPw==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@pnpm/exe.linux-arm64@12.1.0':
+    resolution: {integrity: sha512-iLEE0ykaRZ3/OBhIjwe/Zo96ac0c7pY7toyf6+jUN8gOsIIwJTS+AqSyOy+U1Zyhuuec8nJiRQ4URl60nRxTwA==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@pnpm/exe.linux-x64-musl@12.1.0':
+    resolution: {integrity: sha512-k+NUTRbz2CR9DBvGyAdtXU5HHPXytxi9MQ79uQRYNLF8nr/l1qHo++TvZ0OUuEpRxhg9B3n84Itv6MAHJR7TQQ==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@pnpm/exe.linux-x64@12.1.0':
+    resolution: {integrity: sha512-GTi1DEM8vwIWpgC8P+xhw3Y2Ko2V88WtKAjbNwdeJAzMpzmcBeE4f0c2QKmeKpvi8/eYarxSIvBhYkTjA1BAcQ==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@pnpm/exe.win32-arm64@12.1.0':
+    resolution: {integrity: sha512-cK6kklZY8rs3d9gg8akGUgjDenFy65ZSAANXojs98d7Ne7gbzZYzU2joHRRilfpzCfawgG+lpPsh46a4xu55jQ==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@pnpm/exe.win32-x64@12.1.0':
+    resolution: {integrity: sha512-Pk7Lvq3E5PWQFRJLLnLgW2qJAphtgPYCaaODB+FZRRvKksn8IPnF8Aj+/AT4+52GmckiANTbKwCsL18naJhohw==}
+    cpu: [x64]
+    os: [win32]
+
+  pnpm@12.1.0:
+    resolution: {integrity: sha512-2bgnbZf27IbkmBWHf5Hun2PO5h8gY7ME5Dttq4+gfOipr9RtL6zTn5Ieap0Gs8dagTSce4iMLSKIa64CKZAQNw==}
+    engines: {node: '>=18.*'}
+    hasBin: true
+
+snapshots:
+
+  '@pnpm/exe.darwin-arm64@12.1.0':
+    optional: true
+
+  '@pnpm/exe.darwin-x64@12.1.0':
+    optional: true
+
+  '@pnpm/exe.linux-arm64-musl@12.1.0':
+    optional: true
+
+  '@pnpm/exe.linux-arm64@12.1.0':
+    optional: true
+
+  '@pnpm/exe.linux-x64-musl@12.1.0':
+    optional: true
+
+  '@pnpm/exe.linux-x64@12.1.0':
+    optional: true
+
+  '@pnpm/exe.win32-arm64@12.1.0':
+    optional: true
+
+  '@pnpm/exe.win32-x64@12.1.0':
+    optional: true
+
+  pnpm@12.1.0:
+    optionalDependencies:
+      '@pnpm/exe.darwin-arm64': 12.1.0
+      '@pnpm/exe.darwin-x64': 12.1.0
+      '@pnpm/exe.linux-arm64': 12.1.0
+      '@pnpm/exe.linux-arm64-musl': 12.1.0
+      '@pnpm/exe.linux-x64': 12.1.0
+      '@pnpm/exe.linux-x64-musl': 12.1.0
+      '@pnpm/exe.win32-arm64': 12.1.0
+      '@pnpm/exe.win32-x64': 12.1.0
+
+---
 lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
-
-overrides:
-  basic-ftp: '>=5.2.0'
 
 importers:
 
@@ -19,10 +117,10 @@ importers:
         version: 2.3.1
       bun:
         specifier: runtime:^1.3.1
-        version: runtime:1.4.0
+        version: runtime:1.4.2
       node:
         specifier: runtime:^24.10.0
-        version: runtime:24.20.0
+        version: runtime:24.21.0
 
   e2e:
     dependencies:
@@ -65,7 +163,7 @@ importers:
         version: 11.14.1(@emotion/react@11.14.0(@types/react@18.2.15)(react@18.3.1))(@types/react@18.2.15)(react@18.3.1)
       '@metamask/eth-sig-util':
         specifier: ^7.0.0
-        version: 7.0.3
+        version: 7.0.3(supports-color@8.1.1)
       '@startale/app-sdk':
         specifier: workspace:*
         version: link:../../packages/app-sdk
@@ -92,11 +190,11 @@ importers:
         version: 7.45.2(react@18.3.1)
       viem:
         specifier: ^2.27.2
-        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
     devDependencies:
       '@testing-library/react':
         specifier: ^16.2.0
-        version: 16.3.0(@testing-library/dom@8.20.1)(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: 18.2.15
         version: 18.2.15
@@ -105,7 +203,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.12.0)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.12.0)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
 
   packages/app-sdk:
     dependencies:
@@ -117,10 +215,10 @@ importers:
         version: 2.3.0
       '@wagmi/core':
         specifier: ^3.0.2
-        version: 3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
+        version: 3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       abitype:
         specifier: ^1.1.1
-        version: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+        version: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       clsx:
         specifier: 1.2.1
         version: 1.2.1
@@ -138,7 +236,7 @@ importers:
         version: 10.24.2
       viem:
         specifier: ^2.31.7
-        version: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        version: 2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       zustand:
         specifier: 5.0.15
         version: 5.0.15(@types/react@18.2.15)(react@18.3.1)
@@ -160,7 +258,7 @@ importers:
         version: 12.3.0(rollup@4.52.5)(tslib@2.8.1)(typescript@5.9.3)
       '@size-limit/preset-big-lib':
         specifier: ^11.1.6
-        version: 11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(utf-8-validate@6.0.6)
+        version: 11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
       '@testing-library/jest-dom':
         specifier: ^6.5.0
         version: 6.9.1
@@ -172,10 +270,10 @@ importers:
         version: 22.18.12
       '@vitest/coverage-v8':
         specifier: 2.1.9
-        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))
+        version: 2.1.9(supports-color@5.5.0)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0))
       '@vitest/web-worker':
         specifier: ^2.1.9
-        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))
+        version: 2.1.9(supports-color@5.5.0)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0))
       fake-indexeddb:
         specifier: ^6.2.4
         version: 6.2.4
@@ -187,7 +285,7 @@ importers:
         version: 2.5.0
       jsdom:
         specifier: ^25.0.1
-        version: 25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        version: 25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
       nodemon:
         specifier: ^3.1.10
         version: 3.1.10
@@ -214,7 +312,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0)
 
 packages:
 
@@ -1177,6 +1275,10 @@ packages:
     peerDependencies:
       playwright-core: '>1.0'
 
+  '@testing-library/dom@10.4.1':
+    resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
+    engines: {node: '>=18'}
+
   '@testing-library/dom@8.20.1':
     resolution: {integrity: sha512-/DiOQ5xBxgdYRC8LNk7U+RWat0S3qRLeIw3ZIkMQ9kkVlRmwD/Eg8k8CqIpD6GW7u20JIUOfMKbxtiLutpjQ4g==}
     engines: {node: '>=12'}
@@ -1399,28 +1501,6 @@ packages:
   '@zag-js/focus-visible@0.31.1':
     resolution: {integrity: sha512-dbLksz7FEwyFoANbpIlNnd3bVm0clQSUsnP8yUVQucStZPsuWjCrhL2jlAbGNrTrahX96ntUMXHb/sM68TibFg==}
 
-  abitype@1.1.0:
-    resolution: {integrity: sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3.22.0 || ^4.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-
-  abitype@1.1.1:
-    resolution: {integrity: sha512-Loe5/6tAgsBukY95eGaPSDmQHIjRZYQq8PB1MpsNccDIK8WiV+Uw6WzaIXipvaxTEL2yEB0OpEaQv3gs8pkS9Q==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3.22.0 || ^4.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
     peerDependencies:
@@ -1501,6 +1581,9 @@ packages:
 
   aria-query@5.1.3:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
+
+  aria-query@5.3.0:
+    resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
 
   aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
@@ -1638,57 +1721,57 @@ packages:
     resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
     engines: {node: '>=6.14.2'}
 
-  bun@runtime:1.4.0:
+  bun@runtime:1.4.2:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-xmnpf2Fk4cluBwF0jbmN+ndJKQjL2DlMdVcTSnNd44E=
+            integrity: sha256-kJh6OhbX21VtiGrD1VHnttPt8KHPQ6yu1iLoZ2vh0S8=
             prefix: bun-darwin-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-aarch64.zip
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-HQIRuPHcmRGCNEaHrRXnLuhvFUhFpff6R3mUzTQd2bA=
+            integrity: sha256-gFINfhdSYwjJGF0mFnmsbSd5jTgDoOn3/5Ehq4r/sBI=
             prefix: bun-darwin-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-darwin-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-darwin-x64.zip
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-y/K0tK1EXr6K3epDGVN15TmaojRiKR1NyVL6Vh0BqWA=
+            integrity: sha256-pVSVjlaRxQNuV22njvtBFGZdo1TIgssMoFm71KiWtEo=
             prefix: bun-freebsd-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-aarch64.zip
           targets:
             - cpu: arm64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-54noZI/nsFZ+W4YKhDD8ln5DR5Ywhgv/CQNyMGOts24=
+            integrity: sha256-7ARO2Rw3Chb15DQgjdUCCT6Y7Iajyxr/Oq0psTQm7MI=
             prefix: bun-freebsd-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-freebsd-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-freebsd-x64.zip
           targets:
             - cpu: x64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-V2MAzjP/Fv/NRVvxeMLwlfnfhFxsw9AoS6HJbKDoBHM=
+            integrity: sha256-cXYLbI6jBiO4GkkHy4FdSOLqJm8uc+dRU0pEoGB5UN8=
             prefix: bun-linux-aarch64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64-musl.zip
           targets:
             - cpu: arm64
               os: linux
@@ -1696,20 +1779,20 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-SxozLuhhmD65O8/m93D/+U4+MbLDiL2uo8jtNeWO7Q4=
+            integrity: sha256-VDKLvC2cjgyfiSxUTWbFeoO4QTnjSQnl7oF1jxrI/ac=
             prefix: bun-linux-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64.zip
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-g7XxL9JY3Y1P3K6mXt6VQ2aqcX2rOZ4gCT7KsoDVTno=
+            integrity: sha256-SDXspZ1tpw9GdPVkL25Fncrat3NpWy7Zki0TEFeYl0I=
             prefix: bun-linux-x64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64-musl.zip
           targets:
             - cpu: x64
               os: linux
@@ -1717,34 +1800,34 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-LQP7X7g6yLVnrKCigbLOGhoZ1Ij1bClo2Iw/Jekv5FI=
+            integrity: sha256-NjaPrvdSeHXV/6UuU81IAhdB8qg+tiCKjdZAaNQiqRM=
             prefix: bun-linux-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-x64.zip
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-9HO/4t9z7ncFSMk91dOArqcSDCGOwqoa/dC7unvxjEc=
+            integrity: sha256-p6Frh2owX9ECnGbb0nAHtPYRKuiWUy9nWHhzGiHlDP0=
             prefix: bun-windows-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-aarch64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-5vCT052khrICYsqM3V7Wqei8nC8nW3jm06DFsozJWQE=
+            integrity: sha256-zkwXSXsvKXEqmdPVPwKN4ozULjusuFiVmefwAOSbZAU=
             prefix: bun-windows-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-windows-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-windows-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 1.4.0
+    version: 1.4.2
     hasBin: true
 
   busboy@1.6.0:
@@ -1940,6 +2023,10 @@ packages:
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
+
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
 
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
@@ -2721,103 +2808,136 @@ packages:
     resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
     engines: {node: '>=0.12.0'}
 
-  node@runtime:24.20.0:
+  node@runtime:24.21.0:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-FLW9etQKtfRxX7Ti+WSFjYINlCX+KR09ZfmJJua4nB4=
+            bin:
+              node: bin/node
+            integrity: sha256-rseyRkr7mfB4wZywbSAdVDvTsxHLoHEoK84bF8l+WLs=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-aix-ppc64.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-aix-ppc64.tar.gz
           targets:
             - cpu: ppc64
               os: aix
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-QOVgfl7LPbkZJyN3baLXXZZiYPx0p6nnMcG9Z92pa8g=
+            bin:
+              node: bin/node
+            integrity: sha256-vtfupTJeEQjzLOUijd1qXw8IpJnuQqp0Qq6lg3AvYFc=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-darwin-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-darwin-arm64.tar.gz
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-nlsmRM8Qe++2rvymdrltMpa8EBOAlvAi7TeNYjPtgfQ=
+            bin:
+              node: bin/node
+            integrity: sha256-FGLLOzBGuBXPjqQ209pFDsGp8R2sflpGsK2lMF1+gJc=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-darwin-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-darwin-x64.tar.gz
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-NRVgPiSHh5o5vHVxbxoq/9AnUAxkulDoRc9yyzMhkBM=
+            bin:
+              node: bin/node
+            integrity: sha256-ckKCw7Q67JmKqVJzgEZbRdIp4CG1gDX19PYwleq/5dU=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-linux-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-arm64.tar.gz
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-pzSzbI0dFs5FXA65wymwfdEhwshVQ1UGSphhvJbDrcw=
+            bin:
+              node: bin/node
+            integrity: sha256-UcXVMGbukpILYXg7A7Buy5nzZhFg97Fcp36EdBFaZ7w=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-linux-ppc64le.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-ppc64le.tar.gz
           targets:
             - cpu: ppc64le
               os: linux
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-2MIktG7wHweKUj2bfbeSgjBvrigemGoVotv/6UfFMB4=
+            bin:
+              node: bin/node
+            integrity: sha256-Xy+jdCLgx13jXBaG/lHXgyTywqj+LMI5pB2cAAop2Tg=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-linux-s390x.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-s390x.tar.gz
           targets:
             - cpu: s390x
               os: linux
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-1ubRu7mtSssW1YC4m+ipyafkkJJuk708MKINRuFSv4o=
+            bin:
+              node: bin/node
+            integrity: sha256-PWNAX8ZaDS0pdsHwvC/Se7C9ByEkaecFqsPwOuWrTJw=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-linux-x64-musl.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64-musl.tar.gz
           targets:
-            - cpu: x64-musl
+            - cpu: x64
               os: linux
+              libc: musl
         - resolution:
             archive: tarball
-            bin: bin/node
-            integrity: sha256-hV1YH4pOsagRfjQm3iX+AncFkv68+zE2mu4f+/7p6Ow=
+            bin:
+              node: bin/node
+            integrity: sha256-bh24fvWLiBnl1UAu/xU2SRsY7djre+5e94l4duiNxf8=
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-linux-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64.tar.gz
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
-            bin: node.exe
-            integrity: sha256-McZ5l0TeilRgFkMJgEDGjDaX5WyU5AfWHQ5fpfNBkdc=
-            prefix: node-v24.20.0-win-arm64
+            bin:
+              node: node.exe
+            integrity: sha256-h3mxveHTn41CDjtXqmV7OYka9DTT3kSpGQRM7AZ4WSE=
+            prefix: node-v24.21.0-win-arm64
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-win-arm64.zip
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-win-arm64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
-            bin: node.exe
-            integrity: sha256-bKyf+8qPakcJHktcdy4GBgScOHHLZ9kAwM7d5jDlRbo=
-            prefix: node-v24.20.0-win-x64
+            bin:
+              node: node.exe
+            integrity: sha256-FY92hbRN5R9sDfHRU1JsvNPhvHOajfxgdyHO913p5UE=
+            prefix: node-v24.21.0-win-x64
             type: binary
-            url: https://nodejs.org/download/release/v24.20.0/node-v24.20.0-win-x64.zip
+            url: https://nodejs.org/download/release/v24.21.0/node-v24.21.0-win-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 24.20.0
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-MEiwgR4VjKDYZytZyDmGF2PhREkpgNjSmzad/uRXR+Q=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-arm64-musl.tar.gz
+          targets:
+            - cpu: arm64
+              os: linux
+              libc: musl
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-AacT402pjntNKjGR7nyj+T3QOE0aLvI8N5shYe5uEzo=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v24.21.0/node-v24.21.0-linux-x64-musl.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+              libc: musl
+    version: 24.21.0
     hasBin: true
 
   nodemon@3.1.10:
@@ -2876,14 +2996,6 @@ packages:
 
   ox@0.9.13:
     resolution: {integrity: sha512-Cx2aCUIHoX711Q5TtAI2YvkXPe53ZA7Y21nAkH7JkfPk2c/J3ryKGzxrHkn5ujIyxMbvIn+CYlulnmKbWAwY+A==}
-    peerDependencies:
-      typescript: '>=5.4.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  ox@0.9.6:
-    resolution: {integrity: sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -3543,14 +3655,6 @@ packages:
     deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
-  viem@2.38.4:
-    resolution: {integrity: sha512-qnyPNg6Lz1EEC86si/1dq7GlOyZVFHSgAW+p8Q31R5idnAYCOdTM2q5KLE4/ykMeMXzY0bnp5MWTtR/wjCtWmQ==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   viem@2.47.6:
     resolution: {integrity: sha512-zExmbI99NGvMdYa7fmqSTLgkwh48dmhgEqFrUgkpL4kfG4XkVefZ8dZqIKVUhZo6Uhf0FrrEXOsHm9LUyIvI2Q==}
     peerDependencies:
@@ -3875,7 +3979,7 @@ snapshots:
       '@babel/parser': 7.28.5
       '@babel/template': 7.27.2
       '@babel/types': 7.28.5
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -4267,18 +4371,18 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@metamask/abi-utils@2.0.4':
+  '@metamask/abi-utils@2.0.4(supports-color@8.1.1)':
     dependencies:
       '@metamask/superstruct': 3.2.1
-      '@metamask/utils': 9.3.0
+      '@metamask/utils': 9.3.0(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
-  '@metamask/eth-sig-util@7.0.3':
+  '@metamask/eth-sig-util@7.0.3(supports-color@8.1.1)':
     dependencies:
       '@ethereumjs/util': 8.1.0
-      '@metamask/abi-utils': 2.0.4
-      '@metamask/utils': 9.3.0
+      '@metamask/abi-utils': 2.0.4(supports-color@8.1.1)
+      '@metamask/utils': 9.3.0(supports-color@8.1.1)
       '@scure/base': 1.1.9
       ethereum-cryptography: 2.2.1
       tweetnacl: 1.0.3
@@ -4287,14 +4391,14 @@ snapshots:
 
   '@metamask/superstruct@3.2.1': {}
 
-  '@metamask/utils@9.3.0':
+  '@metamask/utils@9.3.0(supports-color@8.1.1)':
     dependencies:
       '@ethereumjs/tx': 4.2.0
       '@metamask/superstruct': 3.2.1
       '@noble/hashes': 1.8.0
       '@scure/base': 1.1.9
       '@types/debug': 4.1.12
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@8.1.1)
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -4430,12 +4534,12 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@puppeteer/browsers@2.10.10':
+  '@puppeteer/browsers@2.10.10(supports-color@5.5.0)':
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
-      extract-zip: 2.0.1
+      extract-zip: 2.0.1(supports-color@5.5.0)
       progress: 2.0.3
-      proxy-agent: 6.5.0
+      proxy-agent: 6.5.0(supports-color@5.5.0)
       semver: 7.7.3
       tar-fs: 3.1.1
       yargs: 17.7.2
@@ -4591,7 +4695,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sitespeed.io/tracium@0.3.3':
+  '@sitespeed.io/tracium@0.3.3(supports-color@5.5.0)':
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
@@ -4601,10 +4705,10 @@ snapshots:
     dependencies:
       size-limit: 11.2.0
 
-  '@size-limit/preset-big-lib@11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(utf-8-validate@6.0.6)':
+  '@size-limit/preset-big-lib@11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)':
     dependencies:
       '@size-limit/file': 11.2.0(size-limit@11.2.0)
-      '@size-limit/time': 11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(utf-8-validate@6.0.6)
+      '@size-limit/time': 11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
       '@size-limit/webpack': 11.2.0(size-limit@11.2.0)
       size-limit: 11.2.0
     transitivePeerDependencies:
@@ -4619,9 +4723,9 @@ snapshots:
       - utf-8-validate
       - webpack-cli
 
-  '@size-limit/time@11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(utf-8-validate@6.0.6)':
+  '@size-limit/time@11.2.0(bufferutil@4.1.0)(size-limit@11.2.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)':
     dependencies:
-      estimo: 3.0.5(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      estimo: 3.0.5(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
       size-limit: 11.2.0
     transitivePeerDependencies:
       - bare-abort-controller
@@ -4702,6 +4806,17 @@ snapshots:
       node-stream-zip: 1.15.0
       playwright-core: 1.58.2
 
+  '@testing-library/dom@10.4.1':
+    dependencies:
+      '@babel/code-frame': 7.27.1
+      '@babel/runtime': 7.28.4
+      '@types/aria-query': 5.0.4
+      aria-query: 5.3.0
+      dom-accessibility-api: 0.5.16
+      lz-string: 1.5.0
+      picocolors: 1.1.1
+      pretty-format: 27.5.1
+
   '@testing-library/dom@8.20.1':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -4727,10 +4842,10 @@ snapshots:
       '@testing-library/dom': 8.20.1
       preact: 10.24.2
 
-  '@testing-library/react@16.3.0(@testing-library/dom@8.20.1)(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@testing-library/dom': 8.20.1
+      '@testing-library/dom': 10.4.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
@@ -4820,21 +4935,21 @@ snapshots:
       '@types/node': 22.18.12
     optional: true
 
-  '@vitest/coverage-v8@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))':
+  '@vitest/coverage-v8@2.1.9(supports-color@5.5.0)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
       debug: 4.4.3(supports-color@5.5.0)
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-report: 3.0.1
-      istanbul-lib-source-maps: 5.0.6
+      istanbul-lib-source-maps: 5.0.6(supports-color@5.5.0)
       istanbul-reports: 3.2.0
       magic-string: 0.30.21
       magicast: 0.3.5
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -4888,18 +5003,18 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/web-worker@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0))':
+  '@vitest/web-worker@2.1.9(supports-color@5.5.0)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0))':
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@wagmi/core@3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))':
+  '@wagmi/core@3.0.2(@types/react@18.2.15)(react@18.3.1)(typescript@5.9.3)(viem@2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))':
     dependencies:
       eventemitter3: 5.0.1
       mipd: 0.0.7(typescript@5.9.3)
-      viem: 2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       zustand: 5.0.0(@types/react@18.2.15)(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
@@ -4997,16 +5112,6 @@ snapshots:
     dependencies:
       '@zag-js/dom-query': 0.31.1
 
-  abitype@1.1.0(typescript@5.9.3)(zod@3.25.76):
-    optionalDependencies:
-      typescript: 5.9.3
-      zod: 3.25.76
-
-  abitype@1.1.1(typescript@5.9.3)(zod@3.25.76):
-    optionalDependencies:
-      typescript: 5.9.3
-      zod: 3.25.76
-
   abitype@1.2.3(typescript@5.9.3)(zod@3.25.76):
     optionalDependencies:
       typescript: 5.9.3
@@ -5066,6 +5171,10 @@ snapshots:
   aria-query@5.1.3:
     dependencies:
       deep-equal: 2.2.3
+
+  aria-query@5.3.0:
+    dependencies:
+      dequal: 2.0.3
 
   aria-query@5.3.2: {}
 
@@ -5194,7 +5303,7 @@ snapshots:
       node-gyp-build: 4.8.4
     optional: true
 
-  bun@runtime:1.4.0: {}
+  bun@runtime:1.4.2: {}
 
   busboy@1.6.0:
     dependencies:
@@ -5340,11 +5449,21 @@ snapshots:
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
 
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+
   debug@4.4.3(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
     optionalDependencies:
       supports-color: 5.5.0
+
+  debug@4.4.3(supports-color@8.1.1):
+    dependencies:
+      ms: 2.1.3
+    optionalDependencies:
+      supports-color: 8.1.1
 
   decimal.js@10.6.0: {}
 
@@ -5394,6 +5513,8 @@ snapshots:
   delay@5.0.0: {}
 
   delayed-stream@1.0.0: {}
+
+  dequal@2.0.3: {}
 
   detect-libc@1.0.3:
     optional: true
@@ -5530,13 +5651,13 @@ snapshots:
     dependencies:
       estraverse: 5.3.0
 
-  estimo@3.0.5(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  estimo@3.0.5(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6):
     dependencies:
-      '@sitespeed.io/tracium': 0.3.3
+      '@sitespeed.io/tracium': 0.3.3(supports-color@5.5.0)
       commander: 12.0.0
-      find-chrome-bin: 2.0.4
+      find-chrome-bin: 2.0.4(supports-color@5.5.0)
       nanoid: 5.1.5
-      puppeteer-core: 24.22.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      puppeteer-core: 24.22.0(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -5578,7 +5699,7 @@ snapshots:
 
   expect-type@1.2.2: {}
 
-  extract-zip@2.0.1:
+  extract-zip@2.0.1(supports-color@5.5.0):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
       get-stream: 5.2.0
@@ -5624,9 +5745,9 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  find-chrome-bin@2.0.4:
+  find-chrome-bin@2.0.4(supports-color@5.5.0):
     dependencies:
-      '@puppeteer/browsers': 2.10.10
+      '@puppeteer/browsers': 2.10.10(supports-color@5.5.0)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -5710,7 +5831,7 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  get-uri@6.0.5:
+  get-uri@6.0.5(supports-color@5.5.0):
     dependencies:
       basic-ftp: 5.2.0
       data-uri-to-buffer: 6.0.2
@@ -5785,19 +5906,35 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
-  http-proxy-agent@7.0.2:
+  http-proxy-agent@7.0.2(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  https-proxy-agent@7.0.6:
+  http-proxy-agent@7.0.2(supports-color@8.1.1):
+    dependencies:
+      agent-base: 7.1.4
+      debug: 4.4.3(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
+  https-proxy-agent@7.0.6(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
+
+  https-proxy-agent@7.0.6(supports-color@8.1.1):
+    dependencies:
+      agent-base: 7.1.4
+      debug: 4.4.3(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
 
   humanize-ms@1.2.1:
     dependencies:
@@ -5945,7 +6082,7 @@ snapshots:
       make-dir: 4.0.0
       supports-color: 7.2.0
 
-  istanbul-lib-source-maps@5.0.6:
+  istanbul-lib-source-maps@5.0.6(supports-color@5.5.0):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       debug: 4.4.3(supports-color@5.5.0)
@@ -6020,15 +6157,15 @@ snapshots:
 
   js-tokens@9.0.1: {}
 
-  jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6):
     dependencies:
       cssstyle: 4.6.0
       data-urls: 5.0.0
       decimal.js: 10.6.0
       form-data: 4.0.4
       html-encoding-sniffer: 4.0.0
-      http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.6
+      http-proxy-agent: 7.0.2(supports-color@5.5.0)
+      https-proxy-agent: 7.0.6(supports-color@5.5.0)
       is-potential-custom-element-name: 1.0.1
       nwsapi: 2.2.22
       parse5: 7.3.0
@@ -6047,6 +6184,35 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  jsdom@25.0.1(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6):
+    dependencies:
+      cssstyle: 4.6.0
+      data-urls: 5.0.0
+      decimal.js: 10.6.0
+      form-data: 4.0.4
+      html-encoding-sniffer: 4.0.0
+      http-proxy-agent: 7.0.2(supports-color@8.1.1)
+      https-proxy-agent: 7.0.6(supports-color@8.1.1)
+      is-potential-custom-element-name: 1.0.1
+      nwsapi: 2.2.22
+      parse5: 7.3.0
+      rrweb-cssom: 0.7.1
+      saxes: 6.0.0
+      symbol-tree: 3.2.4
+      tough-cookie: 5.1.2
+      w3c-xmlserializer: 5.0.0
+      webidl-conversions: 7.0.0
+      whatwg-encoding: 3.1.1
+      whatwg-mimetype: 4.0.0
+      whatwg-url: 14.2.0
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      xml-name-validator: 5.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    optional: true
 
   jsesc@3.1.0: {}
 
@@ -6194,7 +6360,7 @@ snapshots:
 
   node-stream-zip@1.15.0: {}
 
-  node@runtime:24.20.0: {}
+  node@runtime:24.21.0: {}
 
   nodemon@3.1.10:
     dependencies:
@@ -6263,7 +6429,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
@@ -6278,38 +6444,23 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.1(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
       - zod
 
-  ox@0.9.6(typescript@5.9.3)(zod@3.25.76):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.1.1(typescript@5.9.3)(zod@3.25.76)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
-  pac-proxy-agent@7.2.0:
+  pac-proxy-agent@7.2.0(supports-color@5.5.0):
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
-      get-uri: 6.0.5
-      http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.6
+      get-uri: 6.0.5(supports-color@5.5.0)
+      http-proxy-agent: 7.0.2(supports-color@5.5.0)
+      https-proxy-agent: 7.0.6(supports-color@5.5.0)
       pac-resolver: 7.0.1
-      socks-proxy-agent: 8.0.5
+      socks-proxy-agent: 8.0.5(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6415,16 +6566,16 @@ snapshots:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  proxy-agent@6.5.0:
+  proxy-agent@6.5.0(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
-      http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.6
+      http-proxy-agent: 7.0.2(supports-color@5.5.0)
+      https-proxy-agent: 7.0.6(supports-color@5.5.0)
       lru-cache: 7.18.3
-      pac-proxy-agent: 7.2.0
+      pac-proxy-agent: 7.2.0(supports-color@5.5.0)
       proxy-from-env: 1.1.0
-      socks-proxy-agent: 8.0.5
+      socks-proxy-agent: 8.0.5(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6439,9 +6590,9 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  puppeteer-core@24.22.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  puppeteer-core@24.22.0(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6):
     dependencies:
-      '@puppeteer/browsers': 2.10.10
+      '@puppeteer/browsers': 2.10.10(supports-color@5.5.0)
       chromium-bidi: 8.0.0(devtools-protocol@0.0.1495869)
       debug: 4.4.3(supports-color@5.5.0)
       devtools-protocol: 0.0.1495869
@@ -6738,7 +6889,7 @@ snapshots:
 
   smart-buffer@4.2.0: {}
 
-  socks-proxy-agent@8.0.5:
+  socks-proxy-agent@8.0.5(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
@@ -6995,23 +7146,6 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  viem@2.38.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
-    dependencies:
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.3)(zod@3.25.76)
-      isows: 1.0.7(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
-      ox: 0.9.6(typescript@5.9.3)(zod@3.25.76)
-      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   viem@2.47.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
     dependencies:
       '@noble/curves': 1.9.1
@@ -7029,7 +7163,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  vite-node@3.2.4(@types/node@22.18.12)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0):
+  vite-node@3.2.4(@types/node@22.18.12)(jiti@2.6.1)(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3(supports-color@5.5.0)
@@ -7053,7 +7187,7 @@ snapshots:
   vite-node@3.2.4(@types/node@24.12.0)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
       vite: 7.1.12(@types/node@24.12.0)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0)
@@ -7101,7 +7235,7 @@ snapshots:
       sass: 1.93.2
       terser: 5.44.0
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6))(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -7124,12 +7258,12 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 7.1.12(@types/node@22.18.12)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0)
-      vite-node: 3.2.4(@types/node@22.18.12)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.0)
+      vite-node: 3.2.4(@types/node@22.18.12)(jiti@2.6.1)(sass@1.93.2)(supports-color@5.5.0)(terser@5.44.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 22.18.12
-      jsdom: 25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      jsdom: 25.0.1(bufferutil@4.1.0)(supports-color@5.5.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - jiti
       - less
@@ -7144,7 +7278,7 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.12.0)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.12.0)(jiti@2.6.1)(jsdom@25.0.1(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6))(sass@1.93.2)(terser@5.44.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -7155,7 +7289,7 @@ snapshots:
       '@vitest/spy': 3.2.4
       '@vitest/utils': 3.2.4
       chai: 5.3.3
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       expect-type: 1.2.2
       magic-string: 0.30.21
       pathe: 2.0.3
@@ -7172,7 +7306,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 24.12.0
-      jsdom: 25.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      jsdom: 25.0.1(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - jiti
       - less
