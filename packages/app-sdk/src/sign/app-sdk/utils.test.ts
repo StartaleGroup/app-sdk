@@ -484,6 +484,8 @@ describe('getCachedWalletConnectResponse', () => {
 			startale: {
 				starPoints: 42,
 				eoaWallets: ['0xabc'],
+				legacyAddress: '0xlegacy',
+				legacySignature: '0xsig',
 			},
 		}
 		vi.spyOn(store.context, 'get').mockReturnValue(context)
@@ -516,6 +518,8 @@ describe('getCachedWalletConnectResponse', () => {
 			startale: {
 				starPoints: 42,
 				eoaWallets: ['0xabc'],
+				legacyAddress: '0xlegacy',
+				legacySignature: '0xsig',
 			},
 		}
 		vi.spyOn(store.userInfo, 'get').mockReturnValue(userInfo)
