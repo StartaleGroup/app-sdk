@@ -2,6 +2,8 @@ import { standardErrorCodes } from './constants.js'
 import { standardErrors } from './errors.js'
 import { serializeError } from './serialize.js'
 
+// serializeError intentionally returns an empty docUrl: there is no Startale
+// error reference page to link to yet (see serialize.ts).
 describe('serializeError', () => {
 	test('with ErrorResponse object', () => {
 		const errorResponse = {
@@ -15,10 +17,7 @@ describe('serializeError', () => {
 			standardErrorCodes.provider.unsupportedMethod,
 		)
 		expect(serialized.message).toEqual('test ErrorResponse object')
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.provider.unsupportedMethod}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 
 	test('with standardError', () => {
@@ -30,10 +29,7 @@ describe('serializeError', () => {
 		)
 		expect(serialized.message).toEqual(error.message)
 		expect(serialized.stack).toEqual(expect.stringContaining('User rejected'))
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.provider.userRejectedRequest}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 
 	test('with unsupportedChain', () => {
@@ -47,10 +43,7 @@ describe('serializeError', () => {
 		expect(serialized.stack).toEqual(
 			expect.stringContaining('Unrecognized chain ID'),
 		)
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.provider.unsupportedChain}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 
 	test('with Error object', () => {
@@ -62,10 +55,7 @@ describe('serializeError', () => {
 		expect(serialized.stack).toEqual(
 			expect.stringContaining('test Error object'),
 		)
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.rpc.internal}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 
 	test('with string', () => {
@@ -74,10 +64,7 @@ describe('serializeError', () => {
 		const serialized = serializeError(error)
 		expect(serialized.code).toEqual(standardErrorCodes.rpc.internal)
 		expect(serialized.message).toEqual('test error with just string')
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.rpc.internal}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 
 	test('with unknown type', () => {
@@ -85,9 +72,6 @@ describe('serializeError', () => {
 		const serialized = serializeError(error)
 		expect(serialized.code).toEqual(standardErrorCodes.rpc.internal)
 		expect(serialized.message).toEqual('Unspecified error message.')
-		expect(serialized.docUrl).toMatch(/.*version=\d+\.\d+\.\d+.*/)
-		expect(serialized.docUrl).toContain(
-			`code=${standardErrorCodes.rpc.internal}`,
-		)
+		expect(serialized.docUrl).toBe('')
 	})
 })

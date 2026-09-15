@@ -84,9 +84,12 @@ describe('FarcasterProvider', () => {
 
 			expect(mockRequest).toHaveBeenCalledWith({ method: 'eth_requestAccounts' })
 			expect(mockRequest).toHaveBeenCalledWith({ method: 'eth_chainId' })
+			// The current chain leads, then the requested chains that are not it.
+			// startale-connector reads chainIds[0] as the wallet's current chain to
+			// decide whether it still needs to switch.
 			expect(result).toEqual({
 				accounts: [{ address: '0xabc' }, { address: '0xdef' }],
-				chainIds: ['0xa', '0x89'],
+				chainIds: ['0x1', '0xa', '0x89'],
 			})
 		})
 
@@ -135,7 +138,7 @@ describe('FarcasterProvider', () => {
 			// Simulate the farcaster provider emitting the event
 			forwarder(['0xnewaccount'])
 
-			expect(accountsListener).toHaveBeenCalledWith('0xnewaccount')
+			expect(accountsListener).toHaveBeenCalledWith(['0xnewaccount'])
 		})
 	})
 
