@@ -44,7 +44,7 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 
 				for (const event of EIP_1193_EVENTS) {
 					const forwarder = (...args: unknown[]) => {
-						this.emit(event, ...args)
+						forwardProviderEvent(this, event, args)
 					}
 					this.eventForwarders.set(event, forwarder)
 					this.farcasterProvider.on(event, forwarder)
@@ -114,6 +114,31 @@ export class FarcasterProvider extends ProviderEventEmitter implements ProviderI
 	async close(): Promise<void> {
 		farcasterSdk.actions.close()
 	}
+}
+
+function normalizeAccountsChangedPayload(payload: unknown): string[] | undefined {
+	if (Array.isArray(payload)) return payload as string[]
+	if (typeof payload === 'string') return [payload]
+	if (Array.isArray((payload as { accounts?: unknown }).accounts))
+		return (payload as { accounts: string[] }).accounts
+	return undefined
+}
+
+function forwardProviderEvent(
+	emitter: ProviderEventEmitter,
+	event: (typeof EIP_1193_EVENTS)[number],
+	args: unknown[],
+): void {
+	if (event === 'accountsChanged') {
+		const accounts = normalizeAccountsChangedPayload(args[0])
+		if (!accounts) {
+			console.warn('[FarcasterProvider] Ignoring malformed accountsChanged payload', args[0])
+			return
+		}
+		emitter.emit('accountsChanged', accounts)
+		return
+	}
+	emitter.emit(event, ...args)
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
