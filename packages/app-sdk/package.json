@@ -76,7 +76,7 @@
 		"@noble/hashes": "2.3.0",
 		"@wagmi/core": "^3.0.2",
 		"abitype": "^1.1.1",
-		"clsx": "1.2.1",
+		"clsx": "2.1.1",
 		"eventemitter3": "5.0.4",
 		"idb-keyval": "6.2.1",
 		"ox": "^0.9.6",
