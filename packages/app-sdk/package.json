@@ -99,7 +99,7 @@
 		"fake-indexeddb": "^6.2.4",
 		"glob": "^11.0.0",
 		"jest-websocket-mock": "^2.4.0",
-		"jsdom": "^25.0.1",
+		"jsdom": "^30.0.0",
 		"nodemon": "^3.1.10",
 		"rollup": "^4.9.6",
 		"rollup-plugin-terser": "^7.0.2",
