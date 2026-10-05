@@ -84,9 +84,10 @@ describe('FarcasterProvider', () => {
 
 			expect(mockRequest).toHaveBeenCalledWith({ method: 'eth_requestAccounts' })
 			expect(mockRequest).toHaveBeenCalledWith({ method: 'eth_chainId' })
+			// The connected chain leads, followed by the requested chains it is not already in
 			expect(result).toEqual({
 				accounts: [{ address: '0xabc' }, { address: '0xdef' }],
-				chainIds: ['0xa', '0x89'],
+				chainIds: ['0x1', '0xa', '0x89'],
 			})
 		})
 
@@ -135,7 +136,8 @@ describe('FarcasterProvider', () => {
 			// Simulate the farcaster provider emitting the event
 			forwarder(['0xnewaccount'])
 
-			expect(accountsListener).toHaveBeenCalledWith('0xnewaccount')
+			// accountsChanged carries an array of accounts (EIP-1193), forwarded as-is
+			expect(accountsListener).toHaveBeenCalledWith(['0xnewaccount'])
 		})
 	})
 
