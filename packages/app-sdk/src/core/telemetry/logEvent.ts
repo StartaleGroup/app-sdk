@@ -63,7 +63,6 @@ type CCAEventData = {
 	errorMessage?: string
 	dialogContext?: string
 	dialogAction?: string
-	enableAutoSubAccounts?: boolean
 	// Payment-specific attributes
 	amount?: string
 	testnet?: boolean

@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv'
 
 import { BASE_URL } from './lib/constants.js'
 
-loadEnv()
+loadEnv({ quiet: true })
 
 // Shared launch options for projects that need Google bot detection bypass.
 // Prevents Chrome from setting navigator.webdriver=true.

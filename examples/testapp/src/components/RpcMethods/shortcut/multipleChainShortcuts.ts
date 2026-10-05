@@ -1,4 +1,4 @@
-import { mainnet, soneium, soneiumMinato } from 'viem/chains'
+import { mainnet, soneium } from 'viem/chains'
 
 import type { ShortcutType } from './ShortcutType'
 
@@ -8,13 +8,6 @@ const walletSwitchEthereumChainShortcuts: ShortcutType[] = [
 		data: {
 			chainId: soneium.id.toString(),
 			chain: soneium,
-		},
-	},
-	{
-		key: 'Minato',
-		data: {
-			chainId: soneiumMinato.id.toString(),
-			chain: soneiumMinato,
 		},
 	},
 	{

@@ -28,7 +28,7 @@ import { soneium } from 'viem/chains'
 import { useEIP1193Provider } from '../../context/EIP1193ProviderContextProvider'
 import { resolveWalletSendCallsFrom } from '../../utils/resolveWalletSendCallsFrom'
 import { verifySignMsg } from './method/signMessageMethods'
-import { ADDR_TO_FILL, CHAIN_ID_TO_FILL, SUBACCOUNT_ADDR_TO_FILL } from './shortcut/const'
+import { ADDR_TO_FILL, CHAIN_ID_TO_FILL } from './shortcut/const'
 import { multiChainShortcutsMap } from './shortcut/multipleChainShortcuts'
 
 type ResponseType = string
@@ -38,13 +38,8 @@ type ResponseType = string
 const replaceAddressInValue = async (
 	value: any,
 	getCurrentAddress: () => Promise<[string]>,
-	getSubaccountAddress: () => Promise<[string]>,
 ) => {
 	if (typeof value === 'string') {
-		if (value === SUBACCOUNT_ADDR_TO_FILL) {
-			const subaccountAddress = (await getSubaccountAddress())[0]
-			return subaccountAddress
-		}
 		if (value === ADDR_TO_FILL || value === 'YOUR_ADDRESS_HERE') {
 			const currentAddress = (await getCurrentAddress())[0]
 			return currentAddress
@@ -57,15 +52,12 @@ const replaceAddressInValue = async (
 			const stringified = JSON.stringify(parsed)
 			if (
 				stringified.includes(ADDR_TO_FILL) ||
-				stringified.includes('YOUR_ADDRESS_HERE') ||
-				stringified.includes(SUBACCOUNT_ADDR_TO_FILL)
+				stringified.includes('YOUR_ADDRESS_HERE')
 			) {
 				const currentAddress = (await getCurrentAddress())[0]
-				const subaccountAddress = (await getSubaccountAddress())[0]
 				const replaced = stringified
 					.replace(new RegExp(ADDR_TO_FILL, 'g'), currentAddress)
 					.replace(new RegExp('YOUR_ADDRESS_HERE', 'g'), currentAddress)
-					.replace(new RegExp(SUBACCOUNT_ADDR_TO_FILL, 'g'), subaccountAddress)
 				return typeof value === 'object' ? JSON.parse(replaced) : replaced
 			}
 		} catch (_) {
@@ -135,23 +127,11 @@ export function RpcMethodCard({ format, method, params, shortcuts }) {
 					return ['']
 				}
 
-				const getSubaccountAddress = async (): Promise<[string]> => {
-					const { subAccountAddress } = await resolveWalletSendCallsFrom(
-						provider,
-						{ preferSubAccount: true },
-					)
-					if (subAccountAddress) {
-						return [subAccountAddress]
-					}
-					return ['']
-				}
-
 				for (const key in dataToSubmit) {
 					if (Object.prototype.hasOwnProperty.call(data, key)) {
 						dataToSubmit[key] = await replaceAddressInValue(
 							dataToSubmit[key],
 							getCurrentAddress,
-							getSubaccountAddress,
 						)
 
 						if (dataToSubmit[key] === CHAIN_ID_TO_FILL) {

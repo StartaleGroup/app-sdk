@@ -7,7 +7,7 @@ import {
 	useMemo,
 	useState,
 } from 'react'
-import { mainnet, soneium, soneiumMinato } from 'viem/chains'
+import { mainnet, soneium } from 'viem/chains'
 import { DisconnectedAlert } from '../components/alerts/DisconnectedAlert'
 import { useEventListeners } from '../hooks/useEventListeners'
 import { useSpyOnDisconnectedError } from '../hooks/useSpyOnDisconnectedError'
@@ -30,7 +30,7 @@ const EIP1193ProviderContext = createContext<EIP1193ProviderContextType | null>(
 export function EIP1193ProviderContextProvider({
 	children,
 }: EIP1193ProviderContextProviderProps) {
-	const { scwUrl, config, subAccountsConfig } = useConfig()
+	const { scwUrl, config } = useConfig()
 	const { addEventListeners, removeEventListeners } = useEventListeners()
 	const {
 		spyOnDisconnectedError,
@@ -64,7 +64,7 @@ export function EIP1193ProviderContextProvider({
 		const sdkParams = {
 			appName: 'Startale app SDK Playground',
 			appLogoUrl: 'https://startale.com/image/symbol.png',
-			appChainIds: [soneium.id, soneiumMinato.id, mainnet.id],
+			appChainIds: [soneium.id, mainnet.id],
 			preference: {
 				attribution: config.attribution,
 				walletUrl: scwUrl ?? scwUrls[0],
@@ -72,16 +72,11 @@ export function EIP1193ProviderContextProvider({
 				eoaRequired: config.eoaRequired ?? false,
 				authType: undefined,
 			},
-			subAccounts: subAccountsConfig,
 			// `id` is read by the SDK but the proxy injects the paymaster ID
 			// into the upstream SCS request itself, so we leave it empty.
 			// SCS sponsors Soneium networks only — mainnet (ETH) is omitted.
 			paymasterOptions: {
 				[soneium.id]: { url: paymasterUrl(soneium.id), id: '' },
-				[soneiumMinato.id]: {
-					url: paymasterUrl(soneiumMinato.id),
-					id: '',
-				},
 			},
 		}
 
@@ -106,7 +101,6 @@ export function EIP1193ProviderContextProvider({
 	}, [
 		scwUrl,
 		config,
-		subAccountsConfig,
 		spyOnDisconnectedError,
 		addEventListeners,
 		removeEventListeners,

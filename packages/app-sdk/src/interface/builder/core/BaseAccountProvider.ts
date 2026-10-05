@@ -18,9 +18,7 @@ import {
 import { parseErrorMessageFromAny } from ':core/telemetry/utils.js'
 import { hexStringFromNumber } from ':core/type/util.js'
 import { Signer } from ':sign/app-sdk/Signer.js'
-import { initSubAccountConfig } from ':sign/app-sdk/utils.js'
 import { correlationIds } from ':store/correlation-ids/store.js'
-import { store } from ':store/store.js'
 import {
 	checkErrorForInvalidRequestArgs,
 	fetchRPCRequest,
@@ -88,16 +86,12 @@ export class BaseAccountProvider
 					case 'eth_requestAccounts': {
 						await this.signer.handshake({ method: 'handshake' })
 						// We are translating eth_requestAccounts to wallet_connect always
-						await initSubAccountConfig()
 						await this.signer.request({
 							method: 'wallet_connect',
 							params: [
 								{
 									version: '1',
-									capabilities: {
-										...(store.subAccountsConfig.get()?.capabilities ??
-											{}),
-									},
+									capabilities: {},
 									...args.params,
 								},
 							],

@@ -2,13 +2,13 @@
 	"name": "@startale/app-sdk-e2e",
 	"private": true,
 	"dependencies": {
-		"dotenv": "^16.6.0",
+		"dotenv": "^17.0.0",
 		"otpauth": "^9.0.0",
 		"viem": "^2.47.6"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",
-		"@tenkeylabs/dappwright": "^2.13.2",
+		"@tenkeylabs/dappwright": "^2.13.4",
 		"@types/node": "^24.0.0",
 		"typescript": "^5.9.0"
 	},

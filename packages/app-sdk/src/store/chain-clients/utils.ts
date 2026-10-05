@@ -1,6 +1,6 @@
 import { createPublicClient, defineChain, http, PublicClient } from 'viem'
 import { BundlerClient, createBundlerClient } from 'viem/account-abstraction'
-import { base, baseSepolia } from 'viem/chains'
+import { base, baseSepolia, mainnet } from 'viem/chains'
 
 import { RPCResponseNativeCurrency } from ':core/message/RPCResponse.js'
 import { ChainClients } from './store.js'
@@ -13,6 +13,15 @@ export type SDKChain = {
 
 // Fallback chains using viem's chain definitions directly
 export const FALLBACK_CHAINS: SDKChain[] = [
+	{
+		id: mainnet.id,
+		rpcUrl: mainnet.rpcUrls.default.http[0],
+		nativeCurrency: {
+			name: mainnet.nativeCurrency.name,
+			symbol: mainnet.nativeCurrency.symbol,
+			decimal: mainnet.nativeCurrency.decimals,
+		},
+	},
 	{
 		id: base.id,
 		rpcUrl: base.rpcUrls.default.http[0],

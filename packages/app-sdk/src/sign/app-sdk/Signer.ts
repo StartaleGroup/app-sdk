@@ -1,12 +1,8 @@
 import { CB_WALLET_RPC_URL } from ':core/constants.js'
-import { Hex, hexToNumber, isAddressEqual, numberToHex } from 'viem'
+import { hexToNumber, isAddressEqual, numberToHex } from 'viem'
 
 import type { ICommunicator } from ':core/communicator/ICommunicator.js'
-import {
-	isActionableHttpRequestError,
-	isViemError,
-	standardErrors,
-} from ':core/error/errors.js'
+import { standardErrors } from ':core/error/errors.js'
 import {
 	RPCRequestMessage,
 	RPCResponseMessage,
@@ -19,7 +15,6 @@ import {
 } from ':core/provider/interface.js'
 import { FetchPermissionsResponse } from ':core/rpc/coinbase_fetchSpendPermissions.js'
 import { WalletConnectResponse } from ':core/rpc/wallet_connect.js'
-import { GetSubAccountsResponse } from ':core/rpc/wallet_getSubAccount.js'
 import {
 	logHandshakeCompleted,
 	logHandshakeError,
@@ -28,17 +23,6 @@ import {
 	logRequestError,
 	logRequestStarted,
 } from ':core/telemetry/events/scw-signer.js'
-import {
-	logAddOwnerCompleted,
-	logAddOwnerError,
-	logAddOwnerStarted,
-	logInsufficientBalanceErrorHandlingCompleted,
-	logInsufficientBalanceErrorHandlingError,
-	logInsufficientBalanceErrorHandlingStarted,
-	logSubAccountRequestCompleted,
-	logSubAccountRequestError,
-	logSubAccountRequestStarted,
-} from ':core/telemetry/events/scw-sub-account.js'
 import { parseErrorMessageFromAny } from ':core/telemetry/utils.js'
 import { Address } from ':core/type/index.js'
 import { ensureIntNumber, hexStringFromNumber } from ':core/type/util.js'
@@ -46,12 +30,9 @@ import {
 	FALLBACK_CHAINS,
 	SDKChain,
 	createClients,
-	getClient,
 } from ':store/chain-clients/utils.js'
 import { correlationIds } from ':store/correlation-ids/store.js'
-import { spendPermissions, store } from ':store/store.js'
-import { assertArrayPresence, assertPresence } from ':util/assertPresence.js'
-import { assertSubAccount } from ':util/assertSubAccount.js'
+import { store } from ':store/store.js'
 import {
 	decryptContent,
 	encryptContent,
@@ -59,29 +40,16 @@ import {
 	importKeyFromHexString,
 } from ':util/cipher.js'
 import { fetchRPCRequest } from ':util/provider.js'
-import { getCryptoKeyAccount } from '../../kms/crypto-key/index.js'
 import { SCWKeyManager } from './SCWKeyManager.js'
 import {
 	addPaymasterToRequest,
-	addSenderToRequest,
-	appendWithoutDuplicates,
 	assertFetchPermissionsRequest,
 	assertGetCapabilitiesParams,
 	assertParamsChainId,
 	fillMissingParamsForFetchPermissions,
 	getCachedWalletConnectResponse,
-	getSenderFromRequest,
-	initSubAccountConfig,
-	injectRequestCapabilities,
-	makeDataSuffix,
-	prependWithoutDuplicates,
 	requestHasCapability,
 } from './utils.js'
-import { createSubAccountSigner } from './utils/createSubAccountSigner.js'
-import { findOwnerIndex } from './utils/findOwnerIndex.js'
-import { handleAddSubAccountOwner } from './utils/handleAddSubAccountOwner.js'
-import { handleInsufficientBalanceError } from './utils/handleInsufficientBalance.js'
-import { routeThroughGlobalAccount } from './utils/routeThroughGlobalAccount.js'
 
 type ConstructorOptions = {
 	metadata: AppMetadata
@@ -193,19 +161,7 @@ export class Signer {
 				case 'wallet_connect': {
 					// Wait for the popup to be loaded before making async calls
 					await this.communicator.waitForPopupLoaded?.()
-					await initSubAccountConfig()
-
-					// Check if addSubAccount capability is present and if so, inject the the sub account capabilities
-					let capabilitiesToInject: Record<string, unknown> = {}
-					if (requestHasCapability(request, 'addSubAccount')) {
-						capabilitiesToInject =
-							store.subAccountsConfig.get()?.capabilities ?? {}
-					}
-					const modifiedRequest = injectRequestCapabilities(
-						request,
-						capabilitiesToInject,
-					)
-					return this.sendRequestToPopup(modifiedRequest)
+					return this.sendRequestToPopup(request)
 				}
 				case 'wallet_sendCalls':
 				case 'wallet_sign': {
@@ -216,39 +172,9 @@ export class Signer {
 			}
 		}
 
-		if (this.shouldRequestUseSubAccountSigner(request)) {
-			const correlationId = correlationIds.get(request)
-			logSubAccountRequestStarted({ method: request.method, correlationId })
-			try {
-				const result = await this.sendRequestToSubAccountSigner(request)
-				logSubAccountRequestCompleted({
-					method: request.method,
-					correlationId,
-				})
-				return result
-			} catch (error) {
-				logSubAccountRequestError({
-					method: request.method,
-					correlationId,
-					errorMessage: parseErrorMessageFromAny(error),
-				})
-				throw error
-			}
-		}
-
 		switch (request.method) {
 			case 'eth_requestAccounts':
 			case 'eth_accounts': {
-				const subAccount = store.subAccounts.get()
-				const subAccountsConfig = store.subAccountsConfig.get()
-				if (subAccount?.address) {
-					// if auto sub accounts are enabled and we have a sub account, we need to return it as a top level account
-					// otherwise, we just append it to the accounts array
-					this.accounts = subAccountsConfig?.enableAutoSubAccounts
-						? prependWithoutDuplicates(this.accounts, subAccount.address)
-						: appendWithoutDuplicates(this.accounts, subAccount.address)
-				}
-
 				this.callback?.('connect', { chainId: numberToHex(this.chain.id) })
 				return this.accounts
 			}
@@ -298,48 +224,11 @@ export class Signer {
 
 				// Wait for the popup to be loaded before making async calls
 				await this.communicator.waitForPopupLoaded?.()
-				await initSubAccountConfig()
-				const subAccountsConfig = store.subAccountsConfig.get()
-				const modifiedRequest = injectRequestCapabilities(
-					request,
-					subAccountsConfig?.capabilities ?? {},
-				)
-				const result = await this.sendRequestToPopup(modifiedRequest)
+				const result = await this.sendRequestToPopup(request)
 
 				this.callback?.('connect', { chainId: numberToHex(this.chain.id) })
 				return result
 			}
-			// Sub Account Support
-			case 'wallet_getSubAccounts': {
-				const subAccount = store.subAccounts.get()
-				if (subAccount?.address) {
-					return {
-						subAccounts: [subAccount],
-					}
-				}
-
-				if (!this.chain.rpcUrl) {
-					throw standardErrors.rpc.internal('No RPC URL set for chain')
-				}
-				const response = (await fetchRPCRequest(
-					request,
-					this.chain.rpcUrl,
-				)) as GetSubAccountsResponse
-				assertArrayPresence(response.subAccounts, 'subAccounts')
-				if (response.subAccounts.length > 0) {
-					// cache the sub account
-					assertSubAccount(response.subAccounts[0])
-					const subAccount = response.subAccounts[0]
-					store.subAccounts.set({
-						address: subAccount.address,
-						factory: subAccount.factory,
-						factoryData: subAccount.factoryData,
-					})
-				}
-				return response
-			}
-			case 'wallet_addSubAccount':
-				return this.addSubAccount(request)
 			case 'coinbase_fetchPermissions': {
 				assertFetchPermissionsRequest(request)
 				const completeRequest =
@@ -412,31 +301,6 @@ export class Signer {
 				const context = response.context
 				store.context.set(context)
 
-				const account = response.accounts.at(0)
-				const capabilities = account?.capabilities
-
-				if (capabilities?.subAccounts) {
-					const capabilityResponse = capabilities?.subAccounts
-					assertArrayPresence(capabilityResponse, 'subAccounts')
-					assertSubAccount(capabilityResponse[0])
-					store.subAccounts.set({
-						address: capabilityResponse[0].address,
-						factory: capabilityResponse[0].factory,
-						factoryData: capabilityResponse[0].factoryData,
-					})
-				}
-				let accounts_ = [this.accounts[0]]
-
-				const subAccount = store.subAccounts.get()
-				const subAccountsConfig = store.subAccountsConfig.get()
-
-				if (subAccount?.address) {
-					// Sub account should be returned as a top level account if auto sub accounts are enabled
-					this.accounts = subAccountsConfig?.enableAutoSubAccounts
-						? prependWithoutDuplicates(this.accounts, subAccount.address)
-						: appendWithoutDuplicates(this.accounts, subAccount.address)
-				}
-
 				const spendPermissions =
 					response?.accounts?.[0].capabilities?.spendPermissions
 
@@ -444,18 +308,7 @@ export class Signer {
 					store.spendPermissions.set(spendPermissions?.permissions)
 				}
 
-				this.callback?.('accountsChanged', accounts_)
-				break
-			}
-			case 'wallet_addSubAccount': {
-				assertSubAccount(result.value)
-				const subAccount = result.value
-				store.subAccounts.set(subAccount)
-				const subAccountsConfig = store.subAccountsConfig.get()
-				this.accounts = subAccountsConfig?.enableAutoSubAccounts
-					? prependWithoutDuplicates(this.accounts, subAccount.address)
-					: appendWithoutDuplicates(this.accounts, subAccount.address)
-				this.callback?.('accountsChanged', this.accounts)
+				this.callback?.('accountsChanged', [this.accounts[0]])
 				break
 			}
 			default:
@@ -470,7 +323,6 @@ export class Signer {
 
 		// clear the store
 		store.account.clear()
-		store.subAccounts.clear()
 		store.spendPermissions.clear()
 		store.chains.clear()
 
@@ -680,259 +532,5 @@ export class Signer {
 			this.callback?.('chainChanged', hexStringFromNumber(chain.id))
 		}
 		return true
-	}
-
-	private async addSubAccount(request: RequestArguments): Promise<{
-		address: Address
-		factory?: Address
-		factoryData?: Hex
-	}> {
-		const state = store.getState()
-		const subAccount = state.subAccount
-		const subAccountsConfig = store.subAccountsConfig.get()
-		if (subAccount?.address) {
-			this.accounts = subAccountsConfig?.enableAutoSubAccounts
-				? prependWithoutDuplicates(this.accounts, subAccount.address)
-				: appendWithoutDuplicates(this.accounts, subAccount.address)
-			this.callback?.('accountsChanged', this.accounts)
-			return subAccount
-		}
-
-		// Wait for the popup to be loaded before sending the request
-		await this.communicator.waitForPopupLoaded?.()
-
-		if (
-			Array.isArray(request.params) &&
-			request.params.length > 0 &&
-			request.params[0].account &&
-			request.params[0].account.type === 'create'
-		) {
-			let keys: { type: string; publicKey: string }[]
-			if (
-				request.params[0].account.keys &&
-				request.params[0].account.keys.length > 0
-			) {
-				keys = request.params[0].account.keys
-			} else {
-				const config = store.subAccountsConfig.get() ?? {}
-				const { account: ownerAccount } = config.toOwnerAccount
-					? await config.toOwnerAccount()
-					: await getCryptoKeyAccount()
-
-				if (!ownerAccount) {
-					throw standardErrors.provider.unauthorized(
-						'could not get subaccount owner account when adding sub account',
-					)
-				}
-
-				keys = [
-					{
-						type: ownerAccount.address ? 'address' : 'webauthn-p256',
-						publicKey: ownerAccount.address || ownerAccount.publicKey,
-					},
-				]
-			}
-			request.params[0].account.keys = keys
-		}
-
-		const response = await this.sendRequestToPopup(request)
-		assertSubAccount(response)
-		return response
-	}
-
-	private shouldRequestUseSubAccountSigner(_request: RequestArguments) {
-		// Always false since in our case sub accounts are smart accounts.
-		return false
-
-		// Commented out in case we implement ERC-7895 in the future.
-
-		// const sender = getSenderFromRequest(request);
-		// const subAccount = store.subAccounts.get();
-		// if (sender) {
-		//   return sender.toLowerCase() === subAccount?.address.toLowerCase();
-		// }
-		// return false;
-	}
-
-	private async sendRequestToSubAccountSigner(request: RequestArguments) {
-		const subAccount = store.subAccounts.get()
-		const subAccountsConfig = store.subAccountsConfig.get()
-		const config = store.config.get()
-
-		assertPresence(
-			subAccount?.address,
-			standardErrors.provider.unauthorized(
-				'no active sub account when sending request to sub account signer',
-			),
-		)
-
-		// Get the owner account from the config
-		const ownerAccount = subAccountsConfig?.toOwnerAccount
-			? await subAccountsConfig.toOwnerAccount()
-			: await getCryptoKeyAccount()
-
-		assertPresence(
-			ownerAccount?.account,
-			standardErrors.provider.unauthorized(
-				'no active sub account owner when sending request to sub account signer',
-			),
-		)
-
-		const sender = getSenderFromRequest(request)
-		// if sender is undefined, we inject the active sub account
-		// address into the params for the supported request methods
-		if (sender === undefined) {
-			request = addSenderToRequest(request, subAccount.address)
-		}
-
-		const client = getClient(this.chain.id)
-		assertPresence(
-			client,
-			standardErrors.rpc.internal(
-				`client not found for chainId ${this.chain.id} when sending request to sub account signer`,
-			),
-		)
-
-		const globalAccountAddress = this.accounts.find(
-			(account) =>
-				account.toLowerCase() !== subAccount.address.toLowerCase(),
-		)
-
-		assertPresence(
-			globalAccountAddress,
-			standardErrors.provider.unauthorized(
-				'no global account found when sending request to sub account signer',
-			),
-		)
-		const dataSuffix = makeDataSuffix({
-			attribution: config.preference?.attribution,
-			dappOrigin: window.location.origin,
-		})
-
-		if (
-			['eth_sendTransaction', 'wallet_sendCalls'].includes(request.method)
-		) {
-			// If we have never had a spend permission, we need to do this tx through the global account
-			// Only perform this check if unstable_enableAutoSpendPermissions is enabled
-			const subAccountsConfig = store.subAccountsConfig.get()
-			if (subAccountsConfig?.unstable_enableAutoSpendPermissions !== false) {
-				const storedSpendPermissions = spendPermissions.get()
-				if (storedSpendPermissions.length === 0) {
-					const result = await routeThroughGlobalAccount({
-						request,
-						globalAccountAddress,
-						subAccountAddress: subAccount.address,
-						client,
-						globalAccountRequest: this.sendRequestToPopup.bind(this),
-						chainId: this.chain.id,
-					})
-					return result
-				}
-			}
-		}
-
-		const publicKey =
-			ownerAccount.account.type === 'local'
-				? ownerAccount.account.address
-				: ownerAccount.account.publicKey
-
-		let ownerIndex = await findOwnerIndex({
-			address: subAccount.address,
-			factory: subAccount.factory,
-			factoryData: subAccount.factoryData,
-			publicKey,
-			client,
-		})
-
-		if (ownerIndex === -1) {
-			const correlationId = correlationIds.get(request)
-			logAddOwnerStarted({ method: request.method, correlationId })
-			try {
-				ownerIndex = await handleAddSubAccountOwner({
-					ownerAccount: ownerAccount.account,
-					globalAccountRequest: this.sendRequestToPopup.bind(this),
-					chainId: this.chain.id,
-				})
-				logAddOwnerCompleted({ method: request.method, correlationId })
-			} catch (error) {
-				logAddOwnerError({
-					method: request.method,
-					correlationId,
-					errorMessage: parseErrorMessageFromAny(error),
-				})
-				return standardErrors.provider.unauthorized(
-					'failed to add sub account owner when sending request to sub account signer',
-				)
-			}
-		}
-
-		const { request: subAccountRequest } = await createSubAccountSigner({
-			address: subAccount.address,
-			owner: ownerAccount.account,
-			client: client,
-			factory: subAccount.factory,
-			factoryData: subAccount.factoryData,
-			parentAddress: globalAccountAddress,
-			attribution: dataSuffix ? { suffix: dataSuffix } : undefined,
-			ownerIndex,
-		})
-
-		try {
-			const result = await subAccountRequest(request)
-			return result
-		} catch (error) {
-			// Skip insufficient balance error handling if unstable_enableAutoSpendPermissions is disabled
-			const subAccountsConfig = store.subAccountsConfig.get()
-			if (subAccountsConfig?.unstable_enableAutoSpendPermissions === false) {
-				throw error
-			}
-
-			let errorObject: unknown
-
-			if (isViemError(error)) {
-				errorObject = JSON.parse(error.details)
-			} else if (isActionableHttpRequestError(error)) {
-				errorObject = error
-			} else {
-				throw error
-			}
-
-			if (!(isActionableHttpRequestError(errorObject) && errorObject.data)) {
-				throw error
-			}
-
-			if (!errorObject.data) {
-				throw error
-			}
-
-			const correlationId = correlationIds.get(request)
-			logInsufficientBalanceErrorHandlingStarted({
-				method: request.method,
-				correlationId,
-			})
-			try {
-				const result = await handleInsufficientBalanceError({
-					errorData: errorObject.data,
-					globalAccountAddress,
-					subAccountAddress: subAccount.address,
-					client,
-					request,
-					globalAccountRequest: this.request.bind(this),
-				})
-				logInsufficientBalanceErrorHandlingCompleted({
-					method: request.method,
-					correlationId,
-				})
-				return result
-			} catch (handlingError) {
-				console.error(handlingError)
-				logInsufficientBalanceErrorHandlingError({
-					method: request.method,
-					correlationId,
-					errorMessage: parseErrorMessageFromAny(handlingError),
-				})
-				throw error
-			}
-		}
 	}
 }

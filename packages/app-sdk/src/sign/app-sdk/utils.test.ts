@@ -1,68 +1,19 @@
 import { config, store } from ':store/store.js'
-import { hashTypedData, hexToBigInt, numberToHex } from 'viem'
 import {
 	addPaymasterToRequest,
-	addSenderToRequest,
-	appendWithoutDuplicates,
 	assertFetchPermissionsRequest,
 	assertGetCapabilitiesParams,
 	assertParamsChainId,
-	createSpendPermissionBatchMessage,
-	createWalletSendCallsRequest,
 	fillMissingParamsForFetchPermissions,
 	getCachedWalletConnectResponse,
-	getSenderFromRequest,
-	initSubAccountConfig,
 	injectRequestCapabilities,
-	isSendCallsParams,
-	prependWithoutDuplicates,
 	requestHasCapability,
-	type SpendPermissionBatch,
 } from './utils.js'
 
 // Valid Ethereum addresses for testing
 const VALID_ADDRESS_1 = '0xe6c7D51b0d5ECC217BE74019447aeac4580Afb54'
 const VALID_ADDRESS_2 = '0x7838d2724FC686813CAf81d4429beff1110c739a'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-
-describe('utils', () => {
-	describe('getSenderFromRequest', () => {
-		const sender = '0x123'
-		it.each([
-			['eth_signTransaction', [{ from: sender }], sender],
-			['eth_sendTransaction', [{ from: sender }], sender],
-			['wallet_sendCalls', [{ from: sender }], sender],
-			['eth_signTypedData_v4', [sender, {}], sender],
-			['personal_sign', ['message', sender], sender],
-		])(
-			'should return the sender from the request for %s',
-			(method, params, sender) => {
-				const request = { method, params }
-				expect(getSenderFromRequest(request)).toBe(sender)
-			},
-		)
-	})
-
-	describe('addSenderToRequest', () => {
-		it.each([
-			['eth_signTransaction', [{}], [{ from: '0x123' }]],
-			['eth_sendTransaction', [{}], [{ from: '0x123' }]],
-			['wallet_sendCalls', [{}], [{ from: '0x123' }]],
-			['eth_signTypedData_v4', [undefined, {}], ['0x123', {}]],
-			['personal_sign', ['hello', undefined], ['hello', '0x123']],
-		])(
-			'should enhance the request params for %s',
-			(method, params, expectedParams) => {
-				const request = { method, params }
-				const sender = '0x123'
-				expect(addSenderToRequest(request, sender)).toEqual({
-					method,
-					params: expectedParams,
-				})
-			},
-		)
-	})
-})
 
 describe('assertParamsChainId', () => {
 	it('should throw if the params are not an array', () => {
@@ -203,16 +154,8 @@ describe('assertGetCapabilitiesParams', () => {
 
 describe('injectRequestCapabilities', () => {
 	const capabilities = {
-		addSubAccount: {
-			account: {
-				type: 'create',
-				keys: [
-					{
-						type: 'address',
-						publicKey: '0x123',
-					},
-				],
-			},
+		customCapability: {
+			foo: 'bar',
 		},
 	}
 
@@ -305,25 +248,6 @@ describe('injectRequestCapabilities', () => {
 	})
 })
 
-describe('initSubAccountConfig', () => {
-	it('should initialize the sub account config', async () => {
-		store.subAccountsConfig.set({
-			enableAutoSubAccounts: true,
-			toOwnerAccount: vi.fn().mockResolvedValue({
-				account: {
-					address: '0x123',
-					type: 'local',
-				},
-			}),
-		})
-
-		await initSubAccountConfig()
-
-		const config = store.subAccountsConfig.get()
-		expect(config?.capabilities?.addSubAccount).toBeDefined()
-	})
-})
-
 describe('assertFetchPermissionsRequest', () => {
 	it('should throw if the request is not a fetch permissions request', () => {
 		expect(() =>
@@ -366,121 +290,14 @@ describe('fillMissingParamsForFetchPermissions', () => {
 		expect(fillMissingParamsForFetchPermissions(request)).toEqual(request)
 	})
 
-	it('should fill in the missing params if the params are not present', () => {
-		vi.spyOn(store, 'getState').mockImplementation(() => ({
-			account: {
-				accounts: ['0x123'],
-				chain: { id: 1 },
-			},
-			subAccount: { address: '0x456' },
-			subAccountConfig: {},
-			chains: [],
-			keys: {},
-			spendPermissions: [],
-			config: {
-				version: '1.0.0',
-			},
-			userInfo: {},
-			context: {},
-		}))
+	it('should throw if the params are not present', () => {
 		const request = {
 			method: 'coinbase_fetchPermissions',
 		}
 		assertFetchPermissionsRequest(request)
-		expect(fillMissingParamsForFetchPermissions(request)).toEqual({
-			method: 'coinbase_fetchPermissions',
-			params: [{ account: '0x123', chainId: '0x1', spender: '0x456' }],
-		})
-	})
-})
-
-describe('createSpendPermissionBatchMessage', () => {
-	it('should create a correctly structured batch message that produces the expected hash', () => {
-		const spendPermissionBatch: SpendPermissionBatch = {
-			account: '0x1234567890123456789012345678901234567890' as `0x${string}`,
-			period: 86_400,
-			start: 1_745_516_872,
-			end: 1_748_108_872,
-			permissions: [
-				{
-					spender:
-						'0xabcdef0123456789abcdef0123456789abcdef01' as `0x${string}`,
-					token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`,
-					allowance: numberToHex(BigInt('1000000000000')),
-					salt: '0x1',
-					extraData: '0x',
-				},
-				{
-					spender:
-						'0x2222222222222222222222222222222222222222' as `0x${string}`,
-					token: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as `0x${string}`,
-					allowance: numberToHex(BigInt('1000000000000000000')),
-					salt: '0x2',
-					extraData: '0x1234',
-				},
-			],
-		} as const
-
-		const message = createSpendPermissionBatchMessage({
-			spendPermissionBatch,
-			chainId: 8453, // Using mainnet chain ID
-		})
-
-		// Convert hex values to bigint for EIP-712 typed data
-		const typedDataMessage = {
-			...message.message,
-			permissions: message.message.permissions.map((p) => ({
-				...p,
-				allowance: hexToBigInt(p.allowance),
-				salt: hexToBigInt(p.salt),
-			})),
-		}
-
-		const hash = hashTypedData({
-			domain: message.domain,
-			types: message.types,
-			primaryType: message.primaryType,
-			message: typedDataMessage,
-		})
-
-		expect(hash).toEqual(
-			'0x010415415ed40b5f566f89869e2aa4cd26c6af3b22710dda12c6bd1c906095d3',
+		expect(() => fillMissingParamsForFetchPermissions(request)).toThrow(
+			'FetchPermissions - params are required: account, chainId, and spender must be provided',
 		)
-	})
-})
-
-describe('createWalletSendCallsRequest', () => {
-	it('should inject paymaster info if provided', () => {
-		// mock store config
-		vi.spyOn(store.config, 'get').mockReturnValue({
-			paymasterOptions: {
-				1: { url: 'https://paymaster.example.com', id: 'pm-1' },
-			},
-			version: '1.0.0',
-		})
-
-		const request = createWalletSendCallsRequest({
-			calls: [
-				{
-					to: '0x123',
-					data: '0x123',
-					value: '0x123',
-				},
-			],
-			from: '0x123',
-			chainId: 1,
-		})
-
-		expect(request).toEqual({
-			method: 'wallet_sendCalls',
-			params: [
-				expect.objectContaining({
-					capabilities: {
-						paymasterService: { url: 'https://paymaster.example.com', id: 'pm-1' },
-					},
-				}),
-			],
-		})
 	})
 })
 
@@ -529,103 +346,9 @@ describe('requestCapabilities', () => {
 	})
 })
 
-describe('prependWithoutDuplicates', () => {
-	it('should prepend an item to an array without duplicates', () => {
-		expect(prependWithoutDuplicates(['1', '2', '3'], '4')).toEqual([
-			'4',
-			'1',
-			'2',
-			'3',
-		])
-	})
-
-	it('should not prepend an item to an array if it is already present', () => {
-		expect(prependWithoutDuplicates(['1', '2', '3'], '2')).toEqual([
-			'2',
-			'1',
-			'3',
-		])
-	})
-})
-
-describe('appendWithoutDuplicates', () => {
-	it('should append an item to an array without duplicates', () => {
-		expect(appendWithoutDuplicates(['1', '2', '3'], '4')).toEqual([
-			'1',
-			'2',
-			'3',
-			'4',
-		])
-	})
-
-	it('should move an existing item to the end of the array', () => {
-		expect(appendWithoutDuplicates(['1', '2', '3'], '2')).toEqual([
-			'1',
-			'3',
-			'2',
-		])
-	})
-})
-
-describe('isSendCallsParams', () => {
-	it('should return true for valid wallet_sendCalls params', () => {
-		const validParams = [
-			{
-				version: '1.0',
-				calls: [
-					{
-						to: '0x123',
-						data: '0x456',
-						value: '0x0',
-					},
-				],
-				chainId: '0x1',
-				from: '0x789',
-			},
-		]
-		expect(isSendCallsParams(validParams)).toBe(true)
-	})
-
-	it('should return false for null or undefined params', () => {
-		expect(isSendCallsParams(null)).toBe(false)
-		expect(isSendCallsParams(undefined)).toBe(false)
-	})
-
-	it('should return false for non-array params', () => {
-		expect(isSendCallsParams({})).toBe(false)
-		expect(isSendCallsParams('string')).toBe(false)
-		expect(isSendCallsParams(123)).toBe(false)
-	})
-
-	it('should return false for empty array', () => {
-		expect(isSendCallsParams([])).toBe(false)
-	})
-
-	it('should return false for params without calls property', () => {
-		const paramsWithoutCalls = [
-			{
-				version: '1.0',
-				chainId: '0x1',
-				from: '0x789',
-			},
-		]
-		expect(isSendCallsParams(paramsWithoutCalls)).toBe(false)
-	})
-
-	it('should return false for params with null first element', () => {
-		expect(isSendCallsParams([null])).toBe(false)
-	})
-
-	it('should return false for params with non-object first element', () => {
-		expect(isSendCallsParams(['string'])).toBe(false)
-		expect(isSendCallsParams([123])).toBe(false)
-	})
-})
-
 describe('getCachedWalletConnectResponse', () => {
 	beforeEach(() => {
 		vi.spyOn(store.spendPermissions, 'get').mockReturnValue([])
-		vi.spyOn(store.subAccounts, 'get').mockReturnValue(undefined)
 		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: undefined })
 	})
 
@@ -634,7 +357,7 @@ describe('getCachedWalletConnectResponse', () => {
 		expect(result).toBeNull()
 	})
 
-	it('should return accounts with no capabilities if no spend permissions or sub accounts', async () => {
+	it('should return accounts with no capabilities if no spend permissions', async () => {
 		vi.spyOn(store.account, 'get').mockReturnValue({
 			accounts: ['0x123', '0x456'],
 		})
@@ -645,42 +368,12 @@ describe('getCachedWalletConnectResponse', () => {
 				{
 					address: '0x123',
 					capabilities: {
-						subAccounts: undefined,
 						spendPermissions: undefined,
 					},
 				},
 				{
 					address: '0x456',
 					capabilities: {
-						subAccounts: undefined,
-						spendPermissions: undefined,
-					},
-				},
-			],
-		})
-	})
-
-	it('should include sub account capability if sub account exists', async () => {
-		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
-		vi.spyOn(store.subAccounts, 'get').mockReturnValue({
-			address: '0xsub',
-			factory: '0xfactory',
-			factoryData: '0xdata',
-		})
-
-		const result = await getCachedWalletConnectResponse()
-		expect(result).toEqual({
-			accounts: [
-				{
-					address: '0x123',
-					capabilities: {
-						subAccounts: [
-							{
-								address: '0xsub',
-								factory: '0xfactory',
-								factoryData: '0xdata',
-							},
-						],
 						spendPermissions: undefined,
 					},
 				},
@@ -729,7 +422,6 @@ describe('getCachedWalletConnectResponse', () => {
 				{
 					address: '0x123',
 					capabilities: {
-						subAccounts: undefined,
 						spendPermissions: {
 							permissions: [
 								{
@@ -759,69 +451,6 @@ describe('getCachedWalletConnectResponse', () => {
 										start: 1_234_567_890,
 										end: 1_234_567_890 + 86_400,
 										salt: '0xsalt2',
-										extraData: '0x',
-									},
-								},
-							],
-						},
-					},
-				},
-			],
-		})
-	})
-
-	it('should include both sub account and spend permissions capabilities if both exist', async () => {
-		vi.spyOn(store.account, 'get').mockReturnValue({ accounts: ['0x123'] })
-		vi.spyOn(store.subAccounts, 'get').mockReturnValue({
-			address: '0xsub',
-			factory: '0xfactory',
-			factoryData: '0xdata',
-		})
-		vi.spyOn(store.spendPermissions, 'get').mockReturnValue([
-			{
-				signature: '0xsig1',
-				chainId: 1,
-				permission: {
-					account: '0x123',
-					spender: '0xspender1',
-					token: '0xtoken1',
-					allowance: '1000000',
-					period: 86_400,
-					start: 1_234_567_890,
-					end: 1_234_567_890 + 86_400,
-					salt: '0xsalt1',
-					extraData: '0x',
-				},
-			},
-		])
-
-		const result = await getCachedWalletConnectResponse()
-		expect(result).toEqual({
-			accounts: [
-				{
-					address: '0x123',
-					capabilities: {
-						subAccounts: [
-							{
-								address: '0xsub',
-								factory: '0xfactory',
-								factoryData: '0xdata',
-							},
-						],
-						spendPermissions: {
-							permissions: [
-								{
-									signature: '0xsig1',
-									chainId: 1,
-									permission: {
-										account: '0x123',
-										spender: '0xspender1',
-										token: '0xtoken1',
-										allowance: '1000000',
-										period: 86_400,
-										start: 1_234_567_890,
-										end: 1_234_567_890 + 86_400,
-										salt: '0xsalt1',
 										extraData: '0x',
 									},
 								},
@@ -898,7 +527,6 @@ describe('getCachedWalletConnectResponse', () => {
 				{
 					address: '0x123',
 					capabilities: {
-						subAccounts: undefined,
 						spendPermissions: undefined,
 					},
 				},
