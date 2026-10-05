@@ -1,0 +1,47 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store/v10
+          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # examples/testapp imports @startale/app-sdk, which resolves through
+      # dist/. Without this the testapp suite fails to resolve the module.
+      - name: Build SDK packages
+        run: pnpm build:packages
+
+      # Runs packages/app-sdk and examples/testapp. The SDK's `pretest` hook
+      # compiles SCSS into the gitignored *-css.ts files the sources import.
+      - name: Run unit tests
+        run: pnpm test

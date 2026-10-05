@@ -10,7 +10,8 @@
 		"format": "biome format . --write",
 		"format:check": "biome check . --formatter-enabled=true --linter-enabled=false --organize-imports-enabled=false",
 		"start": "next start",
-		"test": "vitest",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
