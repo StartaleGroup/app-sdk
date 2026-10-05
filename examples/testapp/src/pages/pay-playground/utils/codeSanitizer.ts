@@ -9,7 +9,14 @@ export const WHITELIST = {
 		base: ['pay', 'getPaymentStatus'],
 		console: ['log', 'error', 'warn', 'info'],
 		Promise: ['resolve', 'reject', 'all', 'race'],
-		Object: ['keys', 'values', 'entries', 'assign'],
+		// SECURITY: 'keys' is the only Object static playground user code
+		// needs. Value-producing reflection APIs (values, entries, assign,
+		// and accessors like getPrototypeOf / getOwnPropertyDescriptor)
+		// are intentionally not allowlisted: every call check here is
+		// name-based, so a Function value handed to user code through an
+		// ordinary binding (const f = Object.values(x)[i]) is callable
+		// under an innocent name that no denylist can see.
+		Object: ['keys'],
 		Array: ['isArray', 'from'],
 		JSON: ['stringify', 'parse'],
 		Math: ['floor', 'ceil', 'round', 'min', 'max', 'abs'],
@@ -36,6 +43,10 @@ export const WHITELIST = {
 		'Literal',
 		'TemplateLiteral',
 		'TemplateElement', // Added: Part of template literals
+		// NOTE: 'TaggedTemplateExpression' is intentionally NOT allowed.
+		// In `tag`...` the tag is an arbitrary expression and the node is
+		// not a CallExpression, so validateCallExpression never runs on
+		// it; it must stay rejected by the generic type check below.
 		'ObjectExpression',
 		'ArrayExpression',
 		'Property',
@@ -380,12 +391,19 @@ export class CodeSanitizer {
 	 * caller must reject it instead of skipping the check.
 	 */
 	private resolveStaticKey(key: ASTNode, computed: boolean): string | null {
-		// Non-computed access (a.b): the key is always a plain Identifier
+		// Non-computed access (a.b): the key is a plain Identifier. In
+		// object literals and destructuring patterns a non-computed key
+		// can also be a string or number literal ({ 'Content-Type': v },
+		// { 1: v }, const { 'k': v } = obj) - exactly as static as an
+		// identifier, so those fall through to the Literal branch below
+		// instead of failing closed on legitimate code.
 		if (!computed) {
-			return key.type === 'Identifier' ? (key.name ?? '') : null
+			if (key.type === 'Identifier') {
+				return key.name ?? ''
+			}
 		}
 
-		// Static primitive literal: a['b'] / a[0] / a[true]
+		// Static primitive literal: a['b'] / a[0] / a[true] / { 'k': v }
 		if (key.type === 'Literal') {
 			const valueType = typeof key.value
 			if (

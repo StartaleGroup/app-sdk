@@ -79,6 +79,22 @@ describe('codeSanitizer', () => {
 			['new Function', `new Function('return process')()`],
 			['direct eval', `eval('return process')`],
 			['proto shorthand key', 'const o = { __proto__: 1 }\nreturn o'],
+			[
+				'quoted dangerous key in object literal',
+				`const o = { 'constructor': 1 }\nreturn o`,
+			],
+			[
+				'quoted __proto__ key in object literal',
+				`const o = { '__proto__': 1 }\nreturn o`,
+			],
+			[
+				'tagged template expression (unknown tag)',
+				'const out = tag`hello ${1}`\nreturn out',
+			],
+			[
+				'tagged template on allowlisted member',
+				'const s = Promise.resolve`x`\nreturn s',
+			],
 		]
 
 		it.each(bypassCases)('rejects: %s', (_name, code) => {
@@ -98,6 +114,18 @@ describe('codeSanitizer', () => {
 			['setTimeout', 'setTimeout(() => {}, 0)'],
 			['disallowed statement type', 'class A {}\nreturn A'],
 			['labeled with statement', 'with (Math) { return floor(1.5) }'],
+			[
+				'Object.values is not allowlisted',
+				`const v = Object.values({ a: 1 })\nreturn v`,
+			],
+			[
+				'Object.entries is not allowlisted',
+				`const e = Object.entries({ a: 1 })\nreturn e`,
+			],
+			[
+				'Object.assign is not allowlisted',
+				`const t = Object.assign({}, { a: 1 })\nreturn t`,
+			],
 		]
 
 		it.each(denyCases)('rejects: %s', (_name, code) => {
@@ -162,6 +190,26 @@ describe('codeSanitizer', () => {
 			[
 				'array literal methods on user objects',
 				`const tags = ['a', 'b']\nreturn tags.length`,
+			],
+			[
+				'object literal with quoted string keys',
+				`const h = { 'Content-Type': 'application/json' }\nreturn h['Content-Type']`,
+			],
+			[
+				'object literal with numeric keys',
+				`const o = { 0: 'zero', 1: 'one' }\nreturn o[1]`,
+			],
+			[
+				'computed string-literal key on object literal',
+				`const o = { ['Content-Type']: 'json' }\nreturn o['Content-Type']`,
+			],
+			[
+				'string-literal destructuring key',
+				`const r = { status: 'ok' }\nconst { 'status': s } = r\nreturn s`,
+			],
+			[
+				'numeric destructuring key',
+				`const arr = ['first']\nconst { 0: f } = arr\nreturn f`,
 			],
 		]
 
