@@ -69,6 +69,11 @@ export type WalletConnectResponse = {
 	context?: {
 		chain: string
 		user: { username: string }
-		startale: { starPoints: number; eoaWallets: string[] }
+		startale: {
+			starPoints: number
+			eoaWallets: string[]
+			legacyAddress?: string
+			legacySignature?: string
+		}
 	}
 }

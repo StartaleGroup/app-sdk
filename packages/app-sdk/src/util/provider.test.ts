@@ -5,19 +5,19 @@ import { checkErrorForInvalidRequestArgs, fetchRPCRequest } from './provider.js'
 
 // @ts-expect-error-next-line
 const invalidArgsError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: 'Expected a single, non-array, object argument.',
 		data: args,
 	})
 // @ts-expect-error-next-line
 const invalidMethodError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: "'args.method' must be a non-empty string.",
 		data: args,
 	})
 // @ts-expect-error-next-line
 const invalidParamsError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: "'args.params' must be an object or array if provided.",
 		data: args,
 	})
