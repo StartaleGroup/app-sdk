@@ -167,20 +167,33 @@ function logUpstream(
 	status: number,
 	text: string,
 ): void {
-	let rpcError: string | undefined
-	try {
-		const parsed = JSON.parse(text) as { error?: { message?: string; code?: number } }
-		if (parsed.error) {
-			rpcError = `${parsed.error.code ?? '?'}: ${parsed.error.message ?? '(no message)'}`
-		}
-	} catch {
-		// Non-JSON body (HTML error page, empty, truncated) — report it as-is below.
-		rpcError = 'unparseable body'
+	// Two error shapes are possible, and only the first is JSON-RPC:
+	//   {"error": {"code": -32602, "message": "..."}}            ← JSON-RPC
+	//   {"code": "SERVICE_RETIRED", "message": "..."}            ← SCS envelope
+	// `code` may be a number or a string. A body that is neither is reported
+	// verbatim so an HTML error page or truncated response is still visible.
+	type ErrorBody = {
+		error?: { message?: string; code?: number | string }
+		code?: number | string
+		message?: string
 	}
 
-	const failed = status < 200 || status >= 300 || rpcError !== undefined
-	const summary = `[paymaster-proxy] chain=${chainId} method=${method ?? '(none)'} status=${status}${
-		rpcError ? ` rpcError=${rpcError}` : ' ok'
+	let detail: string | undefined
+	try {
+		const parsed = JSON.parse(text) as ErrorBody
+		const err = parsed.error ?? (parsed.code !== undefined ? parsed : undefined)
+		if (err) {
+			detail = `${err.code ?? '?'}: ${err.message ?? '(no message)'}`
+		}
+	} catch {
+		detail = 'unparseable body'
+	}
+
+	// Status drives failure independently of body shape: a 410 with no
+	// recognised error object is still a failure.
+	const failed = status < 200 || status >= 300 || detail !== undefined
+	const summary = `[paymaster-proxy] chain=${chainId} method=${method ?? '(none)'} status=${status} ${
+		failed ? `FAILED${detail ? ` ${detail}` : ''}` : 'ok'
 	}`
 
 	if (!failed) {
