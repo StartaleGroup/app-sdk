@@ -26,10 +26,16 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
+      # Ask pnpm where its store is rather than hardcoding a path: the store
+      # version (v10, v11, ...) moves with pnpm releases, and a path that does
+      # not exist makes actions/cache silently skip both restore and save.
+      - name: Get pnpm store directory
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
       - name: Cache pnpm store
         uses: actions/cache@v6
         with:
-          path: ~/.local/share/pnpm/store/v10
+          path: ${{ env.STORE_PATH }}
           key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: pnpm-
 
