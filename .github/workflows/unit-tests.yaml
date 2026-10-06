@@ -1,0 +1,56 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unit-${{ github.event.pull_request.number || github.ref }}
+  # Supersede older runs on a PR, but never cancel a master run: two merges in
+  # quick succession share a group, and the second would drop the first
+  # commit's result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v6
+
+      # Ask pnpm where its store is rather than hardcoding a path: the store
+      # version (v10, v11, ...) moves with pnpm releases, and a path that does
+      # not exist makes actions/cache silently skip both restore and save.
+      - name: Get pnpm store directory
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # examples/testapp imports @startale/app-sdk, which resolves through
+      # dist/. Without this the testapp suite fails to resolve the module.
+      - name: Build SDK packages
+        run: pnpm build:packages
+
+      # Runs packages/app-sdk and examples/testapp. The SDK's `pretest` hook
+      # compiles SCSS into the gitignored *-css.ts files the sources import.
+      - name: Run unit tests
+        run: pnpm test
