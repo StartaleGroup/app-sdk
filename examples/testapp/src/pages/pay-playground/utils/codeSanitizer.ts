@@ -95,6 +95,19 @@ export const WHITELIST = {
 		'globalThis',
 		'self',
 		'window',
+		// More handles on the browsing context's global object: `top` and
+		// `parent` reach the outer frame even from inside a sandboxed
+		// iframe, `frames` is a legacy alias of `window`, `opener` reaches
+		// the window that opened this one, and `open` creates new
+		// scripting-accessible browsing contexts. Like `window`/`self`
+		// they must be blocked as identifiers, as member-access roots,
+		// and as property keys (top['setTimeout']('...') has the same
+		// statically resolved key as plain dot access).
+		'top',
+		'parent',
+		'frames',
+		'opener',
+		'open',
 		'document',
 		'Proxy',
 		'Reflect',
@@ -477,10 +490,15 @@ export class CodeSanitizer {
 		}
 
 		// Block prototype-chain traversal and function-escape properties on
-		// any receiver, including literals like [] and {}.
+		// any receiver, including literals like [] and {}. Disallowed-global
+		// names are rejected as keys too, so `x['fetch']` is treated exactly
+		// like `x.fetch` (whose Identifier the generic walk already checks)
+		// and bracket-literal access cannot reach window/timer/network
+		// surfaces under any receiver (e.g. top['setTimeout']('...')).
 		if (
 			propertyName &&
-			CodeSanitizer.DANGEROUS_PROPERTIES.includes(propertyName)
+			(CodeSanitizer.DANGEROUS_PROPERTIES.includes(propertyName) ||
+				WHITELIST.disallowedGlobals.includes(propertyName))
 		) {
 			this.errors.push({
 				message: `Property '${propertyName}' is not allowed`,
@@ -536,7 +554,15 @@ export class CodeSanitizer {
 			return
 		}
 
-		if (keyName && CodeSanitizer.DANGEROUS_PROPERTIES.includes(keyName)) {
+		// Same rule for property keys in object literals and destructuring
+		// patterns: a disallowed-global name must not be re-bound into a
+		// fresh binding (const { top: t } = windowLike) any more than a
+		// dangerous one can.
+		if (
+			keyName &&
+			(CodeSanitizer.DANGEROUS_PROPERTIES.includes(keyName) ||
+				WHITELIST.disallowedGlobals.includes(keyName))
+		) {
 			this.errors.push({
 				message: `Property key '${keyName}' is not allowed`,
 				line: node.loc?.start.line ? node.loc.start.line - 1 : undefined,

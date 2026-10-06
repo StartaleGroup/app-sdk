@@ -134,6 +134,73 @@ describe('codeSanitizer', () => {
 		})
 	})
 
+		describe('security: global-object aliases (review round 4)', () => {
+			const aliasCases: [string, string][] = [
+				[
+					'top[setTimeout] — the exact reported PoC',
+					`top['setTimeout']('alert(document.domain)')`,
+				],
+				[
+					'top[document] bracket access',
+					`return top['document'].title`,
+				],
+				[
+					'top[fetch] bracket access',
+					`top['fetch']('/api')`,
+				],
+				[
+					'parent[location] bracket access',
+					`return parent['location'].href`,
+				],
+				[
+					'opener[document] bracket access',
+					`opener['document'].body`,
+				],
+				[
+					'frames[0] indexed access',
+					`frames[0].document.write('x')`,
+				],
+				[
+					'bare open() call',
+					`open('https://example.com')`,
+				],
+				['bare top identifier', `return top`],
+				['bare parent identifier', `return parent`],
+				['bare frames identifier', `return frames`],
+				['bare opener identifier', `return opener`],
+				[
+					'aliasing via assignment',
+					`const t = parent\nreturn t['document']`,
+				],
+				[
+					'destructuring rebinds top',
+					`const { top: t } = someObj\nreturn t`,
+				],
+				[
+					'quoted top key in object literal',
+					`const o = { 'top': 1 }\nreturn o`,
+				],
+				[
+					'global-name key in object literal',
+					`const o = { fetch: 1 }\nreturn o`,
+				],
+				[
+					'window[top] bracket access',
+					`return window['top']`,
+				],
+				[
+					'top dot access (document identifier key)',
+					`return top.document.title`,
+				],
+			]
+
+			it.each(aliasCases)('rejects: %s', (_name, code) => {
+				const result = sanitizeCode(code)
+				expect(result.isValid).toBe(false)
+				expect(result.errors.length).toBeGreaterThan(0)
+			})
+		})
+
 	describe('legit playground code still passes', () => {
 		const allowCases: [string, string][] = [
 			[
