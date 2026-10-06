@@ -106,6 +106,22 @@ describe('FarcasterProvider', () => {
 				chainIds: ['0x89'],
 			})
 		})
+
+		it('should not duplicate the connected chain when it is also requested', async () => {
+			mockRequest
+				.mockResolvedValueOnce(['0xabc']) // eth_requestAccounts
+				.mockResolvedValueOnce('0xa') // eth_chainId
+
+			const result = await provider.request({
+				method: 'wallet_connect',
+				params: [{ chainIds: ['0xa', '0x89'] }],
+			})
+
+			expect(result).toEqual({
+				accounts: [{ address: '0xabc' }],
+				chainIds: ['0xa', '0x89'],
+			})
+		})
 	})
 
 	describe('event forwarding', () => {

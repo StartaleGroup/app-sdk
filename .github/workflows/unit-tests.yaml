@@ -11,7 +11,10 @@ permissions:
 
 concurrency:
   group: unit-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Supersede older runs on a PR, but never cancel a master run: two merges in
+  # quick succession share a group, and the second would drop the first
+  # commit's result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   unit:
