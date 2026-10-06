@@ -1272,6 +1272,8 @@ describe('Signer', () => {
 			startale: {
 				starPoints: 100,
 				eoaWallets: ['0xabc'],
+				legacyAddress: '0xlegacy',
+				legacySignature: '0xsig',
 			},
 		}
 
