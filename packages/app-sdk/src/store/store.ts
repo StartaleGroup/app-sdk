@@ -47,7 +47,12 @@ type UserInfo = {
 type StartaleContext = {
 	chain?: string
 	user?: { username?: string }
-	startale?: { starPoints?: number; eoaWallets?: string[] }
+	startale?: {
+		starPoints?: number
+		eoaWallets?: string[]
+		legacyAddress?: string
+		legacySignature?: string
+	}
 }
 
 const createChainSlice: StateCreator<StoreState, [], [], ChainSlice> = () => {
