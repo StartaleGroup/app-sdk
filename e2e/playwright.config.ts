@@ -80,5 +80,10 @@ export default defineConfig({
 		url: BASE_URL,
 		reuseExistingServer: true,
 		timeout: 300_000,
+		// Playwright defaults to stdout:'ignore'. Pipe it so the testapp's
+		// server-side logs (notably the paymaster proxy, whose upstream SCS
+		// call the browser trace cannot see) appear in the CI job output.
+		stdout: 'pipe',
+		stderr: 'pipe',
 	},
 })

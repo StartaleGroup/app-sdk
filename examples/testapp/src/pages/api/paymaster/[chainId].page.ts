@@ -145,7 +145,50 @@ export default async function handler(
 	}
 
 	const text = await upstream.text()
+
+	// Diagnostic logging. The browser cannot see this hop — it only sees this
+	// proxy's response — so when the wallet reports a generic `paymaster_error`
+	// the upstream SCS body is the only place the real reason appears.
+	// NEVER log `paymasterUrl` or `paymasterId`: the SCS API key is a query
+	// param on that URL and the paymaster ID is a secret.
+	logUpstream(chainId, body.method, upstream.status, text)
+
 	res.status(upstream.status)
 	res.setHeader('content-type', upstream.headers.get('content-type') ?? 'application/json')
 	res.send(text)
+}
+
+// Logs one line per upstream call: the JSON-RPC method, HTTP status, and
+// whether the body carried a JSON-RPC error (with its message). The full body
+// is logged only on failure, to keep successful runs quiet.
+function logUpstream(
+	chainId: number,
+	method: string | undefined,
+	status: number,
+	text: string,
+): void {
+	let rpcError: string | undefined
+	try {
+		const parsed = JSON.parse(text) as { error?: { message?: string; code?: number } }
+		if (parsed.error) {
+			rpcError = `${parsed.error.code ?? '?'}: ${parsed.error.message ?? '(no message)'}`
+		}
+	} catch {
+		// Non-JSON body (HTML error page, empty, truncated) — report it as-is below.
+		rpcError = 'unparseable body'
+	}
+
+	const failed = status < 200 || status >= 300 || rpcError !== undefined
+	const summary = `[paymaster-proxy] chain=${chainId} method=${method ?? '(none)'} status=${status}${
+		rpcError ? ` rpcError=${rpcError}` : ' ok'
+	}`
+
+	if (!failed) {
+		// biome-ignore lint/suspicious/noConsole: proxy diagnostics for e2e debugging
+		console.log(summary)
+		return
+	}
+
+	// biome-ignore lint/suspicious/noConsole: proxy diagnostics for e2e debugging
+	console.error(`${summary}\n[paymaster-proxy] body: ${text.slice(0, 2000)}`)
 }
