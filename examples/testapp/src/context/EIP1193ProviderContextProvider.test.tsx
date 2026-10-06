@@ -1,6 +1,7 @@
 import { createStartaleAccountSDK as createStartaleAccountSDKHEAD } from '@startale/app-sdk'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mainnet, soneium } from 'viem/chains'
 
 import * as EventListeners from '../hooks/useEventListeners'
 import * as DisconnectedError from '../hooks/useSpyOnDisconnectedError'
@@ -54,10 +55,6 @@ describe('EIP1193ProviderContextProvider', () => {
 			setSDKVersion: vi.fn(),
 			setScwUrlAndSave: vi.fn(),
 			setConfig: vi.fn(),
-			subAccountsConfig: {
-				enableAutoSubAccounts: true,
-			},
-			setSubAccountsConfig: vi.fn(),
 		})
 
 		vi.spyOn(EventListeners, 'useEventListeners').mockReturnValue({
@@ -92,14 +89,13 @@ describe('EIP1193ProviderContextProvider', () => {
 			expect.objectContaining({
 				appName: 'Startale app SDK Playground',
 				appLogoUrl: 'https://startale.com/image/symbol.png',
-				appChainIds: [1946, 1868],
+				appChainIds: [soneium.id, mainnet.id],
 				preference: {
 					attribution: { dataSuffix: '0xtestattribution' },
 					walletUrl: scwUrls[0],
 					telemetry: false,
-				},
-				subAccounts: {
-					enableAutoSubAccounts: true,
+					eoaRequired: false,
+					authType: undefined,
 				},
 			}),
 		)
@@ -117,13 +113,9 @@ describe('EIP1193ProviderContextProvider', () => {
 				attribution: { dataSuffix: '0xtestattribution' },
 				telemetry: false,
 			},
-			subAccountsConfig: {
-				enableAutoSubAccounts: true,
-			},
 			setSDKVersion: vi.fn(),
 			setScwUrlAndSave: vi.fn(),
 			setConfig: vi.fn(),
-			setSubAccountsConfig: vi.fn(),
 		})
 
 		render(
@@ -136,14 +128,13 @@ describe('EIP1193ProviderContextProvider', () => {
 			expect.objectContaining({
 				appName: 'Startale app SDK Playground',
 				appLogoUrl: 'https://startale.com/image/symbol.png',
-				appChainIds: [1946, 1868],
+				appChainIds: [soneium.id, mainnet.id],
 				preference: {
 					attribution: { dataSuffix: '0xtestattribution' },
 					walletUrl: scwUrls[0],
 					telemetry: false,
-				},
-				subAccounts: {
-					enableAutoSubAccounts: true,
+					eoaRequired: false,
+					authType: undefined,
 				},
 			}),
 		)

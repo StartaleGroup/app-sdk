@@ -30,7 +30,7 @@ const EIP1193ProviderContext = createContext<EIP1193ProviderContextType | null>(
 export function EIP1193ProviderContextProvider({
 	children,
 }: EIP1193ProviderContextProviderProps) {
-	const { scwUrl, config, subAccountsConfig } = useConfig()
+	const { scwUrl, config } = useConfig()
 	const { addEventListeners, removeEventListeners } = useEventListeners()
 	const {
 		spyOnDisconnectedError,
@@ -57,8 +57,7 @@ export function EIP1193ProviderContextProvider({
 				eoaRequired: config.eoaRequired ?? false,
 				authType: undefined,
 			},
-			subAccounts: subAccountsConfig,
-			paymasterOptions: paymasterId && paymasterApiKey ? {	
+			paymasterOptions: paymasterId && paymasterApiKey ? {
 				[soneium.id]: {url: `https://paymaster.scs.startale.com/v1?apikey=${paymasterApiKey}`, 
 				id: paymasterId}
 			} : undefined,
@@ -85,7 +84,6 @@ export function EIP1193ProviderContextProvider({
 	}, [
 		scwUrl,
 		config,
-		subAccountsConfig,
 		spyOnDisconnectedError,
 		addEventListeners,
 		removeEventListeners,

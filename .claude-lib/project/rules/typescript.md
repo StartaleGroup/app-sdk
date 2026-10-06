@@ -143,7 +143,6 @@ if (Number.isNaN(open)) return null
 | Encoding/decoding | `src/util/encoding.ts` |
 | Cipher operations | `src/util/cipher.ts` |
 | Presence assertions | `src/util/assertPresence.ts` |
-| Sub-account assertions | `src/util/assertSubAccount.ts` |
 | COOP checks | `src/util/coop.ts` |
 | Error handling | `src/core/error.ts` |
 | RPC message types | `src/core/message.ts` |
@@ -161,8 +160,6 @@ assertPresence(chainId, undefined, 'Chain ID must be specified')  // narrows T |
 ```
 
 Use for: required parameters, type narrowing, invariants, defensive guards.
-
-See also: `assertArrayPresence()` in `src/util/assertPresence.ts`, `assertSubAccount()` in `src/util/assertSubAccount.ts`.
 
 ## Formatting & Code Style
 

@@ -1,27 +1,19 @@
-import { PACKAGE_VERSION } from ':core/constants.js'
 import { standardErrorCodes } from './constants.js'
 import { serialize } from './utils.js'
 
 /**
  * Serializes an error to a format that is compatible with the Ethereum JSON RPC error format.
- * See https://docs.cloud.coinbase.com/wallet-sdk/docs/errors
- * for more information.
  */
 export function serializeError(error: unknown) {
 	const serialized = serialize(getErrorObject(error), {
 		shouldIncludeStack: true,
 	})
 
-	const docUrl = new URL(
-		'https://docs.startale.com/',
-	)
-	docUrl.searchParams.set('version', PACKAGE_VERSION)
-	docUrl.searchParams.set('code', serialized.code.toString())
-	docUrl.searchParams.set('message', serialized.message)
-
 	return {
 		...serialized,
-		docUrl: '', // Don't include since we don't have it yet.
+		// Always empty: there is no public error-documentation site to link to yet.
+		// The field is kept so the serialized error shape stays stable for consumers.
+		docUrl: '',
 	}
 }
 

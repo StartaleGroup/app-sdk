@@ -1,4 +1,3 @@
-import { store } from ':store/store.js'
 import {
 	ActionType,
 	AnalyticsEventImportance,
@@ -20,8 +19,6 @@ export const logHandshakeStarted = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
@@ -44,8 +41,6 @@ export const logHandshakeError = ({
 			method,
 			correlationId,
 			errorMessage,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
@@ -65,8 +60,6 @@ export const logHandshakeCompleted = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
@@ -86,8 +79,6 @@ export const logRequestStarted = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
@@ -110,8 +101,6 @@ export const logRequestError = ({
 			method,
 			correlationId,
 			errorMessage,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
@@ -131,8 +120,6 @@ export const logRequestCompleted = ({
 			componentType: ComponentType.unknown,
 			method,
 			correlationId,
-			enableAutoSubAccounts:
-				store.subAccountsConfig.get()?.enableAutoSubAccounts,
 		},
 		AnalyticsEventImportance.high,
 	)
