@@ -8,7 +8,7 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "1.58.2",
-		"@tenkeylabs/dappwright": "2.13.4",
+		"@tenkeylabs/dappwright": "2.13.12",
 		"@types/node": "24.12.0",
 		"typescript": "5.9.3"
 	},
