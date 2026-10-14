@@ -1,6 +1,14 @@
 name: Start SuperApp
 description: Download SuperApp artifact, extract it, and start dev server on localhost:3000 for E2E testing.
 
+inputs:
+  app-env-content:
+    description: Content of the SuperApp .env file
+    required: true
+  npm-token:
+    description: NPM token for private packages
+    required: true
+
 runs:
   using: composite
   steps:
@@ -13,6 +21,16 @@ runs:
     - name: Extract SuperApp
       shell: bash
       run: tar xzf /tmp/superapp.tar.gz -C /tmp
+
+    - name: Create SuperApp .env
+      shell: bash
+      env:
+        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
+        NPM_TOKEN: ${{ inputs.npm-token }}
+      run: |
+        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
+        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
+        echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
 
     - name: Start SuperApp dev server
       shell: bash
