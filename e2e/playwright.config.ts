@@ -11,24 +11,27 @@ const antiDetectionLaunchOptions = {
 	args: ['--disable-blink-features=AutomationControlled'],
 }
 
+// Traces, videos and screenshots record whatever the browser held at the
+// time, so they are treated as sensitive build output. Capture is off in CI
+// unless a run explicitly opts in; local runs are unaffected.
+const captureArtifacts =
+	!process.env.CI || process.env.E2E_CAPTURE_ARTIFACTS === '1'
+
 export default defineConfig({
 	testDir: '.',
 	fullyParallel: false,
 	workers: 1,
 	retries: 2,
-	reporter: process.env.CI
-		? [
-				['list'],
-				['json', { outputFile: 'test-results/results.json' }],
-				['html', { open: 'never' }],
-			]
-		: 'list',
+	// The HTML and JSON reporters record step detail regardless of the
+	// trace/video/screenshot settings, so CI runs `list` only. The richer
+	// reporters stay on locally, where their output is not published.
+	reporter: process.env.CI ? 'list' : [['list'], ['html', { open: 'never' }]],
 
 	use: {
 		baseURL: BASE_URL,
-		trace: 'on-first-retry',
-		screenshot: 'only-on-failure',
-		video: 'retain-on-failure',
+		trace: captureArtifacts ? 'on-first-retry' : 'off',
+		screenshot: captureArtifacts ? 'only-on-failure' : 'off',
+		video: captureArtifacts ? 'retain-on-failure' : 'off',
 		// High timeouts for SDK popup auth flows.
 		// Eliminates need for inline timeouts in most cases.
 		navigationTimeout: 90_000,
