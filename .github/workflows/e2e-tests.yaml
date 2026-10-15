@@ -1,5 +1,14 @@
 name: E2E Tests
 
+# Debug artifacts (Playwright traces/videos/screenshots) are treated as
+# sensitive build output and are opt-in per PR via the `e2e:debug-artifacts`
+# label. Two things to know when using it:
+#   * `labeled` is deliberately not in the trigger types below, so adding the
+#     label does not start a run — push a commit after labelling. A re-run
+#     replays the original event payload and still sees the old labels.
+#   * On `workflow_call` from superapp, `github.event` is the CALLER's event,
+#     so the label must be on the superapp PR, not on an app-sdk PR.
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -120,18 +129,27 @@ jobs:
       - name: Run smoke tests
         env:
           SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
+          E2E_CAPTURE_ARTIFACTS: ${{ contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && '1' || '0' }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:smoke
 
+      - name: Assert no credentials in test results
+        id: assert-creds
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts')
+        uses: ./.github/actions/assert-no-credentials
+        with:
+          paths: e2e/test-results
+
+      # `always()` alone would ignore a failed assert, so the upload is also
+      # conditioned on that step's outcome. `playwright-report/` is not
+      # uploaded; see e2e/playwright.config.ts.
       - name: Upload test results
-        if: always()
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && steps.assert-creds.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
           name: e2e-smoke-results
-          path: |
-            e2e/test-results/
-            e2e/playwright-report/
+          path: e2e/test-results/
           retention-days: 1
 
   line:
@@ -140,10 +158,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
-    env:
-      LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
-      LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
-      LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
     steps:
       - uses: actions/checkout@v7
         if: inputs.superapp-branch != ''
@@ -173,18 +187,34 @@ jobs:
       - name: Run LINE OAuth tests
         env:
           SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
+          E2E_CAPTURE_ARTIFACTS: ${{ contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && '1' || '0' }}
+          LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+          LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
+          LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:line
 
+      - name: Assert no credentials in test results
+        id: assert-creds
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts')
+        uses: ./.github/actions/assert-no-credentials
+        with:
+          paths: e2e/test-results
+          secrets: |
+            ${{ secrets.LINE_TEST_EMAIL }}
+            ${{ secrets.LINE_TEST_PASSWORD }}
+            ${{ secrets.LINE_SESSION_STATE }}
+
+      # `always()` alone would ignore a failed assert, so the upload is also
+      # conditioned on that step's outcome. `playwright-report/` is not
+      # uploaded; see e2e/playwright.config.ts.
       - name: Upload test results
-        if: always()
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && steps.assert-creds.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
           name: e2e-line-results
-          path: |
-            e2e/test-results/
-            e2e/playwright-report/
+          path: e2e/test-results/
           retention-days: 1
 
   eoa:
@@ -193,8 +223,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
-    env:
-      WALLET_SEED: ${{ secrets.WALLET_SEED }}
     steps:
       - uses: actions/checkout@v7
         if: inputs.superapp-branch != ''
@@ -222,18 +250,30 @@ jobs:
       - name: Run EOA tests
         env:
           SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
+          E2E_CAPTURE_ARTIFACTS: ${{ contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && '1' || '0' }}
+          WALLET_SEED: ${{ secrets.WALLET_SEED }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:eoa
 
+      - name: Assert no credentials in test results
+        id: assert-creds
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts')
+        uses: ./.github/actions/assert-no-credentials
+        with:
+          paths: e2e/test-results
+          secrets: |
+            ${{ secrets.WALLET_SEED }}
+
+      # `always()` alone would ignore a failed assert, so the upload is also
+      # conditioned on that step's outcome. `playwright-report/` is not
+      # uploaded; see e2e/playwright.config.ts.
       - name: Upload test results
-        if: always()
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && steps.assert-creds.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
           name: e2e-eoa-results
-          path: |
-            e2e/test-results/
-            e2e/playwright-report/
+          path: e2e/test-results/
           retention-days: 1
 
   eoa-required:
@@ -242,11 +282,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble
     timeout-minutes: 30
-    env:
-      EOA_LINKED_WALLET_SEED: ${{ secrets.EOA_LINKED_WALLET_SEED }}
-      LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
-      LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
-      LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
     steps:
       - uses: actions/checkout@v7
         if: inputs.superapp-branch != ''
@@ -276,16 +311,34 @@ jobs:
       - name: Run EOA Required tests
         env:
           SCW_URL: ${{ inputs.superapp-branch != '' && 'http://localhost:3000/' || '' }}
+          E2E_CAPTURE_ARTIFACTS: ${{ contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && '1' || '0' }}
+          EOA_LINKED_WALLET_SEED: ${{ secrets.EOA_LINKED_WALLET_SEED }}
+          LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+          LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
+          LINE_SESSION_STATE: ${{ secrets.LINE_SESSION_STATE }}
         run: |
           cd e2e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' pnpm test:ci:eoa-required
 
+      - name: Assert no credentials in test results
+        id: assert-creds
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts')
+        uses: ./.github/actions/assert-no-credentials
+        with:
+          paths: e2e/test-results
+          secrets: |
+            ${{ secrets.EOA_LINKED_WALLET_SEED }}
+            ${{ secrets.LINE_TEST_EMAIL }}
+            ${{ secrets.LINE_TEST_PASSWORD }}
+            ${{ secrets.LINE_SESSION_STATE }}
+
+      # `always()` alone would ignore a failed assert, so the upload is also
+      # conditioned on that step's outcome. `playwright-report/` is not
+      # uploaded; see e2e/playwright.config.ts.
       - name: Upload test results
-        if: always()
+        if: always() && contains(github.event.pull_request.labels.*.name, 'e2e:debug-artifacts') && steps.assert-creds.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
           name: e2e-eoa-required-results
-          path: |
-            e2e/test-results/
-            e2e/playwright-report/
+          path: e2e/test-results/
           retention-days: 1

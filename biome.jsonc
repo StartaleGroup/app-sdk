@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.1/schema.json",
 	"files": {
 		"includes": [
 			"**",
@@ -13,23 +13,15 @@
 			"!**/node_modules",
 			"!.git",
 			"!.github",
-			"!.vscode"
-		],
-		"experimentalScannerIgnores": [
-			"**/node_modules/**",
-			"**/dist/**",
-			"**/build/**",
-			"**/coverage/**",
-			"examples/**/.next/**",
-			"examples/**/out/**",
-			".git/**",
-			".github/**",
-			".vscode/**",
-			"**/*.gen.ts",
-			"**/*.gen.tsx",
-			"**/*-svg.ts",
-			"**/*-css.ts",
-			"packages/app-sdk/src/core/telemetry/telemetry-content.ts"
+			"!.vscode",
+			// Folded in from the former `experimentalScannerIgnores`, which
+			// 2.3 removed. Entries that duplicated the patterns above are
+			// dropped; these are the ones that widened the ignore set.
+			"!**/dist",
+			"!**/build",
+			"!**/coverage",
+			"!examples/**/.next",
+			"!examples/**/out"
 		]
 	},
 	"formatter": {
@@ -369,21 +361,12 @@
 			"nursery": {
 				/** ------------------------ JavaScript Rules ------------------------ **/
 				"useMaxParams": "error",
-				"useConsistentTypeDefinitions": {
-					"level": "error",
-					"fix": "safe",
-					"options": {
-						"style": "type"
-					}
-				},
 				// Disallow variable declarations from shadowing variables declared in the outer scope.
 				"noShadow": "error",
 				// Disallow the use of useless undefined.
 				"noUselessUndefined": "error",
 				// Require switch-case statements to be exhaustive.
 				"useExhaustiveSwitchCases": "error",
-				// Disallow usage of sensitive data such as API keys and tokens.
-				"noSecrets": "off",
 				// Enforce types in functions, methods, variables, and parameters.
 				"useExplicitType": "off",
 				// Enforce the sorting of CSS utility classes.
@@ -447,10 +430,21 @@
 				// Report when a DOM element or a component uses both children and dangerouslySetInnerHTML prop.
 				"noDangerouslySetInnerHtmlWithChildren": "error",
 				// Disallow the use of global eval().
-				"noGlobalEval": "error"
+				"noGlobalEval": "error",
+				// Disallow usage of sensitive data such as API keys and tokens.
+				// Promoted from nursery in Biome 2.3.
+				"noSecrets": "off"
 			},
 			"style": {
 				/** ------------------------ JavaScript Rules ------------------------ **/
+				// Enforce `type` over `interface` for object type definitions.
+				// Promoted from nursery in Biome 2.3.
+				"useConsistentTypeDefinitions": {
+					"level": "error",
+					"options": {
+						"style": "type"
+					}
+				},
 				// Disallow using a callback in asynchronous tests and hooks.
 				"noDoneCallback": "error",
 				// Disallow TypeScript enum.
