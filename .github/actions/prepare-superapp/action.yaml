@@ -8,9 +8,6 @@ inputs:
   github-token:
     description: GitHub token with read access to the SuperApp repo
     required: true
-  app-env-content:
-    description: Content of the SuperApp .env file
-    required: true
   npm-token:
     description: NPM token for private packages
     required: true
@@ -22,12 +19,10 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
         NPM_TOKEN: ${{ inputs.npm-token }}
       run: |
         missing=()
         [ -z "$GH_TOKEN" ] && missing+=("github-token")
-        [ -z "$APP_ENV_CONTENT" ] && missing+=("app-env-content")
         [ -z "$NPM_TOKEN" ] && missing+=("npm-token")
         if [ ${#missing[@]} -gt 0 ]; then
           echo "::error::Missing required inputs: ${missing[*]}"
@@ -54,16 +49,6 @@ runs:
       with:
         run_install: false
 
-    - name: Create SuperApp .env
-      shell: bash
-      env:
-        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
-        NPM_TOKEN: ${{ inputs.npm-token }}
-      run: |
-        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
-        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
-        echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
-
     - name: Install SuperApp dependencies
       shell: bash
       working-directory: /tmp/superapp
@@ -77,6 +62,11 @@ runs:
     - name: Create SuperApp tarball
       shell: bash
       run: |
-        # Tar preserves symlinks (critical for pnpm node_modules structure)
-        tar czf /tmp/superapp.tar.gz -C /tmp --exclude='superapp/.git' superapp
+        # Tar preserves symlinks (critical for pnpm node_modules structure).
+        # .env is intentionally excluded so no secrets land in the uploaded
+        # artifact; start-superapp regenerates it from secrets at runtime.
+        tar czf /tmp/superapp.tar.gz -C /tmp \
+          --exclude='superapp/.git' \
+          --exclude='superapp/app/.env' \
+          superapp
         echo "Tarball size: $(du -h /tmp/superapp.tar.gz | cut -f1)"
