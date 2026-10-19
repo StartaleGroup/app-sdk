@@ -57,6 +57,20 @@ describe('Utils', () => {
 				),
 			).resolves.toBe('some result value')
 		})
+
+		it('should send only the Content-Type header', async () => {
+			mockFetchResponse({ id: 1, result: '0x0', error: null })
+			await fetchRPCRequest(
+				{ method: 'eth_getBalance', params: [] },
+				'https://example.com',
+			)
+			expect(global.fetch).toHaveBeenCalledWith(
+				'https://example.com',
+				expect.objectContaining({
+					headers: { 'Content-Type': 'application/json' },
+				}),
+			)
+		})
 	})
 
 	describe('getErrorForInvalidRequestArgs', () => {
