@@ -77,7 +77,6 @@ jobs:
         with:
           branch: ${{ inputs.superapp-branch }}
           github-token: ${{ secrets.SUPERAPP_GITHUB_TOKEN }}
-          app-env-content: ${{ secrets.APP_ENV_FILE }}
           npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Upload SuperApp
@@ -108,6 +107,9 @@ jobs:
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
+        with:
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -158,6 +160,9 @@ jobs:
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
+        with:
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -204,6 +209,9 @@ jobs:
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
+        with:
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -255,6 +263,9 @@ jobs:
       - name: Start SuperApp
         if: inputs.superapp-branch != ''
         uses: ./.github/actions/start-superapp
+        with:
+          app-env-content: ${{ secrets.APP_ENV_FILE }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
