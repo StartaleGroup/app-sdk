@@ -37,7 +37,11 @@ runs:
         name_filter=( -name '.env' -o -name '.env.*' -o -name '.npmrc'
                       -o -name '*.pem' -o -name 'id_rsa*' )
         # Credential-shaped content: a backstop for secrets not passed in.
-        patterns='_authToken=|BEGIN [A-Z ]*PRIVATE KEY|"storageState"|"cookies":\[\{|Authorization: Bearer '
+        # NB: `"storageState"` is deliberately absent — Playwright writes it
+        # into every trace's context options, so matching it would block all
+        # trace uploads regardless of content. `"cookies":[{` still catches
+        # any trace from an authenticated session, which is the real target.
+        patterns='_authToken=|BEGIN [A-Z ]*PRIVATE KEY|"cookies":\[\{|Authorization: Bearer |"[Aa]uthorization","value":"Bearer '
 
         # Literal secret values are the check that matters: test tooling can
         # record call arguments, which a shape-based pattern will not match
@@ -51,6 +55,9 @@ runs:
           [ "${#value}" -ge 8 ] || continue
           echo "::add-mask::$value"
           printf '%s\n' "$value" >> "$needles"
+          # Traces store call arguments JSON-escaped, so search that form too.
+          esc=$(printf '%s' "$value" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+          [ "$esc" = "$value" ] || printf '%s\n' "$esc" >> "$needles"
           needle_count=$((needle_count + 1))
         done <<< "$SCAN_SECRETS"
 

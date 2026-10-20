@@ -2,12 +2,14 @@ name: E2E Tests
 
 # Debug artifacts (Playwright traces/videos/screenshots) are treated as
 # sensitive build output and are opt-in per PR via the `e2e:debug-artifacts`
-# label. Two things to know when using it:
+# label. Three things to know when using it:
 #   * `labeled` is deliberately not in the trigger types below, so adding the
 #     label does not start a run — push a commit after labelling. A re-run
 #     replays the original event payload and still sees the old labels.
 #   * On `workflow_call` from superapp, `github.event` is the CALLER's event,
 #     so the label must be on the superapp PR, not on an app-sdk PR.
+#   * A trace that records any cookie (e.g. the injected LINE session) trips
+#     assert-no-credentials, so that job uploads nothing and fails by design.
 
 on:
   pull_request:

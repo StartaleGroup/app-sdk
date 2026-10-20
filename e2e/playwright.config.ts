@@ -23,9 +23,8 @@ export default defineConfig({
 	workers: 1,
 	retries: 2,
 	// The HTML and JSON reporters record step detail regardless of the
-	// trace/video/screenshot settings, so CI runs `list` only. The richer
-	// reporters stay on locally, where their output is not published.
-	reporter: process.env.CI ? 'list' : [['list'], ['html', { open: 'never' }]],
+	// trace/video/screenshot settings, so only `list` runs, in CI and locally.
+	reporter: 'list',
 
 	use: {
 		baseURL: BASE_URL,

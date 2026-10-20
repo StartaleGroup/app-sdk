@@ -14,8 +14,8 @@
 			"!.git",
 			"!.github",
 			"!.vscode",
-			// Folded in from the former `experimentalScannerIgnores`, which
-			// 2.3 removed. Entries that duplicated the patterns above are
+			// Folded in from `experimentalScannerIgnores`, which 2.3
+			// deprecated. Entries that duplicated the patterns above are
 			// dropped; these are the ones that widened the ignore set.
 			"!**/dist",
 			"!**/build",
@@ -441,6 +441,7 @@
 				// Promoted from nursery in Biome 2.3.
 				"useConsistentTypeDefinitions": {
 					"level": "error",
+					"fix": "safe",
 					"options": {
 						"style": "type"
 					}

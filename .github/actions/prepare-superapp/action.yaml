@@ -85,10 +85,10 @@ runs:
         # Artifact contents are not masked the way job logs are, so fail
         # loudly rather than publish an archive with a credential in it.
         leaked=$(tar tzf /tmp/superapp.tar.gz \
-          | grep -E '(^|/)(\.env(\..*)?|\.npmrc)$' || true)
+          | grep -E '(^|/)(\.env(\..*)?|\.npmrc)$|^superapp/\.git(/|$)' || true)
         if [ -n "$leaked" ]; then
           echo "::error::Credential-bearing files found in superapp tarball:"
           echo "$leaked"
           exit 1
         fi
-        echo "Tarball contains no .env / .npmrc entries."
+        echo "Tarball contains no .env / .npmrc / .git entries."
