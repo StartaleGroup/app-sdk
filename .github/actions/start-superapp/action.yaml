@@ -28,6 +28,10 @@ runs:
         APP_ENV_CONTENT: ${{ inputs.app-env-content }}
         NPM_TOKEN: ${{ inputs.npm-token }}
       run: |
+        if [ -z "$APP_ENV_CONTENT" ]; then
+          echo "::error::Missing required input: app-env-content"
+          exit 1
+        fi
         printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
         echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
         echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
