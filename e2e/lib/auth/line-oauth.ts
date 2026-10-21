@@ -114,6 +114,34 @@ const handleLineLoginPage = async (linePopup: Page): Promise<void> => {
 }
 
 /**
+ * Finish a LINE OAuth round trip the SDK popup has started, whether LINE
+ * opened as a popup or as a redirect of the SDK popup.
+ */
+export const completeLineLogin = async (
+	sdkPopup: Page,
+	existingPages: Set<Page>,
+): Promise<void> => {
+	const { page: linePage, isRedirect } = await findLineLoginPage(
+		sdkPopup,
+		existingPages,
+	)
+
+	await handleLineLoginPage(linePage)
+
+	// Wait for LINE login to complete
+	if (isRedirect) {
+		// sdkPopup redirected to LINE, will navigate back to SCW after login
+		const scwOrigin = new URL(SCW_URL).origin
+		await sdkPopup.waitForURL((url) => url.origin === scwOrigin)
+	} else {
+		// Separate popup — wait for it to close
+		if (!linePage.isClosed()) {
+			await linePage.waitForEvent('close')
+		}
+	}
+}
+
+/**
  * Login with LINE OAuth via the SDK popup.
  *
  * Flow:
@@ -155,25 +183,7 @@ export const loginWithLine = async (
 		await continueButton.click()
 	}
 
-	// Find LINE login page — could be a popup or a redirect of sdkPopup
-	const { page: linePage, isRedirect } = await findLineLoginPage(
-		sdkPopup,
-		existingPages,
-	)
-
-	await handleLineLoginPage(linePage)
-
-	// Wait for LINE login to complete
-	if (isRedirect) {
-		// sdkPopup redirected to LINE, will navigate back to SCW after login
-		const scwOrigin = new URL(SCW_URL).origin
-		await sdkPopup.waitForURL((url) => url.origin === scwOrigin)
-	} else {
-		// Separate popup — wait for it to close
-		if (!linePage.isClosed()) {
-			await linePage.waitForEvent('close')
-		}
-	}
+	await completeLineLogin(sdkPopup, existingPages)
 
 	if (!options?.skipApprove) {
 		const approveButton = sdkPopup.getByRole('button', { name: 'Approve' })

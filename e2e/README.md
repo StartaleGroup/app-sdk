@@ -171,6 +171,8 @@ All tests run in serial mode within a single browser context. Google login is pe
 
 Tests the full EOA Required lifecycle: LINE OAuth login, MetaMask wallet linking via Dynamic Auth, address verification, and wallet disconnect. Uses a dedicated `EOA_LINKED_WALLET_SEED` (separate from `WALLET_SEED`).
 
+Super App gates wallet linking and disconnecting behind Dynamic's step-up. When the Dynamic environment requires it, the tests re-verify with LINE (`lib/auth/dynamic-step-up.ts`); when it doesn't, they go straight on.
+
 | # | Test | Auth |
 |--:|------|:----:|
 | 21 | should complete EOA required onboarding with LINE + MetaMask | EOA Required |
@@ -210,6 +212,7 @@ e2e/
 │       ├── line-oauth.ts                  # LINE OAuth + SSO automation
 │       ├── google-oauth.ts                # Google OAuth + TOTP 2FA automation
 │       ├── metamask-eoa.ts               # MetaMask/dappwright EOA login
+│       ├── dynamic-step-up.ts            # LINE re-verification for Dynamic step-up
 │       └── eoa-required-onboarding.ts    # MetaMask wallet linking for EOA Required
 ├── playwright.config.ts
 ├── .env.example

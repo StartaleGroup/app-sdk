@@ -4,6 +4,7 @@ import { expect } from '@playwright/test'
 import { mnemonicToAccount } from 'viem/accounts'
 
 import { createWalletFixture } from '../../fixtures/wallet.fixture.js'
+import { withLineStepUp } from '../../lib/auth/dynamic-step-up.js'
 import { linkEOAWallet } from '../../lib/auth/eoa-required-onboarding.js'
 import { loginWithLine } from '../../lib/auth/line-oauth.js'
 import { ROUTES, SCW_URL } from '../../lib/constants.js'
@@ -124,10 +125,13 @@ const disconnectOneLinkedWallet = async (page: Page): Promise<void> => {
 		.getByRole('button', { name: 'Disconnect wallet' })
 		.last()
 	await confirmButton.waitFor({ state: 'visible' })
-	await confirmButton.click()
 
-	// Wait for dialog to close (SPA navigation back to wallet list)
-	await expect(confirmButton).not.toBeVisible()
+	// Confirm, then wait for dialog to close (SPA navigation back to wallet list)
+	await withLineStepUp(
+		page,
+		() => confirmButton.click(),
+		() => expect(confirmButton).not.toBeVisible(),
+	)
 }
 
 /**
