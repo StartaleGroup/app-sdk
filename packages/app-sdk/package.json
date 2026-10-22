@@ -83,7 +83,7 @@
 		"eventemitter3": "5.0.4",
 		"idb-keyval": "6.2.1",
 		"ox": "^0.9.6",
-		"preact": "10.24.2",
+		"preact": "11.0.1",
 		"viem": "^2.31.7",
 		"zustand": "5.0.15"
 	},
