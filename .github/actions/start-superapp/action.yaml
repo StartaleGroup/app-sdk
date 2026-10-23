@@ -8,6 +8,10 @@ inputs:
   npm-token:
     description: NPM token for private packages
     required: true
+  dynamic-api-base-url:
+    description: Dynamic API host override for the SuperApp (Dynamic's sandbox host in CI); unset uses Dynamic's default host
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -27,6 +31,7 @@ runs:
       env:
         APP_ENV_CONTENT: ${{ inputs.app-env-content }}
         NPM_TOKEN: ${{ inputs.npm-token }}
+        DYNAMIC_API_BASE_URL: ${{ inputs.dynamic-api-base-url }}
       run: |
         if [ -z "$APP_ENV_CONTENT" ]; then
           echo "::error::Missing required input: app-env-content"
@@ -34,6 +39,9 @@ runs:
         fi
         printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
         echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
+        if [ -n "$DYNAMIC_API_BASE_URL" ]; then
+          echo "DYNAMIC_API_BASE_URL=${DYNAMIC_API_BASE_URL}" >> /tmp/superapp/app/.env
+        fi
         echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
 
     - name: Start SuperApp dev server
