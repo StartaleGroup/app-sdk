@@ -4,16 +4,19 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
-		"baseUrl": ".",
 		"rootDir": "./src",
 		"outDir": "./dist",
+		// `baseUrl` was removed in TypeScript 7 (TS5102) and `paths` values must
+		// be relative (TS5090). Relative paths resolve against this file's
+		// directory, which is what `baseUrl: "."` meant here — so behaviour is
+		// unchanged on TS 5.x.
 		"paths": {
-			":util/*": ["src/util/*"],
-			":core/*": ["src/core/*"],
-			":store/*": ["src/store/*"],
-			":sign/*": ["src/sign/*"],
-			":ui/*": ["src/ui/*"],
-			":interface/*": ["src/interface/*"]
+			":util/*": ["./src/util/*"],
+			":core/*": ["./src/core/*"],
+			":store/*": ["./src/store/*"],
+			":sign/*": ["./src/sign/*"],
+			":ui/*": ["./src/ui/*"],
+			":interface/*": ["./src/interface/*"]
 		},
 		"target": "es2017",
 		"jsx": "react-jsx",
