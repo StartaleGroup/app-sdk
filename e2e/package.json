@@ -9,7 +9,7 @@
 	"devDependencies": {
 		"@playwright/test": "1.58.2",
 		"@tenkeylabs/dappwright": "2.13.4",
-		"@types/node": "24.12.0",
+		"@types/node": "26.6.5",
 		"typescript": "5.9.3"
 	},
 	"scripts": {
