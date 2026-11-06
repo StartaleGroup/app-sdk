@@ -10,7 +10,7 @@
 		"@playwright/test": "1.58.2",
 		"@tenkeylabs/dappwright": "2.13.4",
 		"@types/node": "24.12.0",
-		"typescript": "5.9.3"
+		"typescript": "7.0.2"
 	},
 	"scripts": {
 		"test": "playwright test --headed",
