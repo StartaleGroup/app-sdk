@@ -819,6 +819,17 @@
 	},
 	"overrides": [
 		{
+			// tsconfig files are JSONC by convention and `tsc` itself accepts
+			// comments, but the top-level `json.parser.allowComments` is false so
+			// that real .json data files stay strict. Narrow the exception here.
+			"includes": ["**/tsconfig*.json"],
+			"json": {
+				"parser": {
+					"allowComments": true
+				}
+			}
+		},
+		{
 			"includes": ["**/*.$*.tsx", "**/*.$*.ts"],
 			"linter": {
 				"rules": {
