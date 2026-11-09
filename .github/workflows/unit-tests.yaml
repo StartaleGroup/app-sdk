@@ -60,5 +60,8 @@ jobs:
       # re-runs the SDK suite to exercise that path. The duplicate run is the
       # price of keeping `pnpm test` as the single source of truth for which
       # workspaces are tested, rather than hardcoding package names here.
+      #
+      # --fail-if-no-match: without it a --filter that matches nothing exits 0,
+      # so a package rename would turn this into a silent no-op that still passes.
       - name: Run coverage
-        run: pnpm --filter @startale/app-sdk test:coverage
+        run: pnpm --fail-if-no-match --filter @startale/app-sdk test:coverage
