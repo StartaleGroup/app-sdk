@@ -31,14 +31,14 @@
 		"@biomejs/biome": "2.3.1"
 	},
 	"engines": {
-		"node": ">=24 <25",
+		"node": "<27",
 		"pnpm": ">=10 <11"
 	},
 	"devEngines": {
 		"runtime": [
 			{
 				"name": "node",
-				"version": "^24.10.0",
+				"version": "^26.0.0",
 				"onFail": "download"
 			},
 			{
