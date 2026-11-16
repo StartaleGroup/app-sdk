@@ -15,15 +15,3 @@ export function assertPresence<T>(
 		)
 	}
 }
-
-export function assertArrayPresence<T>(
-	value: unknown,
-	message?: string,
-): asserts value is NonNullable<T>[] {
-	if (!Array.isArray(value)) {
-		throw standardErrors.rpc.invalidParams({
-			message: message ?? 'value must be an array',
-			data: value,
-		})
-	}
-}

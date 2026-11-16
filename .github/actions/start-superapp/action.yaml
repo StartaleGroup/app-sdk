@@ -1,11 +1,23 @@
 name: Start SuperApp
 description: Download SuperApp artifact, extract it, and start dev server on localhost:3000 for E2E testing.
 
+inputs:
+  app-env-content:
+    description: Content of the SuperApp .env file
+    required: true
+  npm-token:
+    description: NPM token for private packages
+    required: true
+  dynamic-api-base-url:
+    description: Dynamic API host override for the SuperApp (Dynamic's sandbox host in CI); unset uses Dynamic's default host
+    required: false
+    default: ''
+
 runs:
   using: composite
   steps:
     - name: Download SuperApp artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: superapp-ready
         path: /tmp/
@@ -13,6 +25,24 @@ runs:
     - name: Extract SuperApp
       shell: bash
       run: tar xzf /tmp/superapp.tar.gz -C /tmp
+
+    - name: Create SuperApp .env
+      shell: bash
+      env:
+        APP_ENV_CONTENT: ${{ inputs.app-env-content }}
+        NPM_TOKEN: ${{ inputs.npm-token }}
+        DYNAMIC_API_BASE_URL: ${{ inputs.dynamic-api-base-url }}
+      run: |
+        if [ -z "$APP_ENV_CONTENT" ]; then
+          echo "::error::Missing required input: app-env-content"
+          exit 1
+        fi
+        printf '%s\n' "$APP_ENV_CONTENT" > /tmp/superapp/app/.env
+        echo "NPM_TOKEN=${NPM_TOKEN}" >> /tmp/superapp/app/.env
+        if [ -n "$DYNAMIC_API_BASE_URL" ]; then
+          echo "DYNAMIC_API_BASE_URL=${DYNAMIC_API_BASE_URL}" >> /tmp/superapp/app/.env
+        fi
+        echo ".env created ($(wc -l < /tmp/superapp/app/.env) lines)"
 
     - name: Start SuperApp dev server
       shell: bash

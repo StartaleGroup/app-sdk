@@ -1,4 +1,3 @@
-import { PACKAGE_NAME, PACKAGE_VERSION } from ':core/constants.js'
 import { standardErrors } from ':core/error/errors.js'
 import { RequestArguments } from ':core/provider/interface.js'
 
@@ -15,11 +14,9 @@ export async function fetchRPCRequest(
 		method: 'POST',
 		body: JSON.stringify(requestBody),
 		mode: 'cors',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-Cbw-Sdk-Version': PACKAGE_VERSION,
-			'X-Cbw-Sdk-Platform': PACKAGE_NAME,
-		},
+		// No custom headers: public RPCs like rpc.soneium.org reject them
+		// in the CORS preflight, and the browser then never sends the request.
+		headers: { 'Content-Type': 'application/json' },
 	})
 	const { result, error } = await res.json()
 	if (error) throw error

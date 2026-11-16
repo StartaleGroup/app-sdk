@@ -2,11 +2,13 @@
  * Helper for EOA Required wallet linking flow.
  *
  * Handles MetaMask wallet linking in the SDK popup.
- * Full linking flow: click Link wallet, select MetaMask,
- * approve Connect, confirm SIWE sign-in, and click Approve.
+ * Full linking flow: click Link wallet, re-verify with LINE if Dynamic asks,
+ * select MetaMask, approve Connect, confirm SIWE sign-in, and click Approve.
  */
 
 import type { BrowserContext, Locator, Page } from '@playwright/test'
+
+import { withLineStepUp } from './dynamic-step-up.js'
 
 const isTargetClosedError = (error: unknown): boolean => {
 	if (error instanceof AggregateError) {
@@ -184,13 +186,16 @@ const openWalletModal = async (
 	})
 
 	for (let attempt = 0; attempt < maxRetries; attempt++) {
-		await sdkPopup.getByRole('button', { name: 'Link wallet' }).click()
-
-		// Wait for either MetaMask button or error banner to appear
-		await metaMaskButton
-			.or(errorBanner)
-			.first()
-			.waitFor({ state: 'visible' })
+		// Click Link wallet, then wait for the MetaMask button or error banner
+		await withLineStepUp(
+			sdkPopup,
+			() => sdkPopup.getByRole('button', { name: 'Link wallet' }).click(),
+			() =>
+				metaMaskButton
+					.or(errorBanner)
+					.first()
+					.waitFor({ state: 'visible' }),
+		)
 
 		const hasError = await errorBanner.isVisible().catch(() => false)
 		if (!hasError) return
@@ -222,7 +227,8 @@ const openWalletModal = async (
  * Assumes the popup is on the /link-eoa page (after Google OAuth).
  *
  * Flow:
- * 1. Click "Link wallet" — opens "Link a new wallet" modal (with retry)
+ * 1. Click "Link wallet" — opens "Link a new wallet" modal (with retry),
+ *    after LINE re-verification when Dynamic requires step-up
  * 2. Set up MetaMask popup listener (before clicking MetaMask!)
  * 3. Click MetaMask option — triggers MetaMask popup
  * 4. Approve Connect + SIWE in MetaMask popup

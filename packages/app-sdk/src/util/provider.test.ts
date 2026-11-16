@@ -5,19 +5,19 @@ import { checkErrorForInvalidRequestArgs, fetchRPCRequest } from './provider.js'
 
 // @ts-expect-error-next-line
 const invalidArgsError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: 'Expected a single, non-array, object argument.',
 		data: args,
 	})
 // @ts-expect-error-next-line
 const invalidMethodError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: "'args.method' must be a non-empty string.",
 		data: args,
 	})
 // @ts-expect-error-next-line
 const invalidParamsError = (args) =>
-	standardErrors.rpc.invalidRequest({
+	standardErrors.rpc.invalidParams({
 		message: "'args.params' must be an object or array if provided.",
 		data: args,
 	})
@@ -56,6 +56,20 @@ describe('Utils', () => {
 					'https://example.com',
 				),
 			).resolves.toBe('some result value')
+		})
+
+		it('should send only the Content-Type header', async () => {
+			mockFetchResponse({ id: 1, result: '0x0', error: null })
+			await fetchRPCRequest(
+				{ method: 'eth_getBalance', params: [] },
+				'https://example.com',
+			)
+			expect(global.fetch).toHaveBeenCalledWith(
+				'https://example.com',
+				expect.objectContaining({
+					headers: { 'Content-Type': 'application/json' },
+				}),
+			)
 		})
 	})
 

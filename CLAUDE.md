@@ -13,7 +13,7 @@
 
 # Project Overview
 
-Startale App SDK (`@startale/app-sdk`) — Web3 SDK forked from Coinbase's Account SDK. EIP-1193 compliant wallet providers with SCW support, sub-accounts, spend permissions, and payment interfaces.
+Startale App SDK (`@startale/app-sdk`) — Web3 SDK forked from Coinbase's Account SDK. EIP-1193 compliant wallet providers with SCW support, spend permissions, and payment interfaces.
 
 ## Working Principles
 
@@ -52,8 +52,8 @@ Build: `compile-assets → tsc → tsc-alias → rollup`
 
 **Module layers:**
 - **`core/`** — `Communicator` (iframe/popup messaging), RPC types, errors, provider interface
-- **`store/`** — Zustand state with persistence (accounts, sub-accounts, chains)
-- **`sign/`** — SCW signing: `Signer`, `SCWKeyManager`, sub-account signers
+- **`store/`** — Zustand state with persistence (accounts, chains)
+- **`sign/`** — SCW signing: `Signer`, `SCWKeyManager`
 - **`kms/`** — Browser crypto key management via IndexedDB
 - **`interface/`** — `createStartaleAccountSDK()` factory, `BaseAccountProvider` (EIP-1193), payment, spend permissions
 - **`ui/`** — Preact-based dialog UI and assets

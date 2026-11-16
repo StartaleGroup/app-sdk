@@ -2,18 +2,12 @@ import { PACKAGE_VERSION } from ':core/constants.js'
 import {
 	AppMetadata,
 	PaymasterOptions,
-	Preference,
-	SubAccountOptions
+	Preference
 } from ':core/provider/interface.js'
 import { SpendPermission } from ':core/rpc/coinbase_fetchSpendPermissions.js'
-import { OwnerAccount } from ':core/type/index.js'
-import { Address, Hex } from 'viem'
+import { Address } from 'viem'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { StateCreator, createStore } from 'zustand/vanilla'
-
-export type ToOwnerAccountFn = () => Promise<{
-	account: OwnerAccount | null
-}>
 
 type Chain = {
 	id: number
@@ -23,16 +17,6 @@ type Chain = {
 		symbol?: string
 		decimal?: number
 	}
-}
-
-export type SubAccount = {
-	address: Address
-	factory?: Address
-	factoryData?: Hex
-}
-
-type SubAccountConfig = SubAccountOptions & {
-	capabilities?: Record<string, unknown>
 }
 
 type Account = {
@@ -58,6 +42,17 @@ type UserInfo = {
 	email?: string
 	name?: string
 	authType?: string
+}
+
+type StartaleContext = {
+	chain?: string
+	user?: { username?: string }
+	startale?: {
+		starPoints?: number
+		eoaWallets?: string[]
+		legacyAddress?: string
+		legacySignature?: string
+	}
 }
 
 const createChainSlice: StateCreator<StoreState, [], [], ChainSlice> = () => {
@@ -88,36 +83,6 @@ const createAccountSlice: StateCreator<
 > = () => {
 	return {
 		account: {},
-	}
-}
-
-type SubAccountSlice = {
-	subAccount?: SubAccount
-}
-
-const createSubAccountSlice: StateCreator<
-	StoreState,
-	[],
-	[],
-	SubAccountSlice
-> = () => {
-	return {
-		subAccount: undefined,
-	}
-}
-
-type SubAccountConfigSlice = {
-	subAccountConfig?: SubAccountConfig
-}
-
-const createSubAccountConfigSlice: StateCreator<
-	StoreState,
-	[],
-	[],
-	SubAccountConfigSlice
-> = () => {
-	return {
-		subAccountConfig: {},
 	}
 }
 
@@ -163,6 +128,21 @@ const createUserInfoSlice: StateCreator<
 	}
 }
 
+type ContextSlice = {
+	context: StartaleContext
+}
+
+const createContextSlice: StateCreator<
+	StoreState,
+	[],
+	[],
+	ContextSlice
+> = () => {
+	return {
+		context: {},
+	}
+}
+
 type MergeTypes<T extends unknown[]> = T extends [infer First, ...infer Rest]
 	? First &
 			(Rest extends unknown[] ? MergeTypes<Rest> : Record<string, unknown>)
@@ -173,11 +153,10 @@ export type StoreState = MergeTypes<
 		ChainSlice,
 		KeysSlice,
 		AccountSlice,
-		SubAccountSlice,
-		SubAccountConfigSlice,
 		SpendPermissionsSlice,
 		ConfigSlice,
 		UserInfoSlice,
+		ContextSlice,
 	]
 >
 
@@ -187,11 +166,10 @@ export const sdkstore = createStore(
 			...createChainSlice(...args),
 			...createKeysSlice(...args),
 			...createAccountSlice(...args),
-			...createSubAccountSlice(...args),
 			...createSpendPermissionsSlice(...args),
 			...createConfigSlice(...args),
-			...createSubAccountConfigSlice(...args),
 			...createUserInfoSlice(...args),
+			...createContextSlice(...args),
 		}),
 		{
 			name: 'startale-app-sdk.store',
@@ -203,47 +181,15 @@ export const sdkstore = createStore(
 					chains: state.chains,
 					keys: state.keys,
 					account: state.account,
-					subAccount: state.subAccount,
 					spendPermissions: state.spendPermissions,
 					config: state.config,
 					userInfo: state.userInfo,
+					context: state.context,
 				} as StoreState
 			},
 		},
 	),
 )
-
-// Non-persisted subaccount configuration
-
-export const subAccountsConfig = {
-	get: () => sdkstore.getState().subAccountConfig,
-	set: (subAccountConfig: Partial<SubAccountConfig>) => {
-		sdkstore.setState((state) => ({
-			subAccountConfig: { ...state.subAccountConfig, ...subAccountConfig },
-		}))
-	},
-	clear: () => {
-		sdkstore.setState({
-			subAccountConfig: {},
-		})
-	},
-}
-
-export const subAccounts = {
-	get: () => sdkstore.getState().subAccount,
-	set: (subAccount: Partial<SubAccount>) => {
-		sdkstore.setState((state) => ({
-			subAccount: state.subAccount
-				? { ...state.subAccount, ...subAccount }
-				: { address: subAccount.address as Address, ...subAccount },
-		}))
-	},
-	clear: () => {
-		sdkstore.setState({
-			subAccount: undefined,
-		})
-	},
-}
 
 export const spendPermissions = {
 	get: () => sdkstore.getState().spendPermissions,
@@ -316,15 +262,28 @@ export const userInfo = {
 	},
 }
 
+export const context = {
+	get: () => sdkstore.getState().context,
+	set: (context: Partial<StartaleContext> | undefined) => {
+		sdkstore.setState((_state) => ({
+			context,
+		}))
+	},
+	clear: () => {
+		sdkstore.setState({
+			context: {},
+		})
+	},
+}
+
 const actions = {
-	subAccounts,
-	subAccountsConfig,
 	spendPermissions,
 	account,
 	chains,
 	keys,
 	config,
 	userInfo,
+	context,
 }
 
 export const store = {

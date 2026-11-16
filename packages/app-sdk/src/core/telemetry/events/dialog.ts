@@ -5,10 +5,7 @@ import {
 	logEvent,
 } from '../logEvent.js'
 
-type DialogContext =
-	| 'popup_blocked'
-	| 'sub_account_add_owner'
-	| 'sub_account_insufficient_balance'
+type DialogContext = 'popup_blocked'
 
 export const logDialogShown = ({
 	dialogContext,
@@ -43,16 +40,13 @@ export const logDialogDismissed = ({
 }
 
 type GenericDialogAction = 'confirm' | 'cancel'
-type SubAccountInsufficientBalanceDialogAction =
-	| 'create_permission'
-	| 'continue_in_popup'
 
 export const logDialogActionClicked = ({
 	dialogContext,
 	dialogAction,
 }: {
 	dialogContext: DialogContext
-	dialogAction: GenericDialogAction | SubAccountInsufficientBalanceDialogAction
+	dialogAction: GenericDialogAction
 }) => {
 	logEvent(
 		`dialog.${dialogContext}.action_clicked`,

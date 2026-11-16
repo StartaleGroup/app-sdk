@@ -1,0 +1,139 @@
+name: Assert No Credentials
+description: >-
+  Fail the job if a path staged for artifact upload contains any of this job's
+  secret values, or credential-shaped files. Artifact contents are not masked
+  the way job logs are, so this is the last gate before anything leaves the
+  runner.
+
+inputs:
+  paths:
+    description: Newline- or space-separated list of directories to scan
+    required: true
+  secrets:
+    description: >-
+      Newline-separated literal secret values this job holds. Each is matched
+      verbatim (grep -F) against every staged file and every entry of any
+      staged zip archive. Matches are reported by filename only.
+    required: false
+    default: ''
+  allow-missing:
+    description: Treat a missing path as a pass rather than a failure
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Scan staged artifact paths
+      shell: bash
+      env:
+        SCAN_PATHS: ${{ inputs.paths }}
+        SCAN_SECRETS: ${{ inputs.secrets }}
+        ALLOW_MISSING: ${{ inputs.allow-missing }}
+      run: |
+        set -uo pipefail
+
+        # Credential-bearing filenames.
+        name_filter=( -name '.env' -o -name '.env.*' -o -name '.npmrc'
+                      -o -name '*.pem' -o -name 'id_rsa*' )
+        # Credential-shaped content: a backstop for secrets not passed in.
+        # NB: `"storageState"` is deliberately absent — Playwright writes it
+        # into every trace's context options, so matching it would block all
+        # trace uploads regardless of content. `"cookies":[{` still catches
+        # any trace from an authenticated session, which is the real target.
+        patterns='_authToken=|BEGIN [A-Z ]*PRIVATE KEY|"cookies":\[\{|Authorization: Bearer |"[Aa]uthorization","value":"Bearer '
+
+        # Literal secret values are the check that matters: test tooling can
+        # record call arguments, which a shape-based pattern will not match
+        # but the value itself will.
+        needles="$RUNNER_TEMP/assert-no-credentials.needles"
+        : > "$needles"
+        chmod 600 "$needles"
+        needle_count=0
+        while IFS= read -r value; do
+          # Short values would match everywhere; they are not usable secrets.
+          [ "${#value}" -ge 8 ] || continue
+          echo "::add-mask::$value"
+          printf '%s\n' "$value" >> "$needles"
+          # Traces store call arguments JSON-escaped, so search that form too.
+          esc=$(printf '%s' "$value" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+          [ "$esc" = "$value" ] || printf '%s\n' "$esc" >> "$needles"
+          needle_count=$((needle_count + 1))
+        done <<< "$SCAN_SECRETS"
+
+        if [ "$needle_count" -eq 0 ]; then
+          echo "::warning::No secret values supplied — only shape-based checks will run."
+        fi
+
+        # Playwright traces are deflate-compressed zips, so grep cannot see
+        # inside them. Pick whatever extractor the runner image has; if there
+        # is none, warn rather than imply the archives were inspected.
+        zip_tool=''
+        if command -v unzip >/dev/null 2>&1; then
+          zip_tool='unzip'
+        elif command -v python3 >/dev/null 2>&1; then
+          zip_tool='python3'
+        else
+          echo "::warning::No unzip or python3 on this runner — zip archives (Playwright traces) were NOT inspected."
+        fi
+
+        dump_zip() {
+          case "$zip_tool" in
+            unzip) unzip -p "$1" 2>/dev/null ;;
+            python3) python3 -I -c 'import sys,zipfile;z=zipfile.ZipFile(sys.argv[1]);[sys.stdout.buffer.write(z.read(n)) for n in z.namelist()]' "$1" 2>/dev/null ;;
+            *) return 1 ;;
+          esac
+        }
+
+        # Every reporting path below prints filenames only, never a match.
+        report() { echo "::error::$1"; shift; printf '%s\n' "$@"; failed=1; }
+
+        failed=0
+        scanned=0
+
+        for scan_path in $SCAN_PATHS; do
+          [ -n "$scan_path" ] || continue
+
+          if [ ! -e "$scan_path" ]; then
+            if [ "$ALLOW_MISSING" = 'true' ]; then
+              echo "Nothing staged at $scan_path — skipping."
+              continue
+            fi
+            report "Expected $scan_path to exist"
+            continue
+          fi
+          scanned=$((scanned + 1))
+
+          bad_files=$(find "$scan_path" \( "${name_filter[@]}" \) -print 2>/dev/null || true)
+          [ -n "$bad_files" ] && report "Credential-bearing files staged for upload:" "$bad_files"
+
+          hits=$(grep -rlaE "$patterns" "$scan_path" 2>/dev/null || true)
+          [ -n "$hits" ] && report "Credential-shaped content staged for upload:" "$hits"
+
+          if [ "$needle_count" -gt 0 ]; then
+            hits=$(grep -rlaF -f "$needles" "$scan_path" 2>/dev/null || true)
+            [ -n "$hits" ] && report "Secret VALUES found in files staged for upload:" "$hits"
+          fi
+
+          # NB: `grep -q` would exit on the first match and SIGPIPE the
+          # extractor, which under `pipefail` makes the pipeline return 141
+          # and the match look like a miss. Count instead of short-circuiting.
+          while IFS= read -r archive; do
+            [ -n "$archive" ] || continue
+            n=$(dump_zip "$archive" | grep -caE "$patterns" || true)
+            [ "${n:-0}" -gt 0 ] && report "Credential-shaped content inside archive:" "$archive"
+            if [ "$needle_count" -gt 0 ]; then
+              n=$(dump_zip "$archive" | grep -caF -f "$needles" || true)
+              [ "${n:-0}" -gt 0 ] && report "Secret VALUES found inside archive:" "$archive"
+            fi
+          done < <(find "$scan_path" -name '*.zip' -print 2>/dev/null || true)
+        done
+
+        rm -f "$needles"
+
+        if [ "$failed" -ne 0 ]; then
+          echo "::error::Refusing to upload. Address the source of the match rather than relaxing this check."
+          exit 1
+        fi
+
+        echo "Scanned $scanned path(s) against $needle_count secret value(s): clean."

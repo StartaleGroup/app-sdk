@@ -118,15 +118,20 @@ test.describe('LINE OAuth — RPC Methods', () => {
 
 	// --- Chain ---
 
-	// Switches to Minato and does NOT revert — subsequent tests are chain-agnostic
-	// (read-only RPC calls and error cases work on any chain).
+	// Switches to Ethereum to verify chain switching, then reverts to Soneium.
+	// The revert is required: subsequent read-only tests (eth_getBalance) hit the
+	// active chain's RPC, and mainnet reads are not served in the e2e wallet env.
 	test('wallet_switchEthereumChain — switch chain via shortcut', async () => {
 		const switchChain = rpcMethodCard(page, 'wallet_switchEthereumChain')
-		await switchChain.clickShortcut('Minato')
-		const eventSection = page.getByTestId('section-event-listeners')
-		await expect(eventSection.getByText(CHAIN_IDS.MINATO)).toBeVisible()
+		const chainChanged = page.getByTestId('event-chainChanged')
+
+		await switchChain.clickShortcut('Ethereum')
+		await expect(chainChanged).toContainText(CHAIN_IDS.ETHEREUM)
 		// Chakra UI toasts use HTML id (from toast({ id })) — not data-testid
 		await expect(page.locator('#toast-chain-changed')).toBeVisible()
+
+		await switchChain.clickShortcut('Soneium')
+		await expect(chainChanged).toContainText(CHAIN_IDS.SONEIUM)
 	})
 
 	// --- Read-only ---

@@ -1,4 +1,4 @@
-import { base, baseSepolia, optimismSepolia, sepolia } from 'viem/chains'
+import { base, baseSepolia, mainnet, optimismSepolia, sepolia } from 'viem/chains'
 
 import { ChainClients } from './store.js'
 import { createClients } from './utils.js'
@@ -67,6 +67,19 @@ describe('chain-clients/utils', () => {
 			expect(ChainClients.getState()[base.id]).toBeDefined()
 			expect(ChainClients.getState()[base.id].client).toBeDefined()
 			expect(ChainClients.getState()[base.id].bundlerClient).toBeDefined()
+		})
+
+		it('should use fallback RPC URL for Ethereum mainnet when wallet does not provide one', () => {
+			createClients([
+				{
+					id: mainnet.id, // Ethereum mainnet
+					// No rpcUrl provided
+				},
+			])
+
+			expect(ChainClients.getState()[mainnet.id]).toBeDefined()
+			expect(ChainClients.getState()[mainnet.id].client).toBeDefined()
+			expect(ChainClients.getState()[mainnet.id].bundlerClient).toBeDefined()
 		})
 
 		it('should use fallback RPC URL for Base Sepolia when wallet does not provide one', () => {

@@ -1,4 +1,3 @@
-import { ToOwnerAccountFn } from ':store/store.js'
 import { EventEmitter } from 'eventemitter3'
 import { Address, Hex } from 'viem'
 
@@ -103,21 +102,6 @@ export type Preference = {
 	 */
 	eoaRequired?: boolean
 } & Record<string, unknown>
-
-export type SubAccountOptions = {
-	/* Automatically create a subaccount for the user and use it for all transactions. */
-	enableAutoSubAccounts?: boolean
-	/**
-	 * @returns The owner account that will be used to sign the subaccount transactions.
-	 */
-	toOwnerAccount?: ToOwnerAccountFn
-	/**
-	 * This is an unstable feature that may change or be removed in future versions.
-	 * When true, enables automatic spend permission requests and insufficient balance error handling for sub accounts.
-	 * @default true
-	 */
-	unstable_enableAutoSpendPermissions?: boolean
-}
 
 export type PaymasterOptions = {
 	url: string

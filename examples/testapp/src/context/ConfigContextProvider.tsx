@@ -1,5 +1,4 @@
 import { Preference } from '@startale/app-sdk'
-import { SubAccountOptions } from '@startale/app-sdk/dist/core/provider/interface'
 import {
 	Dispatch,
 	ReactNode,
@@ -32,8 +31,6 @@ type ConfigContextType = {
 	setSDKVersion: Dispatch<SetStateAction<SDKVersionType>>
 	setScwUrlAndSave: Dispatch<SetStateAction<ScwUrlType>>
 	setConfig: Dispatch<SetStateAction<Preference>>
-	subAccountsConfig: SubAccountOptions
-	setSubAccountsConfig: Dispatch<SetStateAction<SubAccountOptions>>
 }
 
 const ConfigContext = createContext<ConfigContextType | null>(null)
@@ -48,9 +45,6 @@ export const ConfigContextProvider = ({
 			auto: false,
 		},
 	})
-	const [subAccountsConfig, setSAConfig] = useState<
-		SubAccountOptions | undefined
-	>(undefined)
 
 	useEffect(
 		function initializeSDKVersion() {
@@ -96,13 +90,6 @@ export const ConfigContextProvider = ({
 		setScwUrl(url)
 	}, [])
 
-	const setSubAccountsConfig = useCallback(
-		(...args: Parameters<Dispatch<SetStateAction<SubAccountOptions>>>) => {
-			setSAConfig(...args)
-		},
-		[],
-	)
-
 	const value = useMemo(() => {
 		return {
 			version,
@@ -111,18 +98,8 @@ export const ConfigContextProvider = ({
 			setSDKVersion,
 			setScwUrlAndSave,
 			setConfig,
-			subAccountsConfig,
-			setSubAccountsConfig,
 		}
-	}, [
-		version,
-		scwUrl,
-		config,
-		setSDKVersion,
-		setScwUrlAndSave,
-		subAccountsConfig,
-		setSubAccountsConfig,
-	])
+	}, [version, scwUrl, config, setSDKVersion, setScwUrlAndSave])
 
 	return (
 		<ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
