@@ -95,14 +95,18 @@ const waitForSignaturePopup = async (
 		return metaMaskPopup
 	}
 
-	const nextPopupPromise = context.waitForEvent('page', { timeout: 15_000 }).catch(
-		() => null,
-	)
+	const nextPopupPromise = context
+		.waitForEvent('page', { timeout: 120_000 })
+		.catch(() => null)
 	const samePopupState = await waitForMetaMaskSignAction(metaMaskPopup)
 	if (samePopupState === 'sign') return metaMaskPopup
 
 	const nextPopup = await nextPopupPromise
-	if (!nextPopup) return null
+	if (!nextPopup) {
+		throw new Error(
+			'MetaMask SIWE signature popup did not open within 120s after Connect',
+		)
+	}
 
 	await nextPopup.waitForLoadState('domcontentloaded')
 	await nextPopup.bringToFront()
