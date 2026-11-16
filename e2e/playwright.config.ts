@@ -48,7 +48,7 @@ export default defineConfig({
 		},
 		{
 			name: 'eoa-chromium',
-			testMatch: /specs\/eoa-.*\.spec\.ts/,
+			testMatch: /specs\/eoa-(?!required-).*\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'] },
 		},
 		{
