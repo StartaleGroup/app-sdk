@@ -7,7 +7,7 @@
 			"!packages/app-sdk/dist",
 			"!packages/app-sdk/src/core/telemetry/telemetry-content.ts",
 			// Vendored third-party bundle - upstream owns its style.
-			"!**/vendor-js/**",
+			"!**/vendor-js",
 			"!**/*.gen.ts",
 			"!**/*.gen.tsx",
 			"!**/*-svg.ts",
