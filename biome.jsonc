@@ -6,6 +6,8 @@
 			"!dist",
 			"!packages/app-sdk/dist",
 			"!packages/app-sdk/src/core/telemetry/telemetry-content.ts",
+			// Vendored third-party bundle - upstream owns its style.
+			"!**/vendor-js",
 			"!**/*.gen.ts",
 			"!**/*.gen.tsx",
 			"!**/*-svg.ts",
@@ -38,6 +40,7 @@
 			"!dist/**",
 			"!packages/app-sdk/dist/**",
 			"!packages/app-sdk/src/core/telemetry/telemetry-content.ts",
+			"!**/vendor-js/**",
 			"!**/*.gen.ts",
 			"!**/*.gen.tsx",
 			"!**/*-svg.ts",
@@ -818,6 +821,17 @@
 		"defaultBranch": "main"
 	},
 	"overrides": [
+		{
+			// tsconfig files are JSONC by convention and `tsc` itself accepts
+			// comments, but the top-level `json.parser.allowComments` is false so
+			// that real .json data files stay strict. Narrow the exception here.
+			"includes": ["**/tsconfig*.json"],
+			"json": {
+				"parser": {
+					"allowComments": true
+				}
+			}
+		},
 		{
 			"includes": ["**/*.$*.tsx", "**/*.$*.ts"],
 			"linter": {
