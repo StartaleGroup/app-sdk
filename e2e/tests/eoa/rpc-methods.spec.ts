@@ -22,7 +22,7 @@ test.describe('EOA — RPC Methods', () => {
 
 	let page: Page
 
-	test.beforeAll(async ({ page: fixturedPage, wallet }) => {
+	test.beforeAll(async ({ page: fixturedPage }) => {
 		page = fixturedPage
 
 		await page.goto(ROUTES.dashboard)
@@ -35,7 +35,7 @@ test.describe('EOA — RPC Methods', () => {
 			ethRequestAccounts.submit(),
 		)
 
-		await loginWithMetaMask(sdkPopup, wallet)
+		await loginWithMetaMask(sdkPopup)
 		await waitForPopupClose(sdkPopup)
 
 		// Verify "Connected" toast appears
