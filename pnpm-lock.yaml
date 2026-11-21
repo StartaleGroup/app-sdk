@@ -19,7 +19,7 @@ importers:
         version: 2.3.1
       bun:
         specifier: runtime:^1.3.1
-        version: runtime:1.4.4
+        version: runtime:1.4.5
       node:
         specifier: runtime:^26.0.0
         version: runtime:26.13.1
@@ -105,7 +105,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
 
   packages/app-sdk:
     dependencies:
@@ -163,7 +163,7 @@ importers:
         version: 14.1.0(bufferutil@4.1.0)(size-limit@14.1.0)(utf-8-validate@6.0.6)
       '@testing-library/jest-dom':
         specifier: 7.0.1
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
       '@testing-library/preact':
         specifier: 3.2.6
         version: 3.2.6(preact@11.0.2)
@@ -172,10 +172,10 @@ importers:
         version: 26.6.6
       '@vitest/coverage-v8':
         specifier: 2.1.9
-        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
+        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
       '@vitest/web-worker':
         specifier: 2.1.9
-        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
+        version: 2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))
       fake-indexeddb:
         specifier: 6.2.7
         version: 6.2.7
@@ -186,8 +186,8 @@ importers:
         specifier: 2.5.0
         version: 2.5.0
       jsdom:
-        specifier: 30.1.3
-        version: 30.1.3(@noble/hashes@2.3.0)
+        specifier: 31.0.0
+        version: 31.0.0(@noble/hashes@2.3.0)
       nodemon:
         specifier: 3.1.14
         version: 3.1.14
@@ -214,7 +214,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
 
 packages:
 
@@ -232,14 +232,6 @@ packages:
     resolution: {integrity: sha512-vRZX+aPd9UzUMjsCeH0CR4ldbCwwGaKjbotF7PBRyZdbZRZJz3Em+HXUNaxGWcdajRpTBL1HQ0KECudftPs7CQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
-
-  '@asamuzakjp/css-color@7.1.3':
-    resolution: {integrity: sha512-1t1U8Cm3RBl9vh3RAZhjkPaduzLSvQJRToRrxpGR/eDRW99mOREleuu+mWfiFa795bUzjwht7NgphCKTs2ianQ==}
-    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
-
-  '@asamuzakjp/dom-selector@10.0.5':
-    resolution: {integrity: sha512-EgmJ7oEaGQECTn3H3wmnQpEy4hKY66VvM7VQndwPIQob3p877BgbyOUE3EX0LgXQCciF2H8KMdR+RznqjMNOLw==}
-    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -346,10 +338,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@bramus/specificity@2.4.3':
-    resolution: {integrity: sha512-0GEz8qJWokkUVYQYRukmkSHIFNoBH8QTreeHrAFbvz1XFYc3Y+puhMs8PQ5x8GNugiC2l5jvDBXKLbBIByeSBw==}
-    hasBin: true
-
   '@chakra-ui/anatomy@2.3.6':
     resolution: {integrity: sha512-TjmjyQouIZzha/l8JxdBZN1pKZTj7sLpJ0YkFnQFyqHcbfWggW9jKWzY1E0VBnhtFz/xF3KC6UAVuZVSJx+y0g==}
 
@@ -390,42 +378,6 @@ packages:
     resolution: {integrity: sha512-KTBCK+M5KtXH6p54XS39ImQUMVtAx65BoZDoEms3LuObyTo1+civ1sMm4h3nRT320U6H5H7D35WnABVQjqU/4g==}
     peerDependencies:
       react: '>=16.8.0'
-
-  '@csstools/color-helpers@6.1.2':
-    resolution: {integrity: sha512-grhRy3OKmniaAEKXMjua5z/EODX0MSqBGjunw8+j/3HQjOnahs2AGhvEOIYVUWcU6ScApbhLhVrQTX8XqrMrow==}
-    engines: {node: '>=20.19.0'}
-
-  '@csstools/css-calc@3.4.3':
-    resolution: {integrity: sha512-iex20d8CHVkyvg6B7UKV7uHnI2Bqo9g+EFfT9E0y+GvTvhZ/DwONJ+9aKb1dlqm0ZiGsL5RXjp0fCoJYnkeDjA==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      '@csstools/css-parser-algorithms': ^4.0.2
-      '@csstools/css-tokenizer': ^4.0.2
-
-  '@csstools/css-color-parser@4.2.6':
-    resolution: {integrity: sha512-iiPQ3iRWwnJkeEn6RIu6SJPr7hYrLz6XZ9s/QZl+2/LI5KQVjpl2fdmDSZKuD4xP6GMmMPgHFFXg6k1Wkz0Trg==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      '@csstools/css-parser-algorithms': ^4.0.2
-      '@csstools/css-tokenizer': ^4.0.2
-
-  '@csstools/css-parser-algorithms@4.0.2':
-    resolution: {integrity: sha512-40cSKyMvK+tq4qz6Awrlye2WGuOKt3FwPgtGg6KTfbHOWNw+Rk1rzbAtZnZ6IBhsY491HLRnDXwoyBAijmmILA==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      '@csstools/css-tokenizer': ^4.0.2
-
-  '@csstools/css-syntax-patches-for-csstree@1.1.15':
-    resolution: {integrity: sha512-J0u7HkVl2nzSlhsiTOp4AmwcUQ3D+mGEEKfBy/7To5/y7F2OHwyLrXfrhR0SMgr4p5Lo+eaMVSeai24zUcBIxA==}
-    peerDependencies:
-      css-tree: ^3.2.1
-    peerDependenciesMeta:
-      css-tree:
-        optional: true
-
-  '@csstools/css-tokenizer@4.0.2':
-    resolution: {integrity: sha512-OoKoR0f76dCY666JlcbhmVTs2drYj1GUXZTYTcbUgJjh9Nv41aFfZ21bPQTERm5+L5cBDo466NltB2lplS5GBw==}
-    engines: {node: '>=20.19.0'}
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -1617,8 +1569,11 @@ packages:
     engines: {node: '>=10.0.0'}
     deprecated: Security vulnerability fixed in 5.2.1, please upgrade
 
-  bidi-js@1.1.0:
-    resolution: {integrity: sha512-fX1Onk0tdVPC7obPWB5EbJ1z7NVhLq4m2xZLq2YXBkxzMXIGRpNMU88n0EPgWseKl12J7zXs7qrDxPK4sRs2fg==}
+  bcp-47-match@2.0.3:
+    resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==}
+
+  bcp-47@2.1.2:
+    resolution: {integrity: sha512-wsv86UuNFuPnVieKLyECTT+CP1WSAHeoIg5P3xu2kA9Z+7fVPoKt7dxzSeEhtJel0AI+NW3fIW3KtTKQKUCngg==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -1666,57 +1621,57 @@ packages:
     resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
     engines: {node: '>=6.14.2'}
 
-  bun@runtime:1.4.4:
+  bun@runtime:1.4.5:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-wkDX8My5DCY6hJ/NsJt+5iYw2SE0jtaq/ahrnVd7xRA=
+            integrity: sha256-tda8LhPK8U5XyJZh6J79Bz/xYWW0G/5DiCYWQQYJzRA=
             prefix: bun-darwin-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-darwin-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-darwin-aarch64.zip
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-UKNJH3Orwv6BZzFxqFdi07wswWgMzsrdmD3pmt93l34=
+            integrity: sha256-pJcud4zOS2oZTX0onzJqphV21x2At6U+naLzc5Vm5f0=
             prefix: bun-darwin-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-darwin-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-darwin-x64.zip
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-sfPJXYLB+sOMzDytPaGoDjApjr/ZmSGNak/AWzQyUzc=
+            integrity: sha256-VLiMiLgSZTlQF+hoPeKTqOMX3bPqfdtK58daNNZSyMc=
             prefix: bun-freebsd-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-freebsd-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-freebsd-aarch64.zip
           targets:
             - cpu: arm64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-mPdnLV0GBBYUFPiwW6Aa+cF89av803Ric3BGv3aDmuk=
+            integrity: sha256-WQkgkfm4fnwAXqjT4WZ7WwSIHCybIcRxUmNTd7D5HtQ=
             prefix: bun-freebsd-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-freebsd-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-freebsd-x64.zip
           targets:
             - cpu: x64
               os: freebsd
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-V/AbAqxxE8Yck18o84wuq4SePJcNqyH4tkCoex72UAk=
+            integrity: sha256-1lV2XToMD99wfifHqhpPLITxu8H3Wdt+bj08W+QUOWw=
             prefix: bun-linux-aarch64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-aarch64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-linux-aarch64-musl.zip
           targets:
             - cpu: arm64
               os: linux
@@ -1724,20 +1679,20 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-uqa7NvUdblhWHgK76oJQOKnfRU9nPW13bou/hvjHhQ4=
+            integrity: sha256-GGVqO/DqVkH1eWrkITt1JVV5pwoP3tLzN5M3hVaM34Q=
             prefix: bun-linux-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-linux-aarch64.zip
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-pajMxedNy4g/6XTxJae9s7QeUZXtG4cOc/F+/9PrKy0=
+            integrity: sha256-m2vbofoJFLat/kjkQ4IS4sEG2Rmbd7pkKpuKOWikmlk=
             prefix: bun-linux-x64-musl
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64-musl.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-linux-x64-musl.zip
           targets:
             - cpu: x64
               os: linux
@@ -1745,34 +1700,34 @@ packages:
         - resolution:
             archive: zip
             bin: bun
-            integrity: sha256-v4zL+ysLgBWeD5ptFcVTF63YB3U028YTCj7bUvzLOVw=
+            integrity: sha256-lFWbO1KJlaSUUvnyQEzsdPLv19BuCgAKjNIUsCw2Zus=
             prefix: bun-linux-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-linux-x64.zip
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-LVeg7sDLRNlckYw/lzT2BFWhMGrlCF12/Gj0Tj7jDQk=
+            integrity: sha256-QfV9ScPGgRiI2WM8Vp5AtOsffpK15TNuOr068DGH13o=
             prefix: bun-windows-aarch64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-windows-aarch64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-windows-aarch64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: bun.exe
-            integrity: sha256-zSwPzMePPt4fUMqCehXwY+2hPU0VCj0GdPT24yPYZKU=
+            integrity: sha256-gVq0Xsf1Sav4fmhpWEtQbqsIjiQiVoOVe34VC0fW3jA=
             prefix: bun-windows-x64
             type: binary
-            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-windows-x64.zip
+            url: https://github.com/oven-sh/bun/releases/download/bun-v1.4.5/bun-windows-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 1.4.4
+    version: 1.4.5
     hasBin: true
 
   busboy@1.6.0:
@@ -1887,10 +1842,6 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  css-tree@3.2.1:
-    resolution: {integrity: sha512-X7sjQzceUhu1u7Y/ylrRZFU2FS6LRiFVp6rKLPg23y3x3c3DOKAwuXGDp+PAGjh6CSnCjYeAul8pcT8bAl+lSA==}
-    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
-
   css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
 
@@ -1986,8 +1937,8 @@ packages:
     resolution: {integrity: sha512-9vhedylFonb2YGogzUKX6+Ja72gOJbN1QHAqdrvqLwhdl/QWbKopzoUC9EbQNVsAns/bx/4uyqalrQAoy1IByw==}
     engines: {node: '>=10.13.0'}
 
-  entities@8.1.0:
-    resolution: {integrity: sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==}
+  entities@9.0.0:
+    resolution: {integrity: sha512-oJFNDJg3kTPwAD1cNn2+WmUq4wFoo09npc3Ydf1D7ED4smRiWrsKnaLxykrTWgyGEcusc87P5dxlAleol9kpkg==}
     engines: {node: '>=20.19.0'}
 
   error-ex@1.3.4:
@@ -2260,6 +2211,12 @@ packages:
     resolution: {integrity: sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==}
     engines: {node: '>= 12'}
 
+  is-alphabetical@2.0.1:
+    resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
+
+  is-alphanumerical@2.0.1:
+    resolution: {integrity: sha512-hmbYhX/9MUMF5uh7tOXyK/n0ZvWpad5caBA17GsC6vyuCqaWliRG5K1qS9inmUhEMaOBIW7/whAnSwveW/LtZw==}
+
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
 
@@ -2270,6 +2227,9 @@ packages:
   is-core-module@2.16.1:
     resolution: {integrity: sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==}
     engines: {node: '>= 0.4'}
+
+  is-decimal@2.0.1:
+    resolution: {integrity: sha512-AAB9hiomQs5DXWcRB1rqsxGUstbRroFOPPVAomNk/3XHR5JyEZChOyTWe2oayKnsSsr/kcGqF+z6yuH6HHpN0A==}
 
   is-extglob@2.1.1:
     resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
@@ -2365,13 +2325,13 @@ packages:
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
-  jsdom@30.1.3:
-    resolution: {integrity: sha512-hQMUPvRgN7KxsfIytDQji7bimuJeRQa6Qo5+iuiZQk5CafeRxLIA10/cG5YCBFNpD9RO3oqIiN4CO1Y44kxqXg==}
+  jsdom@31.0.0:
+    resolution: {integrity: sha512-xAkhD9z1eyFC5+QUi9K24CaZJgdCQ2GOGLW1GdVDoQvkp/AxEH9TQ0pAplPOlIiV92hfcgnFOADZypbjgbBT6Q==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
     peerDependencies:
-      canvas: ^3.2.3
+      '@napi-rs/canvas': ^1.0.13
     peerDependenciesMeta:
-      canvas:
+      '@napi-rs/canvas':
         optional: true
 
   jsesc@3.1.0:
@@ -2429,9 +2389,6 @@ packages:
   make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
-
-  mdn-data@2.27.1:
-    resolution: {integrity: sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==}
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -2780,8 +2737,11 @@ packages:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
 
-  parse5@8.0.1:
-    resolution: {integrity: sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==}
+  parse5-parser-stream@8.1.1:
+    resolution: {integrity: sha512-hMcVbbUJcQmP8rURWUdYrT1flRiBiBVjq/RYGguJpDUgIXSqdYKlE0CxthmdMWoSlBAuL5bUBa73g0pttSy7Hw==}
+
+  parse5@8.1.1:
+    resolution: {integrity: sha512-EcR/6WDcU7b2N3vQSxKALCk9lXGtUMQxXio008OEMBE0kavu/7JLfBEeFPzi43nMqVDSbEn3QCK+BMCc9zO//w==}
 
   path-key@3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
@@ -3480,8 +3440,8 @@ packages:
     resolution: {integrity: sha512-sXcNcHOC51uPGF0P/D4NVtrkjSU2fNsm9iog4ZvZJsL3rjoDAzXZhkm2MWt1y+PUdggKAYVoMAIYcs78wJ51Cw==}
     engines: {node: '>=20'}
 
-  whatwg-url@17.2.0:
-    resolution: {integrity: sha512-IhLIHNcBrzIixC5XXsbr4DxdjajyA5vQ5RwGZMtrUp+GbtE5Nrsge9QKau7jXrC0aTXLYGV0xiW7Tb4YS2aomw==}
+  whatwg-url@17.3.0:
+    resolution: {integrity: sha512-KwOAJrpf+GTgBvcBQJcP38sMF0DsQKdwtG+TxM2pW44P6E5k0hDbWrDmyuJDIF0Uef0aQq0ZoJs+5oI+k8ddhg==}
     engines: {node: ^22.14.0 || >=24.0.0}
 
   whatwg-url@5.0.0:
@@ -3615,21 +3575,6 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
 
-  '@asamuzakjp/css-color@7.1.3':
-    dependencies:
-      '@csstools/css-calc': 3.4.3(@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-color-parser': 4.2.6(@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-parser-algorithms': 4.0.2(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-tokenizer': 4.0.2
-      lru-cache: 11.5.3
-
-  '@asamuzakjp/dom-selector@10.0.5':
-    dependencies:
-      bidi-js: 1.1.0
-      css-tree: 3.2.1
-      is-potential-custom-element-name: 1.0.1
-      lru-cache: 11.5.3
-
   '@babel/code-frame@7.27.1':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -3723,10 +3668,6 @@ snapshots:
   '@biomejs/cli-win32-x64@2.3.1':
     optional: true
 
-  '@bramus/specificity@2.4.3':
-    dependencies:
-      css-tree: 3.2.1
-
   '@chakra-ui/anatomy@2.3.6': {}
 
   '@chakra-ui/hooks@2.4.5(react@18.3.1)':
@@ -3792,30 +3733,6 @@ snapshots:
       '@types/lodash.mergewith': 4.6.9
       lodash.mergewith: 4.6.2
       react: 18.3.1
-
-  '@csstools/color-helpers@6.1.2': {}
-
-  '@csstools/css-calc@3.4.3(@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)':
-    dependencies:
-      '@csstools/css-parser-algorithms': 4.0.2(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-tokenizer': 4.0.2
-
-  '@csstools/css-color-parser@4.2.6(@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)':
-    dependencies:
-      '@csstools/color-helpers': 6.1.2
-      '@csstools/css-calc': 3.4.3(@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-parser-algorithms': 4.0.2(@csstools/css-tokenizer@4.0.2)
-      '@csstools/css-tokenizer': 4.0.2
-
-  '@csstools/css-parser-algorithms@4.0.2(@csstools/css-tokenizer@4.0.2)':
-    dependencies:
-      '@csstools/css-tokenizer': 4.0.2
-
-  '@csstools/css-syntax-patches-for-csstree@1.1.15(css-tree@3.2.1)':
-    optionalDependencies:
-      css-tree: 3.2.1
-
-  '@csstools/css-tokenizer@4.0.2': {}
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -4557,7 +4474,7 @@ snapshots:
       picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
+  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
     dependencies:
       '@adobe/css-tools': 4.4.4
       '@testing-library/dom': 10.4.2
@@ -4567,7 +4484,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
 
   '@testing-library/preact@3.2.6(preact@11.0.2)':
     dependencies:
@@ -4653,7 +4570,7 @@ snapshots:
       '@types/node': 26.6.6
     optional: true
 
-  '@vitest/coverage-v8@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
+  '@vitest/coverage-v8@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -4667,7 +4584,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4713,10 +4630,10 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/web-worker@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
+  '@vitest/web-worker@2.1.9(vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2))':
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4955,9 +4872,13 @@ snapshots:
 
   basic-ftp@5.2.0: {}
 
-  bidi-js@1.1.0:
+  bcp-47-match@2.0.3: {}
+
+  bcp-47@2.1.2:
     dependencies:
-      require-from-string: 2.0.2
+      is-alphabetical: 2.0.1
+      is-alphanumerical: 2.0.1
+      is-decimal: 2.0.1
 
   binary-extensions@2.3.0: {}
 
@@ -5011,7 +4932,7 @@ snapshots:
       node-gyp-build: 4.8.4
     optional: true
 
-  bun@runtime:1.4.4: {}
+  bun@runtime:1.4.5: {}
 
   busboy@1.6.0:
     dependencies:
@@ -5118,11 +5039,6 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-tree@3.2.1:
-    dependencies:
-      mdn-data: 2.27.1
-      source-map-js: 1.2.1
-
   css.escape@1.5.1: {}
 
   csstype@3.1.3: {}
@@ -5132,7 +5048,7 @@ snapshots:
   data-urls@8.0.0(@noble/hashes@2.3.0):
     dependencies:
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.2.0(@noble/hashes@2.3.0)
+      whatwg-url: 17.3.0(@noble/hashes@2.3.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
@@ -5194,7 +5110,7 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.3
 
-  entities@8.1.0: {}
+  entities@9.0.0: {}
 
   error-ex@1.3.4:
     dependencies:
@@ -5494,6 +5410,13 @@ snapshots:
 
   ip-address@10.0.1: {}
 
+  is-alphabetical@2.0.1: {}
+
+  is-alphanumerical@2.0.1:
+    dependencies:
+      is-alphabetical: 2.0.1
+      is-decimal: 2.0.1
+
   is-arrayish@0.2.1: {}
 
   is-binary-path@2.1.0:
@@ -5503,6 +5426,8 @@ snapshots:
   is-core-module@2.16.1:
     dependencies:
       hasown: 2.0.2
+
+  is-decimal@2.0.1: {}
 
   is-extglob@2.1.1: {}
 
@@ -5612,27 +5537,25 @@ snapshots:
 
   js-tokens@9.0.1: {}
 
-  jsdom@30.1.3(@noble/hashes@2.3.0):
+  jsdom@31.0.0(@noble/hashes@2.3.0):
     dependencies:
-      '@asamuzakjp/css-color': 7.1.3
-      '@asamuzakjp/dom-selector': 10.0.5
-      '@bramus/specificity': 2.4.3
-      '@csstools/css-syntax-patches-for-csstree': 1.1.15(css-tree@3.2.1)
       '@exodus/bytes': 1.16.0(@noble/hashes@2.3.0)
-      css-tree: 3.2.1
+      bcp-47: 2.1.2
+      bcp-47-match: 2.0.3
       data-urls: 8.0.0(@noble/hashes@2.3.0)
       decimal.js: 10.6.0
       html-encoding-sniffer: 7.0.0(@noble/hashes@2.3.0)
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.3
-      parse5: 8.0.1
+      parse5: 8.1.1
+      parse5-parser-stream: 8.1.1
       saxes: 6.0.0
       tough-cookie: 6.0.2
       undici: 8.12.4
       w3c-xmlserializer: 6.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.2.0(@noble/hashes@2.3.0)
+      whatwg-url: 17.3.0(@noble/hashes@2.3.0)
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -5678,8 +5601,6 @@ snapshots:
   make-dir@4.0.0:
     dependencies:
       semver: 7.7.3
-
-  mdn-data@2.27.1: {}
 
   merge-stream@2.0.0: {}
 
@@ -5901,9 +5822,13 @@ snapshots:
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
 
-  parse5@8.0.1:
+  parse5-parser-stream@8.1.1:
     dependencies:
-      entities: 8.1.0
+      parse5: 8.1.1
+
+  parse5@8.1.1:
+    dependencies:
+      entities: 9.0.0
 
   path-key@3.1.1: {}
 
@@ -6551,7 +6476,7 @@ snapshots:
       sass: 1.93.2
       terser: 5.51.2
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@30.1.3(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@26.6.6)(jiti@2.6.1)(jsdom@31.0.0(@noble/hashes@2.3.0))(sass@1.93.2)(terser@5.51.2):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -6579,7 +6504,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 26.6.6
-      jsdom: 30.1.3(@noble/hashes@2.3.0)
+      jsdom: 31.0.0(@noble/hashes@2.3.0)
     transitivePeerDependencies:
       - jiti
       - less
@@ -6649,7 +6574,7 @@ snapshots:
 
   whatwg-mimetype@5.0.0: {}
 
-  whatwg-url@17.2.0(@noble/hashes@2.3.0):
+  whatwg-url@17.3.0(@noble/hashes@2.3.0):
     dependencies:
       '@exodus/bytes': 1.16.0(@noble/hashes@2.3.0)
       tr46: 7.0.0
