@@ -14,5 +14,9 @@ export default defineConfig({
 		environment: 'jsdom',
 		globals: true,
 		setupFiles: ['./vitest.setup.ts'],
+		poolOptions: {
+			// Node 25+ ships its own global localStorage, which shadows jsdom's
+			forks: { execArgv: ['--no-experimental-webstorage'] },
+		},
 	},
 })
