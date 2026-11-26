@@ -3,7 +3,12 @@ packages:
   - examples/*
   - e2e
 
-onlyBuiltDependencies:
-  - '@biomejs/biome'
-  - '@parcel/watcher'
-  - esbuild
+allowBuilds:
+  '@biomejs/biome': true
+  '@parcel/watcher': true
+  esbuild: true
+  bufferutil: false
+  utf-8-validate: false
+
+overrides:
+  basic-ftp: '>=5.2.0'
