@@ -10,17 +10,17 @@
 		"examples/*"
 	],
 	"scripts": {
-		"build:packages": "nr -filter @startale/app-sdk build",
-		"clean": "nr -recursive clean && rm -rf node_modules && pnpm install",
-		"deploy": "nr build:packages && nr -filter sdk-playground export",
-		"dev": "nr -filter @startale/app-sdk build && nr -recursive --parallel dev",
-		"lint": "nr -recursive lint",
-		"format": "nr -recursive format",
-		"format:check": "nr -recursive format:check",
-		"test": "nr -recursive --filter '!@startale/app-sdk-e2e' test",
-		"test:unit": "nr -recursive test:unit",
+		"build:packages": "nr --filter @startale/app-sdk build",
+		"clean": "nr -r clean && rm -rf node_modules && pnpm install",
+		"deploy": "nr build:packages && nr --filter sdk-playground export",
+		"dev": "nr --filter @startale/app-sdk build && nr -r --parallel dev",
+		"lint": "nr -r lint",
+		"format": "nr -r format",
+		"format:check": "nr -r format:check",
+		"test": "nr -r --filter '!@startale/app-sdk-e2e' test",
+		"test:unit": "nr -r test:unit",
 		"test:e2e": "pnpm --filter @startale/app-sdk-e2e test:ci",
-		"typecheck": "nr -recursive typecheck",
+		"typecheck": "nr -r typecheck",
 		"validate": "nr build:packages",
 		"publish:app-sdk": "pnpm --filter @startale/app-sdk publish --access public",
 		"claude:unpack": "bash .claude-lib/shared/.scripts/unpack.sh",
@@ -48,10 +48,5 @@
 			}
 		]
 	},
-	"packageManager": "pnpm@12.20.0",
-	"pnpm": {
-		"overrides": {
-			"basic-ftp": ">=5.2.0"
-		}
-	}
+	"packageManager": "pnpm@12.20.0"
 }
