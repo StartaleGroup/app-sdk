@@ -189,6 +189,78 @@ describe('getPaymentStatus', () => {
 		).rejects.toThrow('RPC error: Invalid params')
 	})
 
+	it.each([
+		{
+			testnet: false,
+			telemetry: undefined,
+			errorMessage: 'Internal error',
+			expectedMessage: 'Internal error',
+		},
+		{
+			testnet: true,
+			telemetry: true,
+			errorMessage: 'Internal error',
+			expectedMessage: 'Internal error',
+		},
+		{
+			testnet: false,
+			telemetry: false,
+			errorMessage: 'Internal error',
+			expectedMessage: 'Internal error',
+		},
+		{
+			testnet: false,
+			telemetry: true,
+			errorMessage: undefined,
+			expectedMessage: 'Network error',
+		},
+		{
+			testnet: false,
+			telemetry: true,
+			errorMessage: '',
+			expectedMessage: 'Network error',
+		},
+	])(
+		'should reject fallback RPC errors (testnet=$testnet, telemetry=$telemetry, message=$errorMessage)',
+		async ({ testnet, telemetry, errorMessage, expectedMessage }) => {
+			vi.mocked(fetch)
+				.mockResolvedValueOnce({
+					json: async () => ({ jsonrpc: '2.0', id: 1, result: null }),
+				} as Response)
+				.mockResolvedValueOnce({
+					json: async () => ({
+						jsonrpc: '2.0',
+						id: 2,
+						error: { code: -32_603, message: errorMessage },
+					}),
+				} as Response)
+
+			await expect(
+				getPaymentStatus({ id: '0xfallbackerror', testnet, telemetry }),
+			).rejects.toThrow(`RPC error: ${expectedMessage}`)
+			expect(fetch).toHaveBeenCalledTimes(2)
+
+			const {
+				logPaymentStatusCheckStarted,
+				logPaymentStatusCheckCompleted,
+				logPaymentStatusCheckError,
+			} = await import(':core/telemetry/events/payment.js')
+
+			expect(logPaymentStatusCheckCompleted).not.toHaveBeenCalled()
+			if (telemetry === false) {
+				expect(logPaymentStatusCheckStarted).not.toHaveBeenCalled()
+				expect(logPaymentStatusCheckError).not.toHaveBeenCalled()
+			} else {
+				expect(logPaymentStatusCheckError).toHaveBeenCalledTimes(1)
+				expect(logPaymentStatusCheckError).toHaveBeenCalledWith({
+					testnet,
+					correlationId: 'mock-correlation-id',
+					errorMessage: `RPC error: ${expectedMessage}`,
+				})
+			}
+		},
+	)
+
 	it('should handle network errors gracefully', async () => {
 		vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
