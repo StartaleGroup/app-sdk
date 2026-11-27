@@ -1,19 +1,19 @@
 import type { Page } from '@playwright/test'
-import { expect, test } from '../../fixtures/wallet.fixture.js'
-import { loginWithMetaMask } from '../../lib/auth/metamask-eoa.js'
-import { ROUTES } from '../../lib/constants.js'
+import { expect, test } from '../fixtures/wallet.fixture.js'
+import { loginWithMetaMask } from '../lib/auth/metamask-eoa.js'
+import { ROUTES } from '../lib/constants.js'
 import {
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
-} from '../../lib/helpers.js'
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
-import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+} from '../lib/helpers.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
+import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
 /**
  * EOA authentication pathway verification.
  *
- * Full RPC method coverage runs via Google OAuth (tests/google/).
+ * Full RPC method coverage runs via Google OAuth (google-rpc-methods.spec.ts).
  * This suite only verifies that MetaMask EOA login works and
  * can execute a basic signing operation.
  */

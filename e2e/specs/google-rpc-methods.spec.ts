@@ -4,43 +4,43 @@ import {
 	type BrowserContext,
 	type Page,
 } from '@playwright/test'
-import { loginWithLine } from '../../lib/auth/line-oauth.js'
-import { CHAIN_IDS, ROUTES } from '../../lib/constants.js'
+import { loginWithGoogle } from '../lib/auth/google-oauth.js'
+import { CHAIN_IDS, ROUTES } from '../lib/constants.js'
 import {
 	injectSCWUrl,
-	parseLineSessionCookies,
+	parseGoogleSessionCookies,
 	triggerAndApproveSDKPopup,
 	waitForPopup,
 	waitForPopupClose,
-} from '../../lib/helpers.js'
-import { dashboardPage } from '../../page-objects/dashboardPage.js'
-import { rpcMethodCard } from '../../page-objects/rpcMethodCard.js'
+} from '../lib/helpers.js'
+import { dashboardPage } from '../page-objects/dashboardPage.js'
+import { rpcMethodCard } from '../page-objects/rpcMethodCard.js'
 
 /**
- * All RPC method tests that require LINE OAuth authentication.
+ * All RPC method tests that require Google OAuth authentication.
  *
  * These tests run in serial mode sharing the same browser context
  * so that the SDK popup session (SCW_URL) is preserved
  * across tests. storageState alone cannot restore the popup session.
  */
-test.describe('LINE OAuth — RPC Methods', () => {
+test.describe('Google OAuth — RPC Methods', () => {
 	test.describe.configure({ mode: 'serial' })
 
 	test.skip(
-		process.env.OAUTH_MODE === 'google',
-		'LINE tests skipped: OAUTH_MODE is google',
+		process.env.OAUTH_MODE !== 'google',
+		'Google tests skipped: OAUTH_MODE is not google',
 	)
 
 	let context: BrowserContext
 	let page: Page
 
 	test.beforeAll(async ({ browser, baseURL }) => {
-		// Keep only LINE cookies for SSO bypass.
+		// Keep only Google cookies to bypass "Verify it's you" challenge.
 		// Exclude all other cookies (SCW, Dynamic Auth, privy) so the
 		// normal login flow runs from a clean state.
-		const lineCookies = parseLineSessionCookies()
-		const storageState = lineCookies
-			? { cookies: lineCookies, origins: [] }
+		const googleCookies = parseGoogleSessionCookies()
+		const storageState = googleCookies
+			? { cookies: googleCookies, origins: [] }
 			: undefined
 		context = await browser.newContext({ baseURL, storageState })
 		page = await context.newPage()
@@ -56,7 +56,7 @@ test.describe('LINE OAuth — RPC Methods', () => {
 			ethRequestAccounts.submit(),
 		)
 
-		await loginWithLine(sdkPopup)
+		await loginWithGoogle(sdkPopup)
 		await waitForPopupClose(sdkPopup)
 
 		await expect(page.locator('#toast-connected')).toBeVisible()

@@ -2,14 +2,17 @@
 
 ## Test Coverage Strategy
 
-RPC method tests run with **Google OAuth as the primary authentication method**. MetaMask EOA tests verify connectivity only.
+RPC method tests run against both LINE OAuth (CI default) and Google OAuth (local only). MetaMask EOA tests verify connectivity only.
 
-| Suite | Auth | Scope | File |
-|-------|------|-------|------|
-| Google OAuth | Google | All RPC method tests | `tests/google/rpc-methods.spec.ts` |
-| MetaMask EOA | MetaMask | Connection + personal_sign | `tests/eoa/rpc-methods.spec.ts` |
+| Suite | Auth | Scope | Default | File |
+|-------|------|-------|---------|------|
+| LINE OAuth | LINE | All RPC method tests | **CI default** | `specs/line-rpc-methods.spec.ts` |
+| Google OAuth | Google | All RPC method tests | Local only | `specs/google-rpc-methods.spec.ts` |
+| MetaMask EOA | MetaMask | Connection + personal_sign | — | `specs/eoa-rpc-methods.spec.ts` |
 
-When adding a new RPC method test, add it to `tests/google/rpc-methods.spec.ts`.
+Only one OAuth suite runs per execution, controlled by the `OAUTH_MODE` environment variable (`'line'` by default, `'google'` for local Google testing).
+
+When adding a new RPC method test, add it to **both** `specs/line-rpc-methods.spec.ts` and `specs/google-rpc-methods.spec.ts`.
 
 ## Element Selection
 
@@ -64,9 +67,11 @@ Follow the Page Object Model pattern. All page objects are in `e2e/page-objects/
 ```
 e2e/
 ├── lib/
-│   └── constants.ts       # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
-├── tests/
-│   ├── eoa/           # EOA connect + basic signing test
-│   ├── google/        # Google OAuth — full RPC method tests
-│   └── smoke/         # No-auth smoke tests
+│   └── constants.ts              # ROUTES, CHAIN_IDS, SONEIUM_CHAIN
+├── specs/
+│   ├── smoke-dashboard-loads.spec.ts    # No-auth smoke tests
+│   ├── google-rpc-methods.spec.ts       # Google OAuth — full RPC method tests
+│   ├── line-rpc-methods.spec.ts         # LINE OAuth — full RPC method tests
+│   ├── eoa-rpc-methods.spec.ts          # EOA connect + basic signing test
+│   └── eoa-required-onboarding.spec.ts  # EOA Required onboarding lifecycle
 ```
